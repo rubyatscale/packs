@@ -1,0 +1,4 @@
+--dir
+.
+--ignore=/vendor/bundle
+--ignore=spec/test_application_workspace_for_test_setup
