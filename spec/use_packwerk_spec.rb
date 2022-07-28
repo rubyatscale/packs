@@ -493,10 +493,10 @@ RSpec.describe UsePackwerk do
           You can prevent other packs from using private API by using package_protections.
 
           Want to find how your private API is being used today?
-          Try running: `bin/list_top_privacy_violations -n packs/organisms`
+          Try running: `bin/use_packwerk list_top_privacy_violations packs/organisms`
 
           Want to move something into this folder?
-          Try running: `bin/make_public -f packs/organisms/path/to/file.rb`
+          Try running: `bin/use_packwerk make_public packs/organisms/path/to/file.rb`
 
           One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
