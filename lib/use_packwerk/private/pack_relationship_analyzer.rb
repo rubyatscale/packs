@@ -22,7 +22,7 @@ module UsePackwerk
 
           pack_specific_content = <<~PACK_CONTENT
             You are listing top #{limit} privacy violations for #{pack_name}. See #{UsePackwerk.config.documentation_link} for other utilities!
-            Pass in a limit to display more or less, e.g. `bin/list_top_privacy_violations -n #{pack_name} -l 1000`
+            Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
 
             This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
             Anything not in #{pack_name}/app/public is considered private API.
@@ -32,7 +32,7 @@ module UsePackwerk
         else
           pack_specific_content = <<~PACK_CONTENT
             You are listing top #{limit} privacy violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
-            Pass in a limit to display more or less, e.g. `bin/list_top_privacy_violations -n #{pack_name} -l 1000`
+            Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
 
             This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
             Anything not in pack_name/app/public is considered private API.
@@ -72,7 +72,7 @@ module UsePackwerk
                 - packs/other_pack_a: 1
                 - packs/other_pack_b: 1
 
-            Lastly, remember you can use `bin/make_public -f #{pack_name}/path/to/file.rb` to make your class, constant, or module public API.
+            Lastly, remember you can use `bin/use_packwerk make_public #{pack_name}/path/to/file.rb` to make your class, constant, or module public API.
           INTRO
           Logging.print_bold_green(intro)
         end
@@ -129,7 +129,7 @@ module UsePackwerk
 
           pack_specific_content = <<~PACK_CONTENT
             You are listing top #{limit} dependency violations for #{pack_name}. See #{UsePackwerk.config.documentation_link} for other utilities!
-            Pass in a limit to display more or less, e.g. `bin/list_top_dependency_violations -n #{pack_name} -l 1000`
+            Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_dependency_violations #{pack_name} -l 1000`
 
             This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
             Anything not in #{pack_name}/app/public is considered private API.
@@ -139,7 +139,7 @@ module UsePackwerk
         else
           pack_specific_content = <<~PACK_CONTENT
             You are listing top #{limit} dependency violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
-            Pass in a limit to display more or less, e.g. `bin/list_top_dependency_violations -n #{pack_name} -l 1000`
+            Pass in a limit to display more or less, e.g. `use_packwerk list_top_dependency_violations #{pack_name} -l 1000`
 
             This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
             Anything not in pack_name/app/public is considered private API.

@@ -67,13 +67,13 @@ module UsePackwerk
         next_steps = <<~NEXT_STEPS
           Your next steps might be:
 
-          1) Move files into your pack with `bin/move_to_pack -n #{pack_name} -f path/to/file.rb`
+          1) Move files into your pack with `bin/use_packwerk move #{pack_name} path/to/file.rb`
 
           2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
           3) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
 
-          4) Expose public API in #{pack_name}/app/public. Try `bin/make_public -f #{pack_name}/path/to/file.rb`
+          4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
 
           5) Update your readme at #{pack_name}/README.md
         NEXT_STEPS
@@ -161,7 +161,7 @@ module UsePackwerk
 
           3) Touch base with each team who owns files involved in this move
 
-          4) Expose public API in #{pack_name}/app/public. Try `bin/make_public -f #{pack_name}/path/to/file.rb`
+          4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
 
           5) Update your readme at #{pack_name}/README.md
         NEXT_STEPS
@@ -344,10 +344,10 @@ module UsePackwerk
           You can prevent other packs from using private API by using package_protections.
 
           Want to find how your private API is being used today?
-          Try running: `bin/list_top_privacy_violations -n #{package.name}`
+          Try running: `bin/use_packwerk list_top_privacy_violations #{package.name}`
 
           Want to move something into this folder?
-          Try running: `bin/make_public -f #{package.name}/path/to/file.rb`
+          Try running: `bin/use_packwerk make_public #{package.name}/path/to/file.rb`
 
           One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
