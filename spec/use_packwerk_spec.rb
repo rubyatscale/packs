@@ -319,33 +319,35 @@ RSpec.describe UsePackwerk do
       end
     end
 
-    it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
-      complex_app
+    describe 'RubocopPostProcessor' do
+      it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
+        complex_app
 
-      before_rubocop_todo = File.read(Pathname.new('.rubocop_todo.yml'))
+        before_rubocop_todo = File.read(Pathname.new('.rubocop_todo.yml'))
 
-      expect(before_rubocop_todo).to include '- app/services/horse_like/zebra.rb'
-      expect(before_rubocop_todo).to include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(before_rubocop_todo).to include '- app/services/dog_like/golden_retriever.rb'
-      expect(before_rubocop_todo).to include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(before_rubocop_todo).to include '- app/services/fish_like/big_ones/whale.rb'
+        expect(before_rubocop_todo).to include '- app/services/horse_like/zebra.rb'
+        expect(before_rubocop_todo).to include '- app/services/fish_like/small_ones/goldfish.rb'
+        expect(before_rubocop_todo).to include '- app/services/dog_like/golden_retriever.rb'
+        expect(before_rubocop_todo).to include '- app/services/fish_like/small_ones/goldfish.rb'
+        expect(before_rubocop_todo).to include '- app/services/fish_like/big_ones/whale.rb'
 
-      create_pack
-      move_to_pack
+        create_pack
+        move_to_pack
 
-      after_rubocop_todo = File.read(Pathname.new('.rubocop_todo.yml'))
+        after_rubocop_todo = File.read(Pathname.new('.rubocop_todo.yml'))
 
-      expect(after_rubocop_todo).to_not include '- app/services/horse_like/zebra.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/dog_like/golden_retriever.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/fish_like/big_ones/whale.rb'
+        expect(after_rubocop_todo).to_not include '- app/services/horse_like/zebra.rb'
+        expect(after_rubocop_todo).to_not include '- app/services/fish_like/small_ones/goldfish.rb'
+        expect(after_rubocop_todo).to_not include '- app/services/dog_like/golden_retriever.rb'
+        expect(after_rubocop_todo).to_not include '- app/services/fish_like/small_ones/goldfish.rb'
+        expect(after_rubocop_todo).to_not include '- app/services/fish_like/big_ones/whale.rb'
 
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/horse_like/zebra.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/dog_like/golden_retriever.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/big_ones/whale.rb'
+        expect(after_rubocop_todo).to include '- packs/animals/app/services/horse_like/zebra.rb'
+        expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/small_ones/goldfish.rb'
+        expect(after_rubocop_todo).to include '- packs/animals/app/services/dog_like/golden_retriever.rb'
+        expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/small_ones/goldfish.rb'
+        expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/big_ones/whale.rb'
+      end
     end
 
     it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
