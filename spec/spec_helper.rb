@@ -1,6 +1,7 @@
 # typed: strict
 # frozen_string_literal: true
 
+require 'pry'
 require 'use_packwerk'
 require 'tmpdir'
 require_relative 'support/app_fixtures'
