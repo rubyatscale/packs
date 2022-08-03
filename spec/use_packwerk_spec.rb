@@ -1114,6 +1114,29 @@ RSpec.describe UsePackwerk do
         expect(rubocop_todo.read).to_not include 'packs/organisms/app/services/swan.rb'
         expect(rubocop_todo.read).to include 'packs/organisms/app/public/swan.rb'
       end
+
+      context 'making something public excluded in a per-pack rubocop todo yml' do
+        let(:file_to_make_public) { 'packs/organisms/app/services/goose.rb' }
+
+        it 'replaces the file in rubocop todo' do
+          write_file('packs/organisms/.rubocop_todo.yml', <<~CONTENTS)
+            # This is an application-specific file that is used to test post-processing abilities
+            ---
+            Layout/BeginEndAlignment:
+              Exclude:
+              - packs/organisms/app/services/goose.rb
+          CONTENTS
+          rubocop_todo = Pathname.new('packs/organisms/.rubocop_todo.yml')
+
+          expect(rubocop_todo.read).to include 'packs/organisms/app/services/goose.rb'
+          expect(rubocop_todo.read).to_not include 'packs/organisms/app/public/goose.rb'
+
+          make_public
+
+          expect(rubocop_todo.read).to_not include 'packs/organisms/app/services/goose.rb'
+          expect(rubocop_todo.read).to include 'packs/organisms/app/public/goose.rb'
+        end
+      end
     end
 
     context 'app has no public dir' do
