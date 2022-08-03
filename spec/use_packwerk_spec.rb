@@ -319,33 +319,99 @@ RSpec.describe UsePackwerk do
       end
     end
 
-    it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
-      complex_app
+    describe 'RubocopPostProcessor' do
+      context 'moving file listed in top-level .rubocop_todo.yml' do
+        it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
+          write_file('.rubocop_todo.yml', <<~CONTENTS)
+            ---
+            Layout/BeginEndAlignment:
+              Exclude:
+              - packs/foo/app/services/foo.rb
+          CONTENTS
 
-      before_rubocop_todo = File.read(Pathname.new('.rubocop_todo.yml'))
+          before_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
 
-      expect(before_rubocop_todo).to include '- app/services/horse_like/zebra.rb'
-      expect(before_rubocop_todo).to include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(before_rubocop_todo).to include '- app/services/dog_like/golden_retriever.rb'
-      expect(before_rubocop_todo).to include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(before_rubocop_todo).to include '- app/services/fish_like/big_ones/whale.rb'
+          expect(before_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+          
+          write_file('packs/foo/app/services/foo.rb')
+          UsePackwerk.create_pack!(pack_name: 'packs/bar')
+          UsePackwerk.create_pack!(pack_name: 'packs/foo')
+          UsePackwerk.move_to_pack!(
+            pack_name: 'packs/bar',
+            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+          )
 
-      create_pack
-      move_to_pack
+          after_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
+          expect(after_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
+        end
+      end
 
-      after_rubocop_todo = File.read(Pathname.new('.rubocop_todo.yml'))
+      context 'origin pack has a pack-level .rubocop_todo.yml, destination pack does not' do
+        it 'modifies packs/*/.rubocop_todo.yml, correctly' do
+          write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
+            ---
+            Layout/BeginEndAlignment:
+              Exclude:
+              - packs/foo/app/services/foo.rb
+          CONTENTS
 
-      expect(after_rubocop_todo).to_not include '- app/services/horse_like/zebra.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/dog_like/golden_retriever.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to_not include '- app/services/fish_like/big_ones/whale.rb'
+          before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+          expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+          expect(Pathname.new('packs/bar/.rubocop_todo.yml')).to_not exist
 
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/horse_like/zebra.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/dog_like/golden_retriever.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/small_ones/goldfish.rb'
-      expect(after_rubocop_todo).to include '- packs/animals/app/services/fish_like/big_ones/whale.rb'
+          write_file('packs/foo/app/services/foo.rb')
+          UsePackwerk.create_pack!(pack_name: 'packs/bar')
+          UsePackwerk.create_pack!(pack_name: 'packs/foo')
+          UsePackwerk.move_to_pack!(
+            pack_name: 'packs/bar',
+            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+          )
+
+          after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+          expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+          after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+          expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
+        end
+      end
+
+      context 'origin and destination pack both have .rubocop_todo.yml' do
+        it 'modifies packs/*/.rubocop_todo.yml, correctly' do
+          write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
+            ---
+            Layout/BeginEndAlignment:
+              Exclude:
+              - packs/foo/app/services/foo.rb
+          CONTENTS
+
+          write_file('packs/bar/.rubocop_todo.yml', <<~CONTENTS)
+            ---
+            Layout/BeginEndAlignment:
+              Exclude:
+              - packs/bar/app/services/bar.rb
+          CONTENTS
+
+          before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+          expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+          before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+          expect(before_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
+
+          write_file('packs/foo/app/services/foo.rb')
+          UsePackwerk.create_pack!(pack_name: 'packs/bar')
+          UsePackwerk.create_pack!(pack_name: 'packs/foo')
+          UsePackwerk.move_to_pack!(
+            pack_name: 'packs/bar',
+            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+          )
+
+          after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+          expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+          after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+          expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb", "packs/bar/app/services/foo.rb"]}})
+        end
+      end
     end
 
     it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
@@ -1047,6 +1113,29 @@ RSpec.describe UsePackwerk do
 
         expect(rubocop_todo.read).to_not include 'packs/organisms/app/services/swan.rb'
         expect(rubocop_todo.read).to include 'packs/organisms/app/public/swan.rb'
+      end
+
+      context 'making something public excluded in a per-pack rubocop todo yml' do
+        let(:file_to_make_public) { 'packs/organisms/app/services/goose.rb' }
+
+        it 'replaces the file in rubocop todo' do
+          write_file('packs/organisms/.rubocop_todo.yml', <<~CONTENTS)
+            # This is an application-specific file that is used to test post-processing abilities
+            ---
+            Layout/BeginEndAlignment:
+              Exclude:
+              - packs/organisms/app/services/goose.rb
+          CONTENTS
+          rubocop_todo = Pathname.new('packs/organisms/.rubocop_todo.yml')
+
+          expect(rubocop_todo.read).to include 'packs/organisms/app/services/goose.rb'
+          expect(rubocop_todo.read).to_not include 'packs/organisms/app/public/goose.rb'
+
+          make_public
+
+          expect(rubocop_todo.read).to_not include 'packs/organisms/app/services/goose.rb'
+          expect(rubocop_todo.read).to include 'packs/organisms/app/public/goose.rb'
+        end
       end
     end
 

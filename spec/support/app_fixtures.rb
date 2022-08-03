@@ -164,6 +164,9 @@ RSpec.shared_context 'app fixtures' do
       def empty_function; end
     CONTENTS
 
+    write_file('packs/organisms/app/services/goose.rb', <<~CONTENTS)
+    CONTENTS
+
     write_file('packs/organisms/package.yml', <<~CONTENTS)
       enforce_privacy: true
       enforce_dependencies: true
@@ -178,7 +181,6 @@ RSpec.shared_context 'app fixtures' do
     write_file('.rubocop_todo.yml', <<~CONTENTS)
       # This is an application-specific file that is used to test post-processing abilities
       ---
-      Some/Cop/Does/Not/Matter:
       Layout/BeginEndAlignment:
         Exclude:
         - packs/organisms/app/services/swan.rb

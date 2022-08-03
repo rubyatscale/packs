@@ -9,6 +9,11 @@ module UsePackwerk
       const :destination_pathname, Pathname
       const :destination_pack, ParsePackwerk::Package
 
+      sig { returns(ParsePackwerk::Package) }
+      def origin_pack
+        T.must(ParsePackwerk.package_from_path(origin_pathname))
+      end
+
       sig { params(origin_pathname: Pathname, new_package_root: Pathname).returns(Pathname) }
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
         parts = origin_pathname.to_s.split('/')
