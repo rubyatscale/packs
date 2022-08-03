@@ -12,6 +12,9 @@ module ParsePackwerk
     sig { params(name: ::String).returns(T.nilable(::ParsePackwerk::Package)) }
     def find(name); end
 
+    sig { params(file_path: T.any(::Pathname, ::String)).returns(T.nilable(::ParsePackwerk::Package)) }
+    def package_from_path(file_path); end
+
     sig { params(package: ::ParsePackwerk::Package).void }
     def write_package_yml!(package); end
 
