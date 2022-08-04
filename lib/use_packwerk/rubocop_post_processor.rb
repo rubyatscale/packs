@@ -34,8 +34,10 @@ module UsePackwerk
               if destination_rubocop_todo.exist?
                 new_destination_rubocop_todo = YAML.load_file(destination_rubocop_todo).dup
               else
-                new_destination_rubocop_todo = { cop_name => { 'Exclude' => [] } }
+                new_destination_rubocop_todo = {}
               end
+
+              new_destination_rubocop_todo[cop_name] ||= { 'Exclude' => [] }
 
               new_destination_rubocop_todo[cop_name]['Exclude'] += [relative_path_to_destination.to_s]
               destination_rubocop_todo.write(YAML.dump(new_destination_rubocop_todo))
