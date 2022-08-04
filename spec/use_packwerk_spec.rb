@@ -412,6 +412,46 @@ RSpec.describe UsePackwerk do
           expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb", "packs/bar/app/services/foo.rb"]}})
         end
       end
+
+      context 'destination pack does not have same key in .rubocop_todo.yml' do
+        it 'modifies packs/*/.rubocop_todo.yml, correctly' do
+          write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
+            ---
+            Layout/BeginEndAlignment:
+              Exclude:
+              - packs/foo/app/services/foo.rb
+          CONTENTS
+
+          write_file('packs/bar/.rubocop_todo.yml', <<~CONTENTS)
+            ---
+            Layout/OtherCop:
+              Exclude:
+              - packs/bar/app/services/bar.rb
+          CONTENTS
+
+          before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+          expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+          before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+          expect(before_rubocop_todo_bar).to eq({"Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
+
+          write_file('packs/foo/app/services/foo.rb')
+          UsePackwerk.create_pack!(pack_name: 'packs/bar')
+          UsePackwerk.create_pack!(pack_name: 'packs/foo')
+          UsePackwerk.move_to_pack!(
+            pack_name: 'packs/bar',
+            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+          )
+
+          after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+          expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+          after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+          expect(after_rubocop_todo_bar).to eq({
+            "Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]},
+            "Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]},
+          })
+        end
+      end
     end
 
     it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
