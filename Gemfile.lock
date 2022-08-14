@@ -41,7 +41,7 @@ GEM
       rubocop-sorbet
       sorbet-runtime
     parallel (1.22.1)
-    parse_packwerk (0.11.0)
+    parse_packwerk (0.12.0)
       sorbet-runtime
     parser (3.1.2.0)
       ast (~> 2.4.1)
