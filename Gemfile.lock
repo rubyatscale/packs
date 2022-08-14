@@ -34,7 +34,7 @@ GEM
     json (2.6.2)
     method_source (1.0.0)
     minitest (5.16.2)
-    package_protections (1.3.0)
+    package_protections (1.4.0)
       activesupport
       parse_packwerk
       rubocop
