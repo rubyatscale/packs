@@ -1334,7 +1334,7 @@ RSpec.describe UsePackwerk do
       it 'moves the file into the public directory' do
         UsePackwerk.create_pack!(pack_name: 'gems/my_gem')
 
-        expected_file = only_nonroot_package.directory.join('app/public/my_gem_service.rb')
+        expected_file = ParsePackwerk.find('gems/my_gem').directory.join('app/public/my_gem_service.rb')
         expect(expected_file).to_not exist
 
         make_public
