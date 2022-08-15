@@ -24,21 +24,6 @@ module UsePackwerk
         else
           Pathname.new(origin_pathname.to_s.gsub(origin_pack.name, new_package_root.to_s)).cleanpath
         end
-
-        # parts = origin_pathname.to_s.split('/')
-        # toplevel_directory = parts[0]
-        # case toplevel_directory.to_s
-        # # This allows us to move files from monolith to packs
-        # when 'app', 'spec', 'lib'
-        #   new_package_root.join(origin_pathname).cleanpath
-        # # This allows us to move files from packs to packs
-        # when *PERMITTED_PACK_LOCATIONS # parts looks like ['packs', 'organisms', 'app', 'services', 'bird_like', 'eagle.rb']
-        #   new_package_root.join(T.must(parts[2..]).join('/')).cleanpath
-        # else
-        #   raise StandardError.new("Don't know how to find destination path for #{origin_pathname.inspect}")
-        # end
-
-        # raise
       end
 
       sig { params(origin_pathname: Pathname).returns(Pathname) }
