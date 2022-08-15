@@ -1382,6 +1382,32 @@ RSpec.describe UsePackwerk do
       expect_files_to_exist expected_files_after
     end
 
+    it 'can make files in a nested pack public' do
+      UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
+      write_file('packs/fruits/apples/app/services/apple.rb')
+      write_file('packs/fruits/apples/spec/services/apple_spec.rb')
+
+      expected_files_before = [
+        'packs/fruits/apples/app/services/apple.rb',
+        'packs/fruits/apples/spec/services/apple_spec.rb'
+      ]
+
+      expect_files_to_exist expected_files_before
+
+      UsePackwerk.make_public!(
+        paths_relative_to_root: [ 'packs/fruits/apples/app/services/apple.rb' ]
+      )
+
+      expect_files_to_not_exist expected_files_before
+
+      expected_files_after = [
+        'packs/fruits/apples/app/public/apple.rb',
+        'packs/fruits/apples/spec/public/apple_spec.rb'
+      ]
+
+      expect_files_to_exist expected_files_after
+    end
+
     context 'app has public dir but nothing inside of it' do
       before { app_with_nothing_in_public_dir }
       let(:file_to_make_public) { 'packs/organisms/app/services/swan.rb' }
