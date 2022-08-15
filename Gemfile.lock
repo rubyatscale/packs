@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.51.1)
+    use_packwerk (0.52.0)
       code_ownership
       colorize
       package_protections
@@ -83,7 +83,7 @@ GEM
       rubocop-ast (>= 1.19.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.19.1)
+    rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
     rubocop-sorbet (0.6.11)
       rubocop (>= 0.90.0)
