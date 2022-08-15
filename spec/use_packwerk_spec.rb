@@ -953,13 +953,12 @@ RSpec.describe UsePackwerk do
           expect_files_to_exist expected_files_after
         end
 
-        it 'can move files from one one gem to another' do
+        it 'can move files from one gem to another' do
           complex_app
 
           expected_files_before = [ 'gems/my_gem/app/services/my_gem_service.rb' ]
 
           expect_files_to_exist expected_files_before
-
 
           UsePackwerk.create_pack!(pack_name: pack_name)
 
