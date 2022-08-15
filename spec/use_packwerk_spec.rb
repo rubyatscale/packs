@@ -254,10 +254,12 @@ RSpec.describe UsePackwerk do
           'app/services/fish_like/small_ones',
           'app/services/fish_like/big_ones',
           'app/services/dog_like/golden_retriever.rb',
-          # Files in packs
+          # Files in parent packs
           'packs/organisms/app/services/bird_like/eagle.rb',
           'packs/organisms/app/services/bird_like/swan.rb',
           'packs/organisms/app/services/bug_like/fly.rb',
+          # Files in child packs
+          'packs/organisms/birds/app/services/emu.rb',
         ],
         per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
       )
@@ -313,7 +315,7 @@ RSpec.describe UsePackwerk do
         expect_files_to_exist expected_files_after
       end
 
-      it 'can move files from one pack to another pack' do
+      it 'can move files from a parent pack to another parent pack' do
         complex_app
 
         expected_files_before = [
@@ -339,6 +341,41 @@ RSpec.describe UsePackwerk do
           'packs/animals/app/services/bug_like/fly.rb',
           'packs/animals/spec/services/bird_like/eagle_spec.rb',
           'packs/animals/spec/services/bug_like/fly_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_after
+      end
+
+      it 'can move files from a child pack to a parent pack' do
+        complex_app
+
+        expected_files_before = [
+          # Files in packs
+          'packs/organisms/app/services/bird_like/eagle.rb',
+          'packs/organisms/app/services/bird_like/swan.rb',
+          'packs/organisms/app/services/bug_like/fly.rb',
+          'packs/organisms/birds/app/services/emu.rb',
+          # Specs in packs
+          'packs/organisms/spec/services/bird_like/eagle_spec.rb',
+          'packs/organisms/spec/services/bug_like/fly_spec.rb',
+          'packs/organisms/birds/spec/services/emu_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_before
+
+        create_pack
+        move_to_pack
+
+        expect_files_to_not_exist expected_files_before
+
+        expected_files_after = [
+          'packs/animals/app/services/bird_like/eagle.rb',
+          'packs/animals/app/services/bird_like/swan.rb',
+          'packs/animals/app/services/bug_like/fly.rb',
+          'packs/animals/spec/services/bird_like/eagle_spec.rb',
+          'packs/animals/spec/services/bug_like/fly_spec.rb',
+          'packs/animals/app/services/emu.rb',
+          'packs/animals/spec/services/emu_spec.rb',
         ]
 
         expect_files_to_exist expected_files_after

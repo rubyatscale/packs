@@ -155,6 +155,25 @@ RSpec.shared_context 'app fixtures' do
       # so rubocop does not complain
       def empty_function; end
     CONTENTS
+
+    write_file('packs/organisms/birds/package.yml', <<~CONTENTS)
+      enforce_privacy: true
+      enforce_dependencies: true
+      metadata:
+        protections:
+          prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+          prevent_other_packages_from_using_this_packages_internals: fail_on_new
+          prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+          prevent_this_package_from_creating_other_namespaces: fail_on_new
+    CONTENTS
+
+    write_file('packs/organisms/birds/app/services/emu.rb', <<~CONTENTS)
+    CONTENTS
+    write_file('packs/organisms/birds/spec/services/emu_spec.rb', <<~CONTENTS)
+      # typed: true
+      # so rubocop does not complain
+      def empty_function; end
+    CONTENTS
   end
 
   let(:app_with_nothing_in_public_dir) do
