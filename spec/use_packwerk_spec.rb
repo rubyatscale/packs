@@ -1,6 +1,10 @@
 # typed: false
 RSpec.describe UsePackwerk do
+
+  # Note: Once we migrate `ParsePackwerk` to use an initialized `PackageSet`, the cache behavior will become more clear, hopefully.
+  # The client can get a new package set each time they are sensitive to a stale cache.
   def get_packages
+    ParsePackwerk.bust_cache!
     ParsePackwerk.all
   end
 
@@ -27,6 +31,7 @@ RSpec.describe UsePackwerk do
 
   def bust_cache_and_configure_code_ownership!
     CodeOwnership.bust_caches!
+    ParsePackwerk.bust_cache!
   end
 
   before do
@@ -157,10 +162,78 @@ RSpec.describe UsePackwerk do
         expect(only_nonroot_package.name).to eq('gems/my_sick_new_pack')
       end
     end
+
+    context 'pack is nested' do
+      let(:pack_name) { 'packs/fruits/apples' }
+
+      it 'creates a package.yml correctly' do
+        create_pack
+
+        expect(only_nonroot_package.name).to eq('packs/fruits/apples')
+        expect(only_nonroot_package.enforce_privacy).to eq(true)
+        expect(only_nonroot_package.enforce_dependencies).to eq(true)
+        expect(only_nonroot_package.dependencies).to eq([])
+        expect(only_nonroot_package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} })
+
+        expected = <<~EXPECTED
+          enforce_dependencies: true
+          enforce_privacy: true
+          metadata:
+            owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
+            protections:
+              prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+              prevent_other_packages_from_using_this_packages_internals: fail_on_new
+              prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+              prevent_this_package_from_creating_other_namespaces: fail_on_new
+        EXPECTED
+
+        expect(only_nonroot_package.yml.read).to eq expected
+      end
+
+      context 'pack already exists and has content' do
+        before do
+          write_file('packs/fruit/apples/package.yml', <<~CONTENTS)
+            enforce_privacy: true
+            enforce_dependencies: true
+            dependencies:
+              - packs/some_other_pack
+            metadata:
+              protections:
+                prevent_this_package_from_exposing_an_untyped_api: fail_never
+                prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+                prevent_other_packages_from_using_this_packages_internals: fail_on_new
+                prevent_this_package_from_creating_other_namespaces: fail_on_new
+          CONTENTS
+        end
+
+        it 'is idempotent' do
+          expect(packages.count).to eq 1
+          existing_package = packages.first
+          expect(existing_package.dependencies).to eq(['packs/some_other_pack'])
+          expect(existing_package.metadata).to eq({
+            'protections' => {
+              'prevent_this_package_from_exposing_an_untyped_api' => 'fail_never',
+              'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new',
+              'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new',
+              'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new',
+            }
+          })
+          UsePackwerk.create_pack!(pack_name: 'packs/fruit/apples/')
+          new_packages = get_packages
+          expect(new_packages.count).to eq 1
+          new_package = new_packages.first
+
+          expect(new_package.name).to eq(existing_package.name)
+          expect(new_package.enforce_privacy).to eq(existing_package.enforce_privacy)
+          expect(new_package.enforce_dependencies).to eq(existing_package.enforce_dependencies)
+          expect(new_package.dependencies).to eq(existing_package.dependencies)
+          expect(new_package.metadata).to eq(existing_package.metadata)
+        end
+      end
+    end
   end
 
   describe '.move_to_pack!' do
-    let(:pack_name) { 'packs/animals' }
 
     let(:create_pack) do
       UsePackwerk.create_pack!(
@@ -181,113 +254,68 @@ RSpec.describe UsePackwerk do
           'app/services/fish_like/small_ones',
           'app/services/fish_like/big_ones',
           'app/services/dog_like/golden_retriever.rb',
-          # Files in packs
+          # Files in parent packs
           'packs/organisms/app/services/bird_like/eagle.rb',
           'packs/organisms/app/services/bird_like/swan.rb',
           'packs/organisms/app/services/bug_like/fly.rb',
+          # Files in child packs
+          'packs/organisms/birds/app/services/emu.rb',
         ],
         per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
       )
     end
 
-    context 'pack not yet created' do
-      it 'errors' do
-        expect { move_to_pack }.to raise_error("Can not find package with name packs/animals. Make sure the argument is of the form `packs/my_pack/`")
-      end
-    end
+    context 'pack is not nested' do
+      let(:pack_name) { 'packs/animals' }
 
-    it 'can move files from a monolith into a package' do
-      complex_app
-
-      expected_files_before = [
-        # Files in monolith
-        'app/services/horse_like/zebra.rb',
-        'app/services/horse_like/donkey.rb',
-        'app/services/horse_like/horse.rb',
-        'app/services/horse_like/zebra.rb',
-        'app/services/fish_like/small_ones/goldfish.rb',
-        'app/services/fish_like/small_ones/seahorse.rb',
-        'app/services/fish_like/big_ones/whale.rb',
-        # Specs in monolith
-        'spec/services/dog_like/golden_retriever_spec.rb',
-        'spec/services/fish_like/big_ones/whale_spec.rb',
-        'spec/services/horse_like/donkey_spec.rb',
-      ]
-
-      expect_files_to_exist expected_files_before
-
-      create_pack
-      move_to_pack
-
-      expect_files_to_not_exist expected_files_before
-
-      expected_files_after = [
-        'packs/animals/app/services/horse_like/zebra.rb',
-        'packs/animals/app/services/horse_like/donkey.rb',
-        'packs/animals/app/services/horse_like/horse.rb',
-        'packs/animals/app/services/horse_like/zebra.rb',
-        'packs/animals/app/services/fish_like/small_ones/goldfish.rb',
-        'packs/animals/app/services/fish_like/small_ones/seahorse.rb',
-        'packs/animals/app/services/fish_like/big_ones/whale.rb',
-        'packs/animals/spec/services/dog_like/golden_retriever_spec.rb',
-        'packs/animals/spec/services/fish_like/big_ones/whale_spec.rb',
-        'packs/animals/spec/services/horse_like/donkey_spec.rb',
-      ]
-
-      expect_files_to_exist expected_files_after
-    end
-
-    it 'can move files from one pack to another pack' do
-      complex_app
-
-      expected_files_before = [
-        # Files in packs
-        'packs/organisms/app/services/bird_like/eagle.rb',
-        'packs/organisms/app/services/bird_like/swan.rb',
-        'packs/organisms/app/services/bug_like/fly.rb',
-        # Specs in packs
-        'packs/organisms/spec/services/bird_like/eagle_spec.rb',
-        'packs/organisms/spec/services/bug_like/fly_spec.rb',
-      ]
-
-      expect_files_to_exist expected_files_before
-
-      create_pack
-      move_to_pack
-
-      expect_files_to_not_exist expected_files_before
-
-      expected_files_after = [
-        'packs/animals/app/services/bird_like/eagle.rb',
-        'packs/animals/app/services/bird_like/swan.rb',
-        'packs/animals/app/services/bug_like/fly.rb',
-        'packs/animals/spec/services/bird_like/eagle_spec.rb',
-        'packs/animals/spec/services/bug_like/fly_spec.rb',
-      ]
-
-      expect_files_to_exist expected_files_after
-    end
-
-    context 'directory moves have trailing slashes' do
-      let(:move_to_pack) do
-        UsePackwerk.move_to_pack!(
-          pack_name: pack_name,
-          paths_relative_to_root: [
-            # Files in monolith
-            'app/services/horse_like/',
-            'app/services/fish_like/small_ones/',
-            'app/services/fish_like/big_ones/',
-            'app/services/dog_like/golden_retriever.rb',
-            # Files in packs
-            'packs/organisms/app/services/bird_like/eagle.rb',
-            'packs/organisms/app/services/bird_like/swan.rb',
-            'packs/organisms/app/services/bug_like/fly.rb',
-          ],
-          per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
-        )
+      context 'pack not yet created' do
+        it 'errors' do
+          expect { move_to_pack }.to raise_error("Can not find package with name packs/animals. Make sure the argument is of the form `packs/my_pack/`")
+        end
       end
 
-      it 'can move files from one pack to another pack' do
+      it 'can move files from a monolith into a package' do
+        complex_app
+
+        expected_files_before = [
+          # Files in monolith
+          'app/services/horse_like/zebra.rb',
+          'app/services/horse_like/donkey.rb',
+          'app/services/horse_like/horse.rb',
+          'app/services/horse_like/zebra.rb',
+          'app/services/fish_like/small_ones/goldfish.rb',
+          'app/services/fish_like/small_ones/seahorse.rb',
+          'app/services/fish_like/big_ones/whale.rb',
+          # Specs in monolith
+          'spec/services/dog_like/golden_retriever_spec.rb',
+          'spec/services/fish_like/big_ones/whale_spec.rb',
+          'spec/services/horse_like/donkey_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_before
+
+        create_pack
+        move_to_pack
+
+        expect_files_to_not_exist expected_files_before
+
+        expected_files_after = [
+          'packs/animals/app/services/horse_like/zebra.rb',
+          'packs/animals/app/services/horse_like/donkey.rb',
+          'packs/animals/app/services/horse_like/horse.rb',
+          'packs/animals/app/services/horse_like/zebra.rb',
+          'packs/animals/app/services/fish_like/small_ones/goldfish.rb',
+          'packs/animals/app/services/fish_like/small_ones/seahorse.rb',
+          'packs/animals/app/services/fish_like/big_ones/whale.rb',
+          'packs/animals/spec/services/dog_like/golden_retriever_spec.rb',
+          'packs/animals/spec/services/fish_like/big_ones/whale_spec.rb',
+          'packs/animals/spec/services/horse_like/donkey_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_after
+      end
+
+      it 'can move files from a parent pack to another parent pack' do
         complex_app
 
         expected_files_before = [
@@ -317,459 +345,860 @@ RSpec.describe UsePackwerk do
 
         expect_files_to_exist expected_files_after
       end
-    end
 
-    describe 'RubocopPostProcessor' do
-      context 'moving file listed in top-level .rubocop_todo.yml' do
-        it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
-          write_file('.rubocop_todo.yml', <<~CONTENTS)
-            ---
-            Layout/BeginEndAlignment:
-              Exclude:
-              - packs/foo/app/services/foo.rb
-          CONTENTS
+      it 'can move files from a child pack to a parent pack' do
+        complex_app
 
-          before_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
-
-          expect(before_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
-          
-          write_file('packs/foo/app/services/foo.rb')
-          UsePackwerk.create_pack!(pack_name: 'packs/bar')
-          UsePackwerk.create_pack!(pack_name: 'packs/foo')
-          UsePackwerk.move_to_pack!(
-            pack_name: 'packs/bar',
-            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
-          )
-
-          after_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
-          expect(after_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
-        end
-      end
-
-      context 'origin pack has a pack-level .rubocop_todo.yml, destination pack does not' do
-        it 'modifies packs/*/.rubocop_todo.yml, correctly' do
-          write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
-            ---
-            Layout/BeginEndAlignment:
-              Exclude:
-              - packs/foo/app/services/foo.rb
-          CONTENTS
-
-          before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-          expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
-          expect(Pathname.new('packs/bar/.rubocop_todo.yml')).to_not exist
-
-          write_file('packs/foo/app/services/foo.rb')
-          UsePackwerk.create_pack!(pack_name: 'packs/bar')
-          UsePackwerk.create_pack!(pack_name: 'packs/foo')
-          UsePackwerk.move_to_pack!(
-            pack_name: 'packs/bar',
-            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
-          )
-
-          after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-          expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
-          after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-          expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
-        end
-      end
-
-      context 'origin and destination pack both have .rubocop_todo.yml' do
-        it 'modifies packs/*/.rubocop_todo.yml, correctly' do
-          write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
-            ---
-            Layout/BeginEndAlignment:
-              Exclude:
-              - packs/foo/app/services/foo.rb
-          CONTENTS
-
-          write_file('packs/bar/.rubocop_todo.yml', <<~CONTENTS)
-            ---
-            Layout/BeginEndAlignment:
-              Exclude:
-              - packs/bar/app/services/bar.rb
-          CONTENTS
-
-          before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-          expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
-          before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-          expect(before_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
-
-          write_file('packs/foo/app/services/foo.rb')
-          UsePackwerk.create_pack!(pack_name: 'packs/bar')
-          UsePackwerk.create_pack!(pack_name: 'packs/foo')
-          UsePackwerk.move_to_pack!(
-            pack_name: 'packs/bar',
-            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
-          )
-
-          after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-          expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
-          after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-          expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb", "packs/bar/app/services/foo.rb"]}})
-        end
-      end
-
-      context 'destination pack does not have same key in .rubocop_todo.yml' do
-        it 'modifies packs/*/.rubocop_todo.yml, correctly' do
-          write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
-            ---
-            Layout/BeginEndAlignment:
-              Exclude:
-              - packs/foo/app/services/foo.rb
-          CONTENTS
-
-          write_file('packs/bar/.rubocop_todo.yml', <<~CONTENTS)
-            ---
-            Layout/OtherCop:
-              Exclude:
-              - packs/bar/app/services/bar.rb
-          CONTENTS
-
-          before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-          expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
-          before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-          expect(before_rubocop_todo_bar).to eq({"Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
-
-          write_file('packs/foo/app/services/foo.rb')
-          UsePackwerk.create_pack!(pack_name: 'packs/bar')
-          UsePackwerk.create_pack!(pack_name: 'packs/foo')
-          UsePackwerk.move_to_pack!(
-            pack_name: 'packs/bar',
-            paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-            per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
-          )
-
-          after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-          expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
-          after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-          expect(after_rubocop_todo_bar).to eq({
-            "Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]},
-            "Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]},
-          })
-        end
-      end
-    end
-
-    it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
-      complex_app
-
-      before_codeownership_yml = File.read(Pathname.new('config/code_ownership.yml'))
-
-      expect(before_codeownership_yml).to include "- app/services/horse_like/donkey.rb"
-      expect(before_codeownership_yml).to include "- app/services/fish_like/small_ones/goldfish.rb"
-      expect(before_codeownership_yml).to include "- app/services/fish_like/big_ones/whale.rb"
-      expect(before_codeownership_yml).to include "- app/services/dog_like/golden_retriever.rb"
-      expect(before_codeownership_yml).to include "- packs/organisms/app/services/bird_like/eagle.rb"
-      expect(before_codeownership_yml).to include "- packs/organisms/app/services/bird_like/swan.rb"
-      expect(before_codeownership_yml).to include "- packs/organisms/app/services/bug_like/fly.rb"
-
-      create_pack
-      move_to_pack
-
-      after_codeownership_yml = File.read(Pathname.new('config/code_ownership.yml'))
-
-      expect(after_codeownership_yml).to_not include "- app/services/horse_like/donkey.rb"
-      expect(after_codeownership_yml).to_not include "- app/services/fish_like/small_ones/goldfish.rb"
-      expect(after_codeownership_yml).to_not include "- app/services/fish_like/big_ones/whale.rb"
-      expect(after_codeownership_yml).to_not include "- app/services/dog_like/golden_retriever.rb"
-      expect(after_codeownership_yml).to_not include "- packs/organisms/app/services/bird_like/eagle.rb"
-      expect(after_codeownership_yml).to_not include "- packs/organisms/app/services/bird_like/swan.rb"
-      expect(after_codeownership_yml).to_not include "- packs/organisms/app/services/bug_like/fly.rb"
-
-      expect(after_codeownership_yml).to include "- packs/animals/app/services/horse_like/donkey.rb"
-      expect(after_codeownership_yml).to include "- packs/animals/app/services/fish_like/small_ones/goldfish.rb"
-      expect(after_codeownership_yml).to include "- packs/animals/app/services/fish_like/big_ones/whale.rb"
-      expect(after_codeownership_yml).to include "- packs/animals/app/services/dog_like/golden_retriever.rb"
-      expect(after_codeownership_yml).to include "- packs/animals/app/services/bird_like/eagle.rb"
-      expect(after_codeownership_yml).to include "- packs/animals/app/services/bird_like/swan.rb"
-      expect(after_codeownership_yml).to include "- packs/animals/app/services/bug_like/fly.rb"
-    end
-
-    context 'packs have folders of the same name' do
-      before { app_with_files_and_directories_with_same_names }
-
-      it 'merges the set of files in common folders' do
         expected_files_before = [
-          # Files in food pack
-          'packs/food/app/public/tomato.rb',
-          'packs/food/app/services/salad.rb',
-          'packs/food/app/services/salads/dressing.rb',
-          'packs/food/spec/public/tomato_spec.rb',
-          'packs/food/spec/services/salad_spec.rb',
-          'packs/food/spec/services/salads/dressing_spec.rb',
-          # Files in organisms pack
-          'packs/organisms/app/public/tomato.rb',
-          'packs/organisms/app/services/eagle.rb',
-          'packs/organisms/app/services/other_bird.rb',
-          'packs/organisms/app/services/vulture.rb',
-          # Files in monolith
-          'app/services/salads/types/cobb.rb',
-          'spec/services/salads/types/cobb_spec.rb',
+          # Files in packs
+          'packs/organisms/app/services/bird_like/eagle.rb',
+          'packs/organisms/app/services/bird_like/swan.rb',
+          'packs/organisms/app/services/bug_like/fly.rb',
+          'packs/organisms/birds/app/services/emu.rb',
+          # Specs in packs
+          'packs/organisms/spec/services/bird_like/eagle_spec.rb',
+          'packs/organisms/spec/services/bug_like/fly_spec.rb',
+          'packs/organisms/birds/spec/services/emu_spec.rb',
         ]
 
         expect_files_to_exist expected_files_before
 
-        UsePackwerk.move_to_pack!(
-          pack_name: 'packs/food',
-          paths_relative_to_root: [
-            'packs/organisms/app/services',
-            'app/services'
-          ],
-        )
+        create_pack
+        move_to_pack
 
-        expect_files_to_not_exist([
-          'packs/organisms/app/services/eagle.rb',
-          'packs/organisms/app/services/other_bird.rb',
-          'packs/organisms/app/services/vulture.rb',
-          'app/services/salads/types/cobb.rb',
-          'spec/services/salads/types/cobb_spec.rb',
-        ])
+        expect_files_to_not_exist expected_files_before
 
         expected_files_after = [
-          'packs/food/app/public/tomato.rb',
-          'packs/food/app/services/salad.rb',
-          'packs/food/app/services/salads/dressing.rb',
-          'packs/food/spec/public/tomato_spec.rb',
-          'packs/food/spec/services/salad_spec.rb',
-          'packs/food/spec/services/salads/dressing_spec.rb',
-          'packs/food/app/services/eagle.rb',
-          'packs/food/app/services/other_bird.rb',
-          'packs/food/app/services/vulture.rb',
-          'packs/food/app/services/salads/types/cobb.rb',
-          'packs/food/spec/services/salads/types/cobb_spec.rb',
+          'packs/animals/app/services/bird_like/eagle.rb',
+          'packs/animals/app/services/bird_like/swan.rb',
+          'packs/animals/app/services/bug_like/fly.rb',
+          'packs/animals/spec/services/bird_like/eagle_spec.rb',
+          'packs/animals/spec/services/bug_like/fly_spec.rb',
+          'packs/animals/app/services/emu.rb',
+          'packs/animals/spec/services/emu_spec.rb',
         ]
 
         expect_files_to_exist expected_files_after
       end
-    end
 
-    context 'packs have files of the same name' do
-      before { app_with_files_and_directories_with_same_names }
+      context 'directory moves have trailing slashes' do
+        let(:move_to_pack) do
+          UsePackwerk.move_to_pack!(
+            pack_name: pack_name,
+            paths_relative_to_root: [
+              # Files in monolith
+              'app/services/horse_like/',
+              'app/services/fish_like/small_ones/',
+              'app/services/fish_like/big_ones/',
+              'app/services/dog_like/golden_retriever.rb',
+              # Files in packs
+              'packs/organisms/app/services/bird_like/eagle.rb',
+              'packs/organisms/app/services/bird_like/swan.rb',
+              'packs/organisms/app/services/bug_like/fly.rb',
+            ],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
+          )
+        end
 
-      it 'leaves the origin and destination in the same place' do
-        expected_files_before = [
-          # Files in food pack
-          'packs/food/app/public/tomato.rb',
-          'packs/food/app/services/salad.rb',
-          'packs/food/app/services/salads/dressing.rb',
-          'packs/food/spec/public/tomato_spec.rb',
-          'packs/food/spec/services/salad_spec.rb',
-          'packs/food/spec/services/salads/dressing_spec.rb',
-          # Files in organisms pack
-          'packs/organisms/app/public/tomato.rb',
-          'packs/organisms/app/services/eagle.rb',
-          'packs/organisms/app/services/other_bird.rb',
-          'packs/organisms/app/services/vulture.rb',
-          # Files in monolith
-          'app/services/salads/types/cobb.rb',
-          'spec/services/salads/types/cobb_spec.rb',
-        ]
+        it 'can move files from one pack to another pack' do
+          complex_app
 
-        expect_files_to_exist expected_files_before
+          expected_files_before = [
+            # Files in packs
+            'packs/organisms/app/services/bird_like/eagle.rb',
+            'packs/organisms/app/services/bird_like/swan.rb',
+            'packs/organisms/app/services/bug_like/fly.rb',
+            # Specs in packs
+            'packs/organisms/spec/services/bird_like/eagle_spec.rb',
+            'packs/organisms/spec/services/bug_like/fly_spec.rb',
+          ]
 
-        UsePackwerk.move_to_pack!(
-          pack_name: 'packs/food',
-          paths_relative_to_root: [
-            'packs/organisms/app/public',
-          ],
-        )
+          expect_files_to_exist expected_files_before
 
-        expected_files_after = [
-          'packs/food/app/public/tomato.rb',
-          'packs/organisms/app/public/tomato.rb',
-        ]
-
-        expect_files_to_exist expected_files_after
-      end
-    end
-
-    describe 'creating a TODO.md inside app/public' do
-      let(:expected_todo) do
-        <<~TODO
-          This directory holds your public API!
-
-          Any classes, constants, or modules that you want other packs to use and you intend to support should go in here.
-          Anything that is considered private should go in other folders.
-
-          If another pack uses classes, constants, or modules that are not in your public folder, it will be considered a "privacy violation" by packwerk.
-          You can prevent other packs from using private API by using package_protections.
-
-          Want to find how your private API is being used today?
-          Try running: `bin/use_packwerk list_top_privacy_violations packs/organisms`
-
-          Want to move something into this folder?
-          Try running: `bin/use_packwerk make_public packs/organisms/path/to/file.rb`
-
-          One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
-
-          See #{UsePackwerk.config.documentation_link} for more info!
-        TODO
-      end
-
-      let(:create_pack) do
-        UsePackwerk.create_pack!(
-          pack_name: 'packs/organisms',
-          enforce_privacy: true,
-        )
-      end
-
-      context 'app has public dir but nothing inside of it' do
-        before { app_with_nothing_in_public_dir }
-
-        it 'adds a TODO.md file letting someone know what to do with it' do
           create_pack
-          actual_todo = packages.first.directory.join('app/public/TODO.md').read
-          expect(actual_todo).to eq expected_todo
+          move_to_pack
+
+          expect_files_to_not_exist expected_files_before
+
+          expected_files_after = [
+            'packs/animals/app/services/bird_like/eagle.rb',
+            'packs/animals/app/services/bird_like/swan.rb',
+            'packs/animals/app/services/bug_like/fly.rb',
+            'packs/animals/spec/services/bird_like/eagle_spec.rb',
+            'packs/animals/spec/services/bug_like/fly_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
         end
       end
 
-      context 'app has no public dir' do
-        before { app_with_no_public_dir }
+      describe 'RubocopPostProcessor' do
+        context 'moving file listed in top-level .rubocop_todo.yml' do
+          it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
+            write_file('.rubocop_todo.yml', <<~CONTENTS)
+              ---
+              Layout/BeginEndAlignment:
+                Exclude:
+                - packs/foo/app/services/foo.rb
+            CONTENTS
 
-        it 'adds a TODO.md file letting someone know what to do with it' do
-          create_pack
-          actual_todo = packages.first.directory.join('app/public/TODO.md').read
-          expect(actual_todo).to eq expected_todo
+            before_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
+
+            expect(before_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+            
+            write_file('packs/foo/app/services/foo.rb')
+            UsePackwerk.create_pack!(pack_name: 'packs/bar')
+            UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            UsePackwerk.move_to_pack!(
+              pack_name: 'packs/bar',
+              paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+            )
+
+            after_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
+            expect(after_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
+          end
+        end
+
+        context 'origin pack has a pack-level .rubocop_todo.yml, destination pack does not' do
+          it 'modifies packs/*/.rubocop_todo.yml, correctly' do
+            write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
+              ---
+              Layout/BeginEndAlignment:
+                Exclude:
+                - packs/foo/app/services/foo.rb
+            CONTENTS
+
+            before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+            expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+            expect(Pathname.new('packs/bar/.rubocop_todo.yml')).to_not exist
+
+            write_file('packs/foo/app/services/foo.rb')
+            UsePackwerk.create_pack!(pack_name: 'packs/bar')
+            UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            UsePackwerk.move_to_pack!(
+              pack_name: 'packs/bar',
+              paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+            )
+
+            after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+            expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+            after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+            expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
+          end
+        end
+
+        context 'origin and destination pack both have .rubocop_todo.yml' do
+          it 'modifies packs/*/.rubocop_todo.yml, correctly' do
+            write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
+              ---
+              Layout/BeginEndAlignment:
+                Exclude:
+                - packs/foo/app/services/foo.rb
+            CONTENTS
+
+            write_file('packs/bar/.rubocop_todo.yml', <<~CONTENTS)
+              ---
+              Layout/BeginEndAlignment:
+                Exclude:
+                - packs/bar/app/services/bar.rb
+            CONTENTS
+
+            before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+            expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+            before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+            expect(before_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
+
+            write_file('packs/foo/app/services/foo.rb')
+            UsePackwerk.create_pack!(pack_name: 'packs/bar')
+            UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            UsePackwerk.move_to_pack!(
+              pack_name: 'packs/bar',
+              paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+            )
+
+            after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+            expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+            after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+            expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb", "packs/bar/app/services/foo.rb"]}})
+          end
+        end
+
+        context 'destination pack does not have same key in .rubocop_todo.yml' do
+          it 'modifies packs/*/.rubocop_todo.yml, correctly' do
+            write_file('packs/foo/.rubocop_todo.yml', <<~CONTENTS)
+              ---
+              Layout/BeginEndAlignment:
+                Exclude:
+                - packs/foo/app/services/foo.rb
+            CONTENTS
+
+            write_file('packs/bar/.rubocop_todo.yml', <<~CONTENTS)
+              ---
+              Layout/OtherCop:
+                Exclude:
+                - packs/bar/app/services/bar.rb
+            CONTENTS
+
+            before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+            expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+            before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+            expect(before_rubocop_todo_bar).to eq({"Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
+
+            write_file('packs/foo/app/services/foo.rb')
+            UsePackwerk.create_pack!(pack_name: 'packs/bar')
+            UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            UsePackwerk.move_to_pack!(
+              pack_name: 'packs/bar',
+              paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+            )
+
+            after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
+            expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+            after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
+            expect(after_rubocop_todo_bar).to eq({
+              "Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]},
+              "Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]},
+            })
+          end
         end
       end
 
-      context 'app with one file in public dir' do
-        before { app_with_file_in_public_dir }
+      it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
+        complex_app
 
-        it 'adds a TODO.md file letting someone know what to do with it' do
-          create_pack
-          todo_file = packages.first.directory.join('app/public/TODO.md')
-          expect(todo_file.exist?).to eq false
+        before_codeownership_yml = File.read(Pathname.new('config/code_ownership.yml'))
+
+        expect(before_codeownership_yml).to include "- app/services/horse_like/donkey.rb"
+        expect(before_codeownership_yml).to include "- app/services/fish_like/small_ones/goldfish.rb"
+        expect(before_codeownership_yml).to include "- app/services/fish_like/big_ones/whale.rb"
+        expect(before_codeownership_yml).to include "- app/services/dog_like/golden_retriever.rb"
+        expect(before_codeownership_yml).to include "- packs/organisms/app/services/bird_like/eagle.rb"
+        expect(before_codeownership_yml).to include "- packs/organisms/app/services/bird_like/swan.rb"
+        expect(before_codeownership_yml).to include "- packs/organisms/app/services/bug_like/fly.rb"
+
+        create_pack
+        move_to_pack
+
+        after_codeownership_yml = File.read(Pathname.new('config/code_ownership.yml'))
+
+        expect(after_codeownership_yml).to_not include "- app/services/horse_like/donkey.rb"
+        expect(after_codeownership_yml).to_not include "- app/services/fish_like/small_ones/goldfish.rb"
+        expect(after_codeownership_yml).to_not include "- app/services/fish_like/big_ones/whale.rb"
+        expect(after_codeownership_yml).to_not include "- app/services/dog_like/golden_retriever.rb"
+        expect(after_codeownership_yml).to_not include "- packs/organisms/app/services/bird_like/eagle.rb"
+        expect(after_codeownership_yml).to_not include "- packs/organisms/app/services/bird_like/swan.rb"
+        expect(after_codeownership_yml).to_not include "- packs/organisms/app/services/bug_like/fly.rb"
+
+        expect(after_codeownership_yml).to include "- packs/animals/app/services/horse_like/donkey.rb"
+        expect(after_codeownership_yml).to include "- packs/animals/app/services/fish_like/small_ones/goldfish.rb"
+        expect(after_codeownership_yml).to include "- packs/animals/app/services/fish_like/big_ones/whale.rb"
+        expect(after_codeownership_yml).to include "- packs/animals/app/services/dog_like/golden_retriever.rb"
+        expect(after_codeownership_yml).to include "- packs/animals/app/services/bird_like/eagle.rb"
+        expect(after_codeownership_yml).to include "- packs/animals/app/services/bird_like/swan.rb"
+        expect(after_codeownership_yml).to include "- packs/animals/app/services/bug_like/fly.rb"
+      end
+
+      context 'packs have folders of the same name' do
+        before { app_with_files_and_directories_with_same_names }
+
+        it 'merges the set of files in common folders' do
+          expected_files_before = [
+            # Files in food pack
+            'packs/food/app/public/tomato.rb',
+            'packs/food/app/services/salad.rb',
+            'packs/food/app/services/salads/dressing.rb',
+            'packs/food/spec/public/tomato_spec.rb',
+            'packs/food/spec/services/salad_spec.rb',
+            'packs/food/spec/services/salads/dressing_spec.rb',
+            # Files in organisms pack
+            'packs/organisms/app/public/tomato.rb',
+            'packs/organisms/app/services/eagle.rb',
+            'packs/organisms/app/services/other_bird.rb',
+            'packs/organisms/app/services/vulture.rb',
+            # Files in monolith
+            'app/services/salads/types/cobb.rb',
+            'spec/services/salads/types/cobb_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_before
+
+          UsePackwerk.move_to_pack!(
+            pack_name: 'packs/food',
+            paths_relative_to_root: [
+              'packs/organisms/app/services',
+              'app/services'
+            ],
+          )
+
+          expect_files_to_not_exist([
+            'packs/organisms/app/services/eagle.rb',
+            'packs/organisms/app/services/other_bird.rb',
+            'packs/organisms/app/services/vulture.rb',
+            'app/services/salads/types/cobb.rb',
+            'spec/services/salads/types/cobb_spec.rb',
+          ])
+
+          expected_files_after = [
+            'packs/food/app/public/tomato.rb',
+            'packs/food/app/services/salad.rb',
+            'packs/food/app/services/salads/dressing.rb',
+            'packs/food/spec/public/tomato_spec.rb',
+            'packs/food/spec/services/salad_spec.rb',
+            'packs/food/spec/services/salads/dressing_spec.rb',
+            'packs/food/app/services/eagle.rb',
+            'packs/food/app/services/other_bird.rb',
+            'packs/food/app/services/vulture.rb',
+            'packs/food/app/services/salads/types/cobb.rb',
+            'packs/food/spec/services/salads/types/cobb_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
         end
       end
-    end
 
-    describe 'setting the README' do
-      let(:expected_readme_todo) do
-        <<~EXPECTED
-          Welcome to `packs/organisms`!
+      context 'packs have files of the same name' do
+        before { app_with_files_and_directories_with_same_names }
 
-          If you're the author, please consider replacing this file with a README.md, which may contain:
-          - What your pack is and does
-          - How you expect people to use your pack
-          - Example usage of your pack's public API (which lives in `packs/organisms/app/public`)
-          - Limitations, risks, and important considerations of usage
-          - How to get in touch with eng and other stakeholders for questions or issues pertaining to this pack (note: it is recommended to add ownership in `packs/organisms/package.yml` under the `owner` metadata key)
-          - What SLAs/SLOs (service level agreements/objectives), if any, your package provides
-          - When in doubt, keep it simple
-          - Anything else you may want to include!
+        it 'leaves the origin and destination in the same place' do
+          expected_files_before = [
+            # Files in food pack
+            'packs/food/app/public/tomato.rb',
+            'packs/food/app/services/salad.rb',
+            'packs/food/app/services/salads/dressing.rb',
+            'packs/food/spec/public/tomato_spec.rb',
+            'packs/food/spec/services/salad_spec.rb',
+            'packs/food/spec/services/salads/dressing_spec.rb',
+            # Files in organisms pack
+            'packs/organisms/app/public/tomato.rb',
+            'packs/organisms/app/services/eagle.rb',
+            'packs/organisms/app/services/other_bird.rb',
+            'packs/organisms/app/services/vulture.rb',
+            # Files in monolith
+            'app/services/salads/types/cobb.rb',
+            'spec/services/salads/types/cobb_spec.rb',
+          ]
 
-          README.md files are under version control and should change as your public API changes. 
+          expect_files_to_exist expected_files_before
 
-          See #{UsePackwerk.config.documentation_link} for more info!
-        EXPECTED
+          UsePackwerk.move_to_pack!(
+            pack_name: 'packs/food',
+            paths_relative_to_root: [
+              'packs/organisms/app/public',
+            ],
+          )
+
+          expected_files_after = [
+            'packs/food/app/public/tomato.rb',
+            'packs/organisms/app/public/tomato.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
+        end
       end
 
-      let(:create_pack) do
-        UsePackwerk.create_pack!(
-          pack_name: 'packs/organisms',
-          enforce_privacy: true,
-        )
+      describe 'creating a TODO.md inside app/public' do
+        let(:expected_todo) do
+          <<~TODO
+            This directory holds your public API!
+
+            Any classes, constants, or modules that you want other packs to use and you intend to support should go in here.
+            Anything that is considered private should go in other folders.
+
+            If another pack uses classes, constants, or modules that are not in your public folder, it will be considered a "privacy violation" by packwerk.
+            You can prevent other packs from using private API by using package_protections.
+
+            Want to find how your private API is being used today?
+            Try running: `bin/use_packwerk list_top_privacy_violations packs/organisms`
+
+            Want to move something into this folder?
+            Try running: `bin/use_packwerk make_public packs/organisms/path/to/file.rb`
+
+            One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
+
+            See #{UsePackwerk.config.documentation_link} for more info!
+          TODO
+        end
+
+        let(:create_pack) do
+          UsePackwerk.create_pack!(
+            pack_name: 'packs/organisms',
+            enforce_privacy: true,
+          )
+        end
+
+        context 'app has public dir but nothing inside of it' do
+          before { app_with_nothing_in_public_dir }
+
+          it 'adds a TODO.md file letting someone know what to do with it' do
+            create_pack
+            actual_todo = packages.first.directory.join('app/public/TODO.md').read
+            expect(actual_todo).to eq expected_todo
+          end
+        end
+
+        context 'app has no public dir' do
+          before { app_with_no_public_dir }
+
+          it 'adds a TODO.md file letting someone know what to do with it' do
+            create_pack
+            actual_todo = packages.first.directory.join('app/public/TODO.md').read
+            expect(actual_todo).to eq expected_todo
+          end
+        end
+
+        context 'app with one file in public dir' do
+          before { app_with_file_in_public_dir }
+
+          it 'adds a TODO.md file letting someone know what to do with it' do
+            create_pack
+            todo_file = packages.first.directory.join('app/public/TODO.md')
+            expect(todo_file.exist?).to eq false
+          end
+        end
       end
 
-      context 'app has no packs' do
+      describe 'setting the README' do
+        let(:expected_readme_todo) do
+          <<~EXPECTED
+            Welcome to `packs/organisms`!
+
+            If you're the author, please consider replacing this file with a README.md, which may contain:
+            - What your pack is and does
+            - How you expect people to use your pack
+            - Example usage of your pack's public API (which lives in `packs/organisms/app/public`)
+            - Limitations, risks, and important considerations of usage
+            - How to get in touch with eng and other stakeholders for questions or issues pertaining to this pack (note: it is recommended to add ownership in `packs/organisms/package.yml` under the `owner` metadata key)
+            - What SLAs/SLOs (service level agreements/objectives), if any, your package provides
+            - When in doubt, keep it simple
+            - Anything else you may want to include!
+
+            README.md files are under version control and should change as your public API changes. 
+
+            See #{UsePackwerk.config.documentation_link} for more info!
+          EXPECTED
+        end
+
+        let(:create_pack) do
+          UsePackwerk.create_pack!(
+            pack_name: 'packs/organisms',
+            enforce_privacy: true,
+          )
+        end
+
+        context 'app has no packs' do
+          before do
+            write_file('package.yml', <<~CONTENTS)
+              enforce_privacy: true
+              enforce_dependencies: true
+            CONTENTS
+          end
+
+          it 'adds a README_TODO.md file as a placeholder' do
+            create_pack
+
+            actual_readme_todo = only_nonroot_package.directory.join('README_TODO.md')
+            expect(actual_readme_todo.read).to eq expected_readme_todo
+          end
+        end
+
+        context 'app has one pack without a README' do
+          before do
+            write_file('packs/organisms/package.yml', <<~CONTENTS)
+              enforce_privacy: true
+              enforce_dependencies: true
+              metadata:
+                protections:
+                  prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+                  prevent_other_packages_from_using_this_packages_internals: fail_on_new
+                  prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+                  prevent_this_package_from_creating_other_namespaces: fail_on_new
+            CONTENTS
+          end
+
+          it 'adds a README_TODO.md file as a placeholder' do
+            create_pack
+            actual_readme_todo = packages.first.directory.join('README_TODO.md')
+            expect(actual_readme_todo.read).to eq expected_readme_todo
+          end
+        end
+
+        context 'app has one pack with an outdated README_TODO.md' do
+          before do
+            write_file('packs/organisms/README_TODO.md', <<~CONTENTS)
+              This is outdated!
+            CONTENTS
+
+            write_file('packs/organisms/package.yml', <<~CONTENTS)
+              enforce_privacy: true
+              enforce_dependencies: true
+              metadata:
+                protections:
+                  prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+                  prevent_other_packages_from_using_this_packages_internals: fail_on_new
+                  prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+                  prevent_this_package_from_creating_other_namespaces: fail_on_new
+            CONTENTS
+          end
+
+          it 'adds a README_TODO.md file as a placeholder' do
+            actual_readme_todo = packages.first.directory.join('README_TODO.md')
+            expect(actual_readme_todo.read).to eq "This is outdated!\n"
+            create_pack
+
+            expect(actual_readme_todo.read).to eq expected_readme_todo
+          end
+        end
+
+        context 'app has one pack with a README.md' do
+          before do
+            write_file('packs/organisms/package.yml', <<~CONTENTS)
+              enforce_privacy: true
+              enforce_dependencies: true
+              metadata:
+                protections:
+                  prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+                  prevent_other_packages_from_using_this_packages_internals: fail_on_new
+                  prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+                  prevent_this_package_from_creating_other_namespaces: fail_on_new
+            CONTENTS
+
+            write_file('packs/organisms/README.md', <<~CONTENTS)
+              This is a readme!
+            CONTENTS
+          end
+
+          it 'adds a README_TODO.md file as a placeholder' do
+            actual_readme_todo = packages.first.directory.join('README_TODO.md')
+            create_pack
+            expect(actual_readme_todo.exist?).to eq false
+          end
+        end
+      end
+
+      context 'pack is in gems' do
+        let(:pack_name) { 'gems/my_sick_new_pack' }
+
+        it 'can move files from a monolith into a package' do
+          complex_app
+
+          expected_files_before = [
+            # Files in monolith
+            'app/services/horse_like/zebra.rb',
+            'app/services/horse_like/donkey.rb',
+            'app/services/horse_like/horse.rb',
+            'app/services/horse_like/zebra.rb',
+            'app/services/fish_like/small_ones/goldfish.rb',
+            'app/services/fish_like/small_ones/seahorse.rb',
+            'app/services/fish_like/big_ones/whale.rb',
+            # Specs in monolith
+            'spec/services/dog_like/golden_retriever_spec.rb',
+            'spec/services/fish_like/big_ones/whale_spec.rb',
+            'spec/services/horse_like/donkey_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_before
+
+          create_pack
+          move_to_pack
+          expect_files_to_not_exist expected_files_before
+
+          expected_files_after = [
+            'gems/my_sick_new_pack/app/services/horse_like/zebra.rb',
+            'gems/my_sick_new_pack/app/services/horse_like/donkey.rb',
+            'gems/my_sick_new_pack/app/services/horse_like/horse.rb',
+            'gems/my_sick_new_pack/app/services/horse_like/zebra.rb',
+            'gems/my_sick_new_pack/app/services/fish_like/small_ones/goldfish.rb',
+            'gems/my_sick_new_pack/app/services/fish_like/small_ones/seahorse.rb',
+            'gems/my_sick_new_pack/app/services/fish_like/big_ones/whale.rb',
+            'gems/my_sick_new_pack/spec/services/dog_like/golden_retriever_spec.rb',
+            'gems/my_sick_new_pack/spec/services/fish_like/big_ones/whale_spec.rb',
+            'gems/my_sick_new_pack/spec/services/horse_like/donkey_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
+        end
+
+        it 'can move files from one pack to another pack' do
+          complex_app
+
+          expected_files_before = [
+            # Files in packs
+            'packs/organisms/app/services/bird_like/eagle.rb',
+            'packs/organisms/app/services/bird_like/swan.rb',
+            'packs/organisms/app/services/bug_like/fly.rb',
+            # Specs in packs
+            'packs/organisms/spec/services/bird_like/eagle_spec.rb',
+            'packs/organisms/spec/services/bug_like/fly_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_before
+
+          create_pack
+          move_to_pack
+
+          expect_files_to_not_exist expected_files_before
+
+          expected_files_after = [
+            'gems/my_sick_new_pack/app/services/bird_like/eagle.rb',
+            'gems/my_sick_new_pack/app/services/bird_like/swan.rb',
+            'gems/my_sick_new_pack/app/services/bug_like/fly.rb',
+            'gems/my_sick_new_pack/spec/services/bird_like/eagle_spec.rb',
+            'gems/my_sick_new_pack/spec/services/bug_like/fly_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
+        end
+
+        it 'can move files from one gem to another' do
+          complex_app
+
+          expected_files_before = [ 'gems/my_gem/app/services/my_gem_service.rb' ]
+
+          expect_files_to_exist expected_files_before
+
+          UsePackwerk.create_pack!(pack_name: pack_name)
+
+          UsePackwerk.move_to_pack!(
+            pack_name: pack_name,
+            paths_relative_to_root: ['gems/my_gem/app/services/my_gem_service.rb'],
+          )
+
+          expect_files_to_not_exist expected_files_before
+
+          expected_files_after = [
+            'gems/my_sick_new_pack/app/services/my_gem_service.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
+        end
+      end
+
+      context 'in a pack with various ownership' do
         before do
+          write_file('app/services/owned_by_chefs_2/sandwich.rb', <<~CONTENTS)
+            # typed: false
+            
+            # content
+          CONTENTS
+
+          write_file('app/services/owned_by_chefs/sandwich.rb', <<~CONTENTS)
+            # @team Chefs
+            
+            # content
+          CONTENTS
+
+          write_file('app/services/owned_by_artists/paintbrush.rb', <<~CONTENTS)
+            # @team Artists
+            
+            # content
+          CONTENTS
+
+          write_file('config/teams/art/artists.yml', <<~CONTENTS)
+            name: Artists
+          CONTENTS
+
+          write_file('config/teams/food/chefs.yml', <<~CONTENTS)
+            name: Chefs
+            owned_globs:
+              - app/services/owned_by_chefs_2/**
+              - spec/services/owned_by_chefs_2/**
+          CONTENTS
+
+          write_file('spec/services/owned_by_chefs/sandwich_spec.rb', <<~CONTENTS)
+            # @team Chefs
+          CONTENTS
+
+          write_file('spec/services/owned_by_artists/paintbrush_spec.rb', <<~CONTENTS)
+            # @team Artists
+          CONTENTS
+
           write_file('package.yml', <<~CONTENTS)
-            enforce_privacy: true
             enforce_dependencies: true
+            enforce_privacy: true
+            metadata:
+              owner: Artists
+          CONTENTS
+
+          write_file('packs/owned_by_artists/package.yml', <<~CONTENTS)
+            enforce_dependencies: true
+            enforce_privacy: true
+            metadata:
+              owner: Artists
+          CONTENTS
+
+          write_file('packs/owned_by_artists/app/public/paint.rb', <<~CONTENTS)
+            # typed: strict
+            
+            # content
+          CONTENTS
+
+          write_file('packs/owned_by_artists/spec/public/paint_spec.rb', <<~CONTENTS)
+            # typed: strict
           CONTENTS
         end
 
-        it 'adds a README_TODO.md file as a placeholder' do
-          create_pack
+        let(:create_pack) do
+          UsePackwerk.create_pack!(
+            pack_name: pack_name,
+          )
+        end
 
-          actual_readme_todo = only_nonroot_package.directory.join('README_TODO.md')
-          expect(actual_readme_todo.read).to eq expected_readme_todo
+        let(:move_to_pack) do
+          UsePackwerk.move_to_pack!(
+            pack_name: pack_name,
+            paths_relative_to_root: %w(
+              app/services/owned_by_chefs/sandwich.rb
+              app/services/owned_by_chefs_2/sandwich.rb
+              app/services/owned_by_artists/paintbrush.rb
+              packs/owned_by_artists/app/public/paint.rb
+            ),
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
+          )
+        end
+
+        it 'prints out the right ownership' do
+          logged_output = ""
+
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          create_pack
+          move_to_pack
+
+          expected_logged_output = <<~OUTPUT
+          This section contains info about the current ownership distribution of the moved files.
+            Artists - 4 files
+            Chefs - 3 files
+          OUTPUT
+
+          expect(logged_output).to include expected_logged_output
+        end
+      
+        it 'removes file annotations if the destination pack has file annotations' do
+          logged_output = ""
+
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          create_pack
+          ParsePackwerk.bust_cache!
+
+          expect(Pathname.new('app/services/owned_by_chefs/sandwich.rb').read).to eq <<~RUBY
+            # @team Chefs
+
+            # content
+          RUBY
+          expect(Pathname.new('app/services/owned_by_chefs_2/sandwich.rb').read).to eq <<~RUBY
+            # typed: false
+
+            # content
+          RUBY
+          expect(Pathname.new('app/services/owned_by_artists/paintbrush.rb').read).to eq <<~RUBY
+            # @team Artists
+
+            # content
+          RUBY
+          expect(Pathname.new('packs/owned_by_artists/app/public/paint.rb').read).to eq <<~RUBY
+            # typed: strict
+
+            # content
+          RUBY
+
+          # Set the package to be owned by `Artists``
+          team = instance_double(CodeTeams::Team)
+          package = ParsePackwerk.all.find {|p| p.name == pack_name} 
+          allow(CodeOwnership).to receive(:for_package).with(anything).and_return(team)
+          bust_cache_and_configure_code_ownership!
+
+          move_to_pack
+
+          expected_logged_output = <<~OUTPUT
+          This section contains info about the current ownership distribution of the moved files.
+            Artists - 4 files
+            Chefs - 3 files
+          Since the destination package has package-based ownership, file-annotations were removed from moved files.
+          OUTPUT
+
+          expect(logged_output).to include expected_logged_output
+
+          expect(Pathname.new('packs/animals/app/services/owned_by_chefs/sandwich.rb').read).to eq (<<~RUBY)
+            # content
+          RUBY
+
+          expect(Pathname.new('packs/animals/app/services/owned_by_chefs_2/sandwich.rb').read).to eq <<~RUBY
+            # typed: false
+
+            # content
+          RUBY
+          expect(Pathname.new('packs/animals/app/services/owned_by_artists/paintbrush.rb').read).to eq (<<~RUBY)
+            # content
+          RUBY
+          expect(Pathname.new('packs/animals/app/public/paint.rb').read).to eq <<~RUBY
+            # typed: strict
+
+            # content
+          RUBY
         end
       end
 
-      context 'app has one pack without a README' do
-        before do
-          write_file('packs/organisms/package.yml', <<~CONTENTS)
-            enforce_privacy: true
-            enforce_dependencies: true
-            metadata:
-              protections:
-                prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
-                prevent_other_packages_from_using_this_packages_internals: fail_on_new
-                prevent_this_package_from_exposing_an_untyped_api: fail_on_new
-                prevent_this_package_from_creating_other_namespaces: fail_on_new
-          CONTENTS
+      context 'files moved are tasks in lib' do
+        let(:move_to_pack) do
+          UsePackwerk.move_to_pack!(
+            pack_name: pack_name,
+            paths_relative_to_root: [
+              'lib/tasks/my_task.rake',
+              'packs/organisms/lib/tasks/my_organism_task.rake',
+            ],
+          )
         end
 
-        it 'adds a README_TODO.md file as a placeholder' do
+        it 'can move files from lib from one pack to another pack' do
+          complex_app
+
+          expected_files_before = [
+            'lib/tasks/my_task.rake',
+            'spec/lib/tasks/my_task_spec.rb',
+            'packs/organisms/lib/tasks/my_organism_task.rake',
+            'packs/organisms/spec/lib/tasks/my_organism_task_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_before
+
           create_pack
-          actual_readme_todo = packages.first.directory.join('README_TODO.md')
-          expect(actual_readme_todo.read).to eq expected_readme_todo
-        end
-      end
+          move_to_pack
 
-      context 'app has one pack with an outdated README_TODO.md' do
-        before do
-          write_file('packs/organisms/README_TODO.md', <<~CONTENTS)
-            This is outdated!
-          CONTENTS
+          expect_files_to_not_exist expected_files_before
 
-          write_file('packs/organisms/package.yml', <<~CONTENTS)
-            enforce_privacy: true
-            enforce_dependencies: true
-            metadata:
-              protections:
-                prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
-                prevent_other_packages_from_using_this_packages_internals: fail_on_new
-                prevent_this_package_from_exposing_an_untyped_api: fail_on_new
-                prevent_this_package_from_creating_other_namespaces: fail_on_new
-          CONTENTS
-        end
+          expected_files_after = [
+            'packs/animals/lib/tasks/my_task.rake',
+            'packs/animals/spec/lib/tasks/my_task_spec.rb',
+            'packs/animals/lib/tasks/my_organism_task.rake',
+            'packs/animals/spec/lib/tasks/my_organism_task_spec.rb',
+          ]
 
-        it 'adds a README_TODO.md file as a placeholder' do
-          actual_readme_todo = packages.first.directory.join('README_TODO.md')
-          expect(actual_readme_todo.read).to eq "This is outdated!\n"
-          create_pack
-
-          expect(actual_readme_todo.read).to eq expected_readme_todo
-        end
-      end
-
-      context 'app has one pack with a README.md' do
-        before do
-          write_file('packs/organisms/package.yml', <<~CONTENTS)
-            enforce_privacy: true
-            enforce_dependencies: true
-            metadata:
-              protections:
-                prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
-                prevent_other_packages_from_using_this_packages_internals: fail_on_new
-                prevent_this_package_from_exposing_an_untyped_api: fail_on_new
-                prevent_this_package_from_creating_other_namespaces: fail_on_new
-          CONTENTS
-
-          write_file('packs/organisms/README.md', <<~CONTENTS)
-            This is a readme!
-          CONTENTS
-        end
-
-        it 'adds a README_TODO.md file as a placeholder' do
-          actual_readme_todo = packages.first.directory.join('README_TODO.md')
-          create_pack
-          expect(actual_readme_todo.exist?).to eq false
+          expect_files_to_exist expected_files_after
         end
       end
     end
 
-    context 'pack is in gems' do
-      let(:pack_name) { 'gems/my_sick_new_pack' }
+    context 'pack is nested' do
+      let(:pack_name) { 'packs/fruits/apples' }
 
-      it 'can move files from a monolith into a package' do
+      context 'pack not yet created' do
+        it 'errors' do
+          expect { move_to_pack }.to raise_error("Can not find package with name packs/fruits/apples. Make sure the argument is of the form `packs/my_pack/`")
+        end
+      end
+
+      it 'can move files from a monolith into a child package' do
         complex_app
 
         expected_files_before = [
@@ -791,19 +1220,20 @@ RSpec.describe UsePackwerk do
 
         create_pack
         move_to_pack
+
         expect_files_to_not_exist expected_files_before
 
         expected_files_after = [
-          'gems/my_sick_new_pack/app/services/horse_like/zebra.rb',
-          'gems/my_sick_new_pack/app/services/horse_like/donkey.rb',
-          'gems/my_sick_new_pack/app/services/horse_like/horse.rb',
-          'gems/my_sick_new_pack/app/services/horse_like/zebra.rb',
-          'gems/my_sick_new_pack/app/services/fish_like/small_ones/goldfish.rb',
-          'gems/my_sick_new_pack/app/services/fish_like/small_ones/seahorse.rb',
-          'gems/my_sick_new_pack/app/services/fish_like/big_ones/whale.rb',
-          'gems/my_sick_new_pack/spec/services/dog_like/golden_retriever_spec.rb',
-          'gems/my_sick_new_pack/spec/services/fish_like/big_ones/whale_spec.rb',
-          'gems/my_sick_new_pack/spec/services/horse_like/donkey_spec.rb',
+          'packs/fruits/apples/app/services/horse_like/zebra.rb',
+          'packs/fruits/apples/app/services/horse_like/donkey.rb',
+          'packs/fruits/apples/app/services/horse_like/horse.rb',
+          'packs/fruits/apples/app/services/horse_like/zebra.rb',
+          'packs/fruits/apples/app/services/fish_like/small_ones/goldfish.rb',
+          'packs/fruits/apples/app/services/fish_like/small_ones/seahorse.rb',
+          'packs/fruits/apples/app/services/fish_like/big_ones/whale.rb',
+          'packs/fruits/apples/spec/services/dog_like/golden_retriever_spec.rb',
+          'packs/fruits/apples/spec/services/fish_like/big_ones/whale_spec.rb',
+          'packs/fruits/apples/spec/services/horse_like/donkey_spec.rb',
         ]
 
         expect_files_to_exist expected_files_after
@@ -830,241 +1260,65 @@ RSpec.describe UsePackwerk do
         expect_files_to_not_exist expected_files_before
 
         expected_files_after = [
-          'gems/my_sick_new_pack/app/services/bird_like/eagle.rb',
-          'gems/my_sick_new_pack/app/services/bird_like/swan.rb',
-          'gems/my_sick_new_pack/app/services/bug_like/fly.rb',
-          'gems/my_sick_new_pack/spec/services/bird_like/eagle_spec.rb',
-          'gems/my_sick_new_pack/spec/services/bug_like/fly_spec.rb',
+          'packs/fruits/apples/app/services/bird_like/eagle.rb',
+          'packs/fruits/apples/app/services/bird_like/swan.rb',
+          'packs/fruits/apples/app/services/bug_like/fly.rb',
+          'packs/fruits/apples/spec/services/bird_like/eagle_spec.rb',
+          'packs/fruits/apples/spec/services/bug_like/fly_spec.rb',
         ]
 
         expect_files_to_exist expected_files_after
       end
 
-      it 'can move files from one one gem to another' do
-        complex_app
-
-        expected_files_before = [ 'gems/my_gem/app/services/my_gem_service.rb' ]
-
-        expect_files_to_exist expected_files_before
-
-
-        UsePackwerk.create_pack!(pack_name: pack_name)
-
-        UsePackwerk.move_to_pack!(
-          pack_name: pack_name,
-          paths_relative_to_root: ['gems/my_gem/app/services/my_gem_service.rb'],
-        )
-
-        expect_files_to_not_exist expected_files_before
-
-        expected_files_after = [
-          'gems/my_sick_new_pack/app/services/my_gem_service.rb',
-        ]
-
-        expect_files_to_exist expected_files_after
-      end
-    end
-
-    context 'in a pack with various ownership' do
-      before do
-        write_file('app/services/owned_by_chefs_2/sandwich.rb', <<~CONTENTS)
-          # typed: false
-          
-          # content
-        CONTENTS
-
-        write_file('app/services/owned_by_chefs/sandwich.rb', <<~CONTENTS)
-          # @team Chefs
-          
-          # content
-        CONTENTS
-
-        write_file('app/services/owned_by_artists/paintbrush.rb', <<~CONTENTS)
-          # @team Artists
-          
-          # content
-        CONTENTS
-
-        write_file('config/teams/art/artists.yml', <<~CONTENTS)
-          name: Artists
-        CONTENTS
-
-        write_file('config/teams/food/chefs.yml', <<~CONTENTS)
-          name: Chefs
-          owned_globs:
-            - app/services/owned_by_chefs_2/**
-            - spec/services/owned_by_chefs_2/**
-        CONTENTS
-
-        write_file('spec/services/owned_by_chefs/sandwich_spec.rb', <<~CONTENTS)
-          # @team Chefs
-        CONTENTS
-
-        write_file('spec/services/owned_by_artists/paintbrush_spec.rb', <<~CONTENTS)
-          # @team Artists
-        CONTENTS
-
-        write_file('packs/package.yml', <<~CONTENTS)
-          enforce_dependencies: true
-          enforce_privacy: true
-          metadata:
-            owner: Artists
-        CONTENTS
-
-        write_file('packs/owned_by_artists/app/public/paint.rb', <<~CONTENTS)
-          # typed: strict
-          
-          # content
-        CONTENTS
-
-        write_file('packs/owned_by_artists/spec/public/paint_spec.rb', <<~CONTENTS)
-          # typed: strict
-        CONTENTS
-      end
-
-      let(:create_pack) do
-        UsePackwerk.create_pack!(
-          pack_name: pack_name,
-        )
-      end
-
-      let(:move_to_pack) do
-        UsePackwerk.move_to_pack!(
-          pack_name: pack_name,
-          paths_relative_to_root: %w(
-            app/services/owned_by_chefs/sandwich.rb
-            app/services/owned_by_chefs_2/sandwich.rb
-            app/services/owned_by_artists/paintbrush.rb
-            packs/owned_by_artists/app/public/paint.rb
-          ),
-          per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
-        )
-      end
-
-      it 'prints out the right ownership' do
-        logged_output = ""
-
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
+      context 'directory moves have trailing slashes' do
+        let(:move_to_pack) do
+          UsePackwerk.move_to_pack!(
+            pack_name: pack_name,
+            paths_relative_to_root: [
+              # Files in monolith
+              'app/services/horse_like/',
+              'app/services/fish_like/small_ones/',
+              'app/services/fish_like/big_ones/',
+              'app/services/dog_like/golden_retriever.rb',
+              # Files in packs
+              'packs/organisms/app/services/bird_like/eagle.rb',
+              'packs/organisms/app/services/bird_like/swan.rb',
+              'packs/organisms/app/services/bug_like/fly.rb',
+            ],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
+          )
         end
 
-        create_pack
-        move_to_pack
+        it 'can move files from one pack to another pack' do
+          complex_app
 
-        expected_logged_output = <<~OUTPUT
-        This section contains info about the current ownership distribution of the moved files.
-          Artists - 4 files
-          Chefs - 3 files
-        OUTPUT
+          expected_files_before = [
+            # Files in packs
+            'packs/organisms/app/services/bird_like/eagle.rb',
+            'packs/organisms/app/services/bird_like/swan.rb',
+            'packs/organisms/app/services/bug_like/fly.rb',
+            # Specs in packs
+            'packs/organisms/spec/services/bird_like/eagle_spec.rb',
+            'packs/organisms/spec/services/bug_like/fly_spec.rb',
+          ]
 
-        expect(logged_output).to include expected_logged_output
-      end
-    
-      it 'removes file annotations if the destination pack has file annotations' do
-        logged_output = ""
+          expect_files_to_exist expected_files_before
 
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
+          create_pack
+          move_to_pack
+
+          expect_files_to_not_exist expected_files_before
+
+          expected_files_after = [
+            'packs/fruits/apples/app/services/bird_like/eagle.rb',
+            'packs/fruits/apples/app/services/bird_like/swan.rb',
+            'packs/fruits/apples/app/services/bug_like/fly.rb',
+            'packs/fruits/apples/spec/services/bird_like/eagle_spec.rb',
+            'packs/fruits/apples/spec/services/bug_like/fly_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
         end
-
-        create_pack
-
-        expect(Pathname.new('app/services/owned_by_chefs/sandwich.rb').read).to eq <<~RUBY
-          # @team Chefs
-
-          # content
-        RUBY
-        expect(Pathname.new('app/services/owned_by_chefs_2/sandwich.rb').read).to eq <<~RUBY
-          # typed: false
-
-          # content
-        RUBY
-        expect(Pathname.new('app/services/owned_by_artists/paintbrush.rb').read).to eq <<~RUBY
-          # @team Artists
-
-          # content
-        RUBY
-        expect(Pathname.new('packs/owned_by_artists/app/public/paint.rb').read).to eq <<~RUBY
-          # typed: strict
-
-          # content
-        RUBY
-
-        # Set the package to be owned by `Artists``
-        team = instance_double(CodeTeams::Team)
-        package = ParsePackwerk.all.find {|p| p.name == pack_name} 
-        allow(CodeOwnership).to receive(:for_package).with(anything).and_return(team)
-        bust_cache_and_configure_code_ownership!
-
-        move_to_pack
-
-        expected_logged_output = <<~OUTPUT
-        This section contains info about the current ownership distribution of the moved files.
-          Artists - 4 files
-          Chefs - 3 files
-        Since the destination package has package-based ownership, file-annotations were removed from moved files.
-        OUTPUT
-
-        expect(logged_output).to include expected_logged_output
-
-        expect(Pathname.new('packs/animals/app/services/owned_by_chefs/sandwich.rb').read).to eq (<<~RUBY)
-          # content
-        RUBY
-
-        expect(Pathname.new('packs/animals/app/services/owned_by_chefs_2/sandwich.rb').read).to eq <<~RUBY
-          # typed: false
-
-          # content
-        RUBY
-        expect(Pathname.new('packs/animals/app/services/owned_by_artists/paintbrush.rb').read).to eq (<<~RUBY)
-          # content
-        RUBY
-        expect(Pathname.new('packs/animals/app/public/paint.rb').read).to eq <<~RUBY
-          # typed: strict
-
-          # content
-        RUBY
-      end
-    end
-
-    context 'files moved are tasks in lib' do
-      let(:move_to_pack) do
-        UsePackwerk.move_to_pack!(
-          pack_name: pack_name,
-          paths_relative_to_root: [
-            'lib/tasks/my_task.rake',
-            'packs/organisms/lib/tasks/my_organism_task.rake',
-          ],
-        )
-      end
-
-      it 'can move files from lib from one pack to another pack' do
-        complex_app
-
-        expected_files_before = [
-          'lib/tasks/my_task.rake',
-          'spec/lib/tasks/my_task_spec.rb',
-          'packs/organisms/lib/tasks/my_organism_task.rake',
-          'packs/organisms/spec/lib/tasks/my_organism_task_spec.rb',
-        ]
-
-        expect_files_to_exist expected_files_before
-
-        create_pack
-        move_to_pack
-
-        expect_files_to_not_exist expected_files_before
-
-        expected_files_after = [
-          'packs/animals/lib/tasks/my_task.rake',
-          'packs/animals/spec/lib/tasks/my_task_spec.rb',
-          'packs/animals/lib/tasks/my_organism_task.rake',
-          'packs/animals/spec/lib/tasks/my_organism_task_spec.rb',
-        ]
-
-        expect_files_to_exist expected_files_after
       end
     end
   end
@@ -1123,6 +1377,32 @@ RSpec.describe UsePackwerk do
         'spec/services/dog_like/golden_retriever_spec.rb',
         'spec/public/fish_like/big_ones/whale_spec.rb',
         'spec/services/horse_like/donkey_spec.rb',
+      ]
+
+      expect_files_to_exist expected_files_after
+    end
+
+    it 'can make files in a nested pack public' do
+      UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
+      write_file('packs/fruits/apples/app/services/apple.rb')
+      write_file('packs/fruits/apples/spec/services/apple_spec.rb')
+
+      expected_files_before = [
+        'packs/fruits/apples/app/services/apple.rb',
+        'packs/fruits/apples/spec/services/apple_spec.rb'
+      ]
+
+      expect_files_to_exist expected_files_before
+
+      UsePackwerk.make_public!(
+        paths_relative_to_root: [ 'packs/fruits/apples/app/services/apple.rb' ]
+      )
+
+      expect_files_to_not_exist expected_files_before
+
+      expected_files_after = [
+        'packs/fruits/apples/app/public/apple.rb',
+        'packs/fruits/apples/spec/public/apple_spec.rb'
       ]
 
       expect_files_to_exist expected_files_after
@@ -1219,7 +1499,7 @@ RSpec.describe UsePackwerk do
       it 'moves the file into the public directory' do
         UsePackwerk.create_pack!(pack_name: 'gems/my_gem')
 
-        expected_file = only_nonroot_package.directory.join('app/public/my_gem_service.rb')
+        expected_file = ParsePackwerk.find('gems/my_gem').directory.join('app/public/my_gem_service.rb')
         expect(expected_file).to_not exist
 
         make_public
@@ -1713,6 +1993,8 @@ RSpec.describe UsePackwerk do
           enforce_dependencies: false
           enforce_privacy: false
         YML
+
+        ParsePackwerk.bust_cache!
       end
 
       it 'adds the dependency' do

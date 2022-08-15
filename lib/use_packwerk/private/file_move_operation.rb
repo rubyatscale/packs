@@ -16,37 +16,37 @@ module UsePackwerk
 
       sig { params(origin_pathname: Pathname, new_package_root: Pathname).returns(Pathname) }
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
-        parts = origin_pathname.to_s.split('/')
-        toplevel_directory = parts[0]
+        origin_pack = T.must(ParsePackwerk.package_from_path(origin_pathname))
 
-        case toplevel_directory.to_s
-        # This allows us to move files from monolith to packs
-        when 'app', 'spec', 'lib'
+        new_implementation = nil
+        if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
           new_package_root.join(origin_pathname).cleanpath
-        # This allows us to move files from packs to packs
-        when *PERMITTED_PACK_LOCATIONS # parts looks like ['packs', 'organisms', 'app', 'services', 'bird_like', 'eagle.rb']
-          new_package_root.join(T.must(parts[2..]).join('/')).cleanpath
         else
-          raise StandardError.new("Don't know how to find destination path for #{origin_pathname.inspect}")
+          Pathname.new(origin_pathname.to_s.gsub(origin_pack.name, new_package_root.to_s)).cleanpath
         end
       end
 
       sig { params(origin_pathname: Pathname).returns(Pathname) }
       def self.destination_pathname_for_new_public_api(origin_pathname)
-        parts = origin_pathname.to_s.split('/')
-        toplevel_directory = Pathname.new(parts[0])
 
-        case toplevel_directory.to_s
-        # This allows us to make API in the monolith public
-        when 'app', 'spec'
-          toplevel_directory.join('public').join(T.must(parts[2..]).join('/')).cleanpath
-        # This allows us to make API in existing packs public
-        when *PERMITTED_PACK_LOCATIONS # parts looks like ['packs', 'organisms', 'app', 'services', 'bird_like', 'eagle.rb']
-          pack_name = Pathname.new(parts[1])
-          toplevel_directory.join(pack_name).join('app/public').join(T.must(parts[4..]).join('/')).cleanpath
+        origin_pack = T.must(ParsePackwerk.package_from_path(origin_pathname))
+        if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
+          filepath_without_pack_name = origin_pathname.to_s
         else
-          raise StandardError.new("Don't know how to find destination path for #{origin_pathname.inspect}")
+          filepath_without_pack_name = origin_pathname.to_s.gsub("#{origin_pack.name}/", '')
         end
+
+        # We join the pack name with the rest of the path...
+        path_parts = filepath_without_pack_name.split("/")
+        Pathname.new(origin_pack.name).join(
+          # ... keeping the "app" or "spec"
+          T.must(path_parts[0]),
+          # ... substituting "controllers," "services," etc. with "public"
+          'public',
+          # ... then the rest is the same
+          T.must(path_parts[2..]).join("/")
+        # and we take the cleanpath so `./app/...` becomes `app/...`
+        ).cleanpath
       end
 
       sig { returns(FileMoveOperation) }

@@ -150,8 +150,55 @@ RSpec.shared_context 'app fixtures' do
         - packs/organisms/app/services/bug_like/fly.rb
     CONTENTS
 
+    write_file('packs/organisms/package.yml', <<~CONTENTS)
+      enforce_privacy: true
+      enforce_dependencies: true
+      metadata:
+        protections:
+          prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+          prevent_other_packages_from_using_this_packages_internals: fail_on_new
+          prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+          prevent_this_package_from_creating_other_namespaces: fail_on_new
+    CONTENTS
+
     write_file('gems/my_gem/app/services/my_gem_service.rb', <<~CONTENTS)
       # typed: strict
+      # so rubocop does not complain
+      def empty_function; end
+    CONTENTS
+
+    write_file('gems/my_gem/app/services/my_gem_service.rb', <<~CONTENTS)
+      # typed: strict
+      # so rubocop does not complain
+      def empty_function; end
+    CONTENTS
+
+    write_file('gems/my_gem/package.yml', <<~CONTENTS)
+      enforce_privacy: true
+      enforce_dependencies: true
+      metadata:
+        protections:
+          prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+          prevent_other_packages_from_using_this_packages_internals: fail_on_new
+          prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+          prevent_this_package_from_creating_other_namespaces: fail_on_new
+    CONTENTS
+
+    write_file('packs/organisms/birds/package.yml', <<~CONTENTS)
+      enforce_privacy: true
+      enforce_dependencies: true
+      metadata:
+        protections:
+          prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+          prevent_other_packages_from_using_this_packages_internals: fail_on_new
+          prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+          prevent_this_package_from_creating_other_namespaces: fail_on_new
+    CONTENTS
+
+    write_file('packs/organisms/birds/app/services/emu.rb', <<~CONTENTS)
+    CONTENTS
+    write_file('packs/organisms/birds/spec/services/emu_spec.rb', <<~CONTENTS)
+      # typed: true
       # so rubocop does not complain
       def empty_function; end
     CONTENTS
@@ -213,6 +260,17 @@ RSpec.shared_context 'app fixtures' do
   end
 
   let(:app_with_files_and_directories_with_same_names) do
+    write_file('package.yml', <<~CONTENTS)
+      enforce_privacy: true
+      enforce_dependencies: true
+      metadata:
+        protections:
+          prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+          prevent_other_packages_from_using_this_packages_internals: fail_on_new
+          prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+          prevent_this_package_from_creating_other_namespaces: fail_on_new
+    CONTENTS
+
     write_file('app/services/salads/types/cobb.rb', <<~CONTENTS)
       # typed: strict
       # so rubocop does not complain

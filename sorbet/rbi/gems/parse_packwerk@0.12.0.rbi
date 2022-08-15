@@ -9,6 +9,9 @@ module ParsePackwerk
     sig { returns(T::Array[::ParsePackwerk::Package]) }
     def all; end
 
+    sig { void }
+    def bust_cache!; end
+
     sig { params(name: ::String).returns(T.nilable(::ParsePackwerk::Package)) }
     def find(name); end
 
