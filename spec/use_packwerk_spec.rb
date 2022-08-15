@@ -162,6 +162,75 @@ RSpec.describe UsePackwerk do
         expect(only_nonroot_package.name).to eq('gems/my_sick_new_pack')
       end
     end
+
+    context 'pack is nested' do
+      let(:pack_name) { 'packs/fruits/apples' }
+
+      it 'creates a package.yml correctly' do
+        create_pack
+
+        expect(only_nonroot_package.name).to eq('packs/fruits/apples')
+        expect(only_nonroot_package.enforce_privacy).to eq(true)
+        expect(only_nonroot_package.enforce_dependencies).to eq(true)
+        expect(only_nonroot_package.dependencies).to eq([])
+        expect(only_nonroot_package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} })
+
+        expected = <<~EXPECTED
+          enforce_dependencies: true
+          enforce_privacy: true
+          metadata:
+            owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
+            protections:
+              prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+              prevent_other_packages_from_using_this_packages_internals: fail_on_new
+              prevent_this_package_from_exposing_an_untyped_api: fail_on_new
+              prevent_this_package_from_creating_other_namespaces: fail_on_new
+        EXPECTED
+
+        expect(only_nonroot_package.yml.read).to eq expected
+      end
+
+      context 'pack already exists and has content' do
+        before do
+          write_file('packs/fruit/apples/package.yml', <<~CONTENTS)
+            enforce_privacy: true
+            enforce_dependencies: true
+            dependencies:
+              - packs/some_other_pack
+            metadata:
+              protections:
+                prevent_this_package_from_exposing_an_untyped_api: fail_never
+                prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
+                prevent_other_packages_from_using_this_packages_internals: fail_on_new
+                prevent_this_package_from_creating_other_namespaces: fail_on_new
+          CONTENTS
+        end
+
+        it 'is idempotent' do
+          expect(packages.count).to eq 1
+          existing_package = packages.first
+          expect(existing_package.dependencies).to eq(['packs/some_other_pack'])
+          expect(existing_package.metadata).to eq({
+            'protections' => {
+              'prevent_this_package_from_exposing_an_untyped_api' => 'fail_never',
+              'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new',
+              'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new',
+              'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new',
+            }
+          })
+          UsePackwerk.create_pack!(pack_name: 'packs/fruit/apples/')
+          new_packages = get_packages
+          expect(new_packages.count).to eq 1
+          new_package = new_packages.first
+
+          expect(new_package.name).to eq(existing_package.name)
+          expect(new_package.enforce_privacy).to eq(existing_package.enforce_privacy)
+          expect(new_package.enforce_dependencies).to eq(existing_package.enforce_dependencies)
+          expect(new_package.dependencies).to eq(existing_package.dependencies)
+          expect(new_package.metadata).to eq(existing_package.metadata)
+        end
+      end
+    end
   end
 
   describe '.move_to_pack!' do
