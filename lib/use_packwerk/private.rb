@@ -427,6 +427,7 @@ module UsePackwerk
 
     sig { params(original_package: ParsePackwerk::Package).returns(ParsePackwerk::Package) }
     def self.rewrite_package_with_original_packwerk_values(original_package)
+      ParsePackwerk.bust_cache!
       package_with_protection_defaults = T.must(ParsePackwerk.all.find { |package| package.name == original_package.name })
       # PackageProtections also sets `enforce_privacy` and `enforce_dependency` to be true, so we set these back down to their original values
       package = ParsePackwerk::Package.new(

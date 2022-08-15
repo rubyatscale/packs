@@ -1,6 +1,10 @@
 # typed: false
 RSpec.describe UsePackwerk do
+
+  # Note: Once we migrate `ParsePackwerk` to use an initialized `PackageSet`, the cache behavior will become more clear, hopefully.
+  # The client can get a new package set each time they are sensitive to a stale cache.
   def get_packages
+    ParsePackwerk.bust_cache!
     ParsePackwerk.all
   end
 
@@ -27,6 +31,7 @@ RSpec.describe UsePackwerk do
 
   def bust_cache_and_configure_code_ownership!
     CodeOwnership.bust_caches!
+    ParsePackwerk.bust_cache!
   end
 
   before do
@@ -904,7 +909,7 @@ RSpec.describe UsePackwerk do
           # @team Artists
         CONTENTS
 
-        write_file('packs/package.yml', <<~CONTENTS)
+        write_file('package.yml', <<~CONTENTS)
           enforce_dependencies: true
           enforce_privacy: true
           metadata:
@@ -970,6 +975,7 @@ RSpec.describe UsePackwerk do
         end
 
         create_pack
+        ParsePackwerk.bust_cache!
 
         expect(Pathname.new('app/services/owned_by_chefs/sandwich.rb').read).to eq <<~RUBY
           # @team Chefs
@@ -1713,6 +1719,8 @@ RSpec.describe UsePackwerk do
           enforce_dependencies: false
           enforce_privacy: false
         YML
+
+        ParsePackwerk.bust_cache!
       end
 
       it 'adds the dependency' do
