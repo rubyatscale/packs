@@ -16,19 +16,31 @@ module UsePackwerk
 
       sig { params(origin_pathname: Pathname, new_package_root: Pathname).returns(Pathname) }
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
-        parts = origin_pathname.to_s.split('/')
-        toplevel_directory = parts[0]
+        origin_pack = T.must(ParsePackwerk.package_from_path(origin_pathname))
 
-        case toplevel_directory.to_s
-        # This allows us to move files from monolith to packs
-        when 'app', 'spec', 'lib'
+        require 'pry'
+        binding.pry if origin_pathname.to_s.include?('eagle')
+        new_implementation = nil
+        if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
           new_package_root.join(origin_pathname).cleanpath
-        # This allows us to move files from packs to packs
-        when *PERMITTED_PACK_LOCATIONS # parts looks like ['packs', 'organisms', 'app', 'services', 'bird_like', 'eagle.rb']
-          new_package_root.join(T.must(parts[2..]).join('/')).cleanpath
         else
-          raise StandardError.new("Don't know how to find destination path for #{origin_pathname.inspect}")
+          Pathname.new(origin_pathname.to_s.gsub(origin_pack.name, new_package_root.to_s)).cleanpath
         end
+
+        # parts = origin_pathname.to_s.split('/')
+        # toplevel_directory = parts[0]
+        # case toplevel_directory.to_s
+        # # This allows us to move files from monolith to packs
+        # when 'app', 'spec', 'lib'
+        #   new_package_root.join(origin_pathname).cleanpath
+        # # This allows us to move files from packs to packs
+        # when *PERMITTED_PACK_LOCATIONS # parts looks like ['packs', 'organisms', 'app', 'services', 'bird_like', 'eagle.rb']
+        #   new_package_root.join(T.must(parts[2..]).join('/')).cleanpath
+        # else
+        #   raise StandardError.new("Don't know how to find destination path for #{origin_pathname.inspect}")
+        # end
+
+        # raise
       end
 
       sig { params(origin_pathname: Pathname).returns(Pathname) }
