@@ -1024,6 +1024,13 @@ RSpec.describe UsePackwerk do
               owner: Artists
           CONTENTS
 
+          write_file('packs/owned_by_artists/package.yml', <<~CONTENTS)
+            enforce_dependencies: true
+            enforce_privacy: true
+            metadata:
+              owner: Artists
+          CONTENTS
+
           write_file('packs/owned_by_artists/app/public/paint.rb', <<~CONTENTS)
             # typed: strict
             
