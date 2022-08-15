@@ -197,19 +197,7 @@ module UsePackwerk
 
 
           file_move_operations = file_paths.map do |path|
-            parts = path.to_s.split('/')
-            first_part_of_path = T.must(parts[0])
-
-            if Pathname.new(first_part_of_path).dirname.join(ParsePackwerk::PACKAGE_YML_NAME).exist?
-              package_location = Pathname.new('.')
-            elsif PERMITTED_PACK_LOCATIONS.include?(first_part_of_path)
-              package_location = Pathname.new(first_part_of_path).join(T.must(parts[1]))
-            else
-              raise StandardError.new('Can only make files in the monolith or in existing packs public')
-            end
-
-            package = ParsePackwerk::Package.from(package_location.join(ParsePackwerk::PACKAGE_YML_NAME))
-
+            package = T.must(ParsePackwerk.package_from_path(path))
             origin_pathname = Pathname.new(path).cleanpath
 
             FileMoveOperation.new(
