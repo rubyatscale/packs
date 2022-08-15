@@ -1188,6 +1188,139 @@ RSpec.describe UsePackwerk do
         end
       end
     end
+
+    context 'pack is nested' do
+      let(:pack_name) { 'packs/fruits/apples' }
+
+      context 'pack not yet created' do
+        it 'errors' do
+          expect { move_to_pack }.to raise_error("Can not find package with name packs/fruits/apples. Make sure the argument is of the form `packs/my_pack/`")
+        end
+      end
+
+      it 'can move files from a monolith into a child package' do
+        complex_app
+
+        expected_files_before = [
+          # Files in monolith
+          'app/services/horse_like/zebra.rb',
+          'app/services/horse_like/donkey.rb',
+          'app/services/horse_like/horse.rb',
+          'app/services/horse_like/zebra.rb',
+          'app/services/fish_like/small_ones/goldfish.rb',
+          'app/services/fish_like/small_ones/seahorse.rb',
+          'app/services/fish_like/big_ones/whale.rb',
+          # Specs in monolith
+          'spec/services/dog_like/golden_retriever_spec.rb',
+          'spec/services/fish_like/big_ones/whale_spec.rb',
+          'spec/services/horse_like/donkey_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_before
+
+        create_pack
+        move_to_pack
+
+        expect_files_to_not_exist expected_files_before
+
+        expected_files_after = [
+          'packs/fruits/apples/app/services/horse_like/zebra.rb',
+          'packs/fruits/apples/app/services/horse_like/donkey.rb',
+          'packs/fruits/apples/app/services/horse_like/horse.rb',
+          'packs/fruits/apples/app/services/horse_like/zebra.rb',
+          'packs/fruits/apples/app/services/fish_like/small_ones/goldfish.rb',
+          'packs/fruits/apples/app/services/fish_like/small_ones/seahorse.rb',
+          'packs/fruits/apples/app/services/fish_like/big_ones/whale.rb',
+          'packs/fruits/apples/spec/services/dog_like/golden_retriever_spec.rb',
+          'packs/fruits/apples/spec/services/fish_like/big_ones/whale_spec.rb',
+          'packs/fruits/apples/spec/services/horse_like/donkey_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_after
+      end
+
+      it 'can move files from one pack to another pack' do
+        complex_app
+
+        expected_files_before = [
+          # Files in packs
+          'packs/organisms/app/services/bird_like/eagle.rb',
+          'packs/organisms/app/services/bird_like/swan.rb',
+          'packs/organisms/app/services/bug_like/fly.rb',
+          # Specs in packs
+          'packs/organisms/spec/services/bird_like/eagle_spec.rb',
+          'packs/organisms/spec/services/bug_like/fly_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_before
+
+        create_pack
+        move_to_pack
+
+        expect_files_to_not_exist expected_files_before
+
+        expected_files_after = [
+          'packs/fruits/apples/app/services/bird_like/eagle.rb',
+          'packs/fruits/apples/app/services/bird_like/swan.rb',
+          'packs/fruits/apples/app/services/bug_like/fly.rb',
+          'packs/fruits/apples/spec/services/bird_like/eagle_spec.rb',
+          'packs/fruits/apples/spec/services/bug_like/fly_spec.rb',
+        ]
+
+        expect_files_to_exist expected_files_after
+      end
+
+      context 'directory moves have trailing slashes' do
+        let(:move_to_pack) do
+          UsePackwerk.move_to_pack!(
+            pack_name: pack_name,
+            paths_relative_to_root: [
+              # Files in monolith
+              'app/services/horse_like/',
+              'app/services/fish_like/small_ones/',
+              'app/services/fish_like/big_ones/',
+              'app/services/dog_like/golden_retriever.rb',
+              # Files in packs
+              'packs/organisms/app/services/bird_like/eagle.rb',
+              'packs/organisms/app/services/bird_like/swan.rb',
+              'packs/organisms/app/services/bug_like/fly.rb',
+            ],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
+          )
+        end
+
+        it 'can move files from one pack to another pack' do
+          complex_app
+
+          expected_files_before = [
+            # Files in packs
+            'packs/organisms/app/services/bird_like/eagle.rb',
+            'packs/organisms/app/services/bird_like/swan.rb',
+            'packs/organisms/app/services/bug_like/fly.rb',
+            # Specs in packs
+            'packs/organisms/spec/services/bird_like/eagle_spec.rb',
+            'packs/organisms/spec/services/bug_like/fly_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_before
+
+          create_pack
+          move_to_pack
+
+          expect_files_to_not_exist expected_files_before
+
+          expected_files_after = [
+            'packs/fruits/apples/app/services/bird_like/eagle.rb',
+            'packs/fruits/apples/app/services/bird_like/swan.rb',
+            'packs/fruits/apples/app/services/bug_like/fly.rb',
+            'packs/fruits/apples/spec/services/bird_like/eagle_spec.rb',
+            'packs/fruits/apples/spec/services/bug_like/fly_spec.rb',
+          ]
+
+          expect_files_to_exist expected_files_after
+        end
+      end
+    end
   end
 
   describe '.make_public!' do
