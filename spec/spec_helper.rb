@@ -4,6 +4,7 @@
 require 'use_packwerk'
 require 'tmpdir'
 require_relative 'support/app_fixtures'
+require 'pry'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
