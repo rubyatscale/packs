@@ -166,7 +166,7 @@ module UsePackwerk
     parent_name = Private.clean_pack_name(parent_name)
     parent_package = ParsePackwerk.all.find { |package| package.name == parent_name }
     if parent_package.nil?
-      raise StandardError.new("Can not find package with name #{parent_name}. Make sure the argument is of the form `packs/my_pack/`")
+      parent_package = create_pack_if_not_exists!(pack_name: parent_name, enforce_privacy: true, enforce_dependencies: true)
     end
 
     # First we create a new pack that has the exact same properties of the old one!
