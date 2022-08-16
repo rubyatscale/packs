@@ -189,7 +189,7 @@ module UsePackwerk
           file_paths = paths_relative_to_root.flat_map do |path|
             origin_pathname = Pathname.new(path).cleanpath
             if origin_pathname.directory?
-              origin_pathname.glob('**/*.rb').map(&:to_s)
+              origin_pathname.glob('**/*.*').map(&:to_s)
             else
               path
             end
