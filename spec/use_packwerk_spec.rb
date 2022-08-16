@@ -1,13 +1,5 @@
 # typed: false
 RSpec.describe UsePackwerk do
-
-  # Note: Once we migrate `ParsePackwerk` to use an initialized `PackageSet`, the cache behavior will become more clear, hopefully.
-  # The client can get a new package set each time they are sensitive to a stale cache.
-  def get_packages
-    ParsePackwerk.bust_cache!
-    ParsePackwerk.all
-  end
-
   def expect_files_to_exist(files)
     files.each do |file|
       expect(File.file?(file)).to (eq true), "Test failed: expected #{file} to now exist, but it does not"
@@ -20,19 +12,11 @@ RSpec.describe UsePackwerk do
     end
   end
 
-  let(:packages) { get_packages }
-
-  def bust_cache_and_configure_code_ownership!
-    CodeOwnership.bust_caches!
-    ParsePackwerk.bust_cache!
-  end
-
   before do
     CodeTeams.bust_caches!
     UsePackwerk.configure do |config|
       config.enforce_dependencies = true
     end
-    bust_cache_and_configure_code_ownership!
 
     # Always add the root package for every spec
     write_package_yml('.')
@@ -101,9 +85,10 @@ RSpec.describe UsePackwerk do
     context 'pack already exists and has content' do      
       it 'is idempotent' do
         write_package_yml('packs/food', enforce_privacy: false, enforce_dependencies: true, dependencies: ['packs/some_other_pack'])
-        expect(packages.count).to eq 2
+        expect(ParsePackwerk.all.count).to eq 2
         UsePackwerk.create_pack!(pack_name: 'packs/food/')
         ParsePackwerk.bust_cache!
+        expect(ParsePackwerk.all.count).to eq 2
         package = ParsePackwerk.find('packs/food')
 
         expect(package.name).to eq('packs/food')
