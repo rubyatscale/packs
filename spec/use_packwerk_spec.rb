@@ -1050,7 +1050,6 @@ RSpec.describe UsePackwerk do
     end
   end
 
-
   describe '.add_dependency!' do
     context 'pack has no dependencies' do
       it 'adds the dependency' do
