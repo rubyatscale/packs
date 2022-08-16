@@ -3,8 +3,7 @@
 
 require 'use_packwerk'
 require 'tmpdir'
-require_relative 'support/app_fixtures'
-require 'logger'
+require 'pry'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -16,8 +15,6 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
-
-  config.include_context 'app fixtures'
 
   config.around do |example|
     ParsePackwerk.bust_cache!
@@ -32,17 +29,6 @@ RSpec.configure do |config|
     end
   ensure
     FileUtils.rm_rf(T.must(tmpdir))
-  end
-
-  # This library `puts` a lot of things to `STDOUT`.
-  # Eventually we might want to allow passing in a Logger.
-  # For now, we surpress terminal output so test output is easier to read.
-  config.around do |example|
-    temp_stdout = $stdout
-    $stdout = File.new('/dev/null', 'w')
-    example.run
-  ensure
-    $stdout = temp_stdout
   end
 end
 

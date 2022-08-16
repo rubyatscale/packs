@@ -22,12 +22,6 @@ RSpec.describe UsePackwerk do
 
   let(:packages) { get_packages }
 
-  let(:only_nonroot_package) do
-    non_root_packages = packages.select{ |p| p.name != ParsePackwerk::ROOT_PACKAGE_NAME }
-    expect(non_root_packages.count).to eq 1
-    non_root_packages.first
-  end
-
   def bust_cache_and_configure_code_ownership!
     CodeOwnership.bust_caches!
     ParsePackwerk.bust_cache!
@@ -50,8 +44,9 @@ RSpec.describe UsePackwerk do
       let(:pack_name) { 'my_pack' }
 
       it 'errors' do
-        expect { UsePackwerk.create_pack!(pack_name: 'packs/my_pack') }.to
-          raise_error("UsePackwerk only supports packages in the the following directories: [\"gems\", \"components\", \"packs\"]. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`.")
+        expect { UsePackwerk.create_pack!(pack_name: 'foo/my_pack') }.to raise_error(
+          "UsePackwerk only supports packages in the the following directories: [\"gems\", \"components\", \"packs\"]. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
+        )
       end
     end
 
@@ -81,11 +76,9 @@ RSpec.describe UsePackwerk do
     end
 
     context 'use packwerk is configured to not enforce dependencies by default' do
-      before { UsePackwerk.configure { |config| config.enforce_dependencies = false } }
-
       it 'creates a package.yml correctly' do
-        create_pack
-
+        UsePackwerk.configure { |config| config.enforce_dependencies = false }
+        UsePackwerk.create_pack!(pack_name: 'packs/my_pack')
         expected_package = ParsePackwerk::Package.new(
           name: 'packs/my_pack',
           enforce_privacy: true,
@@ -94,61 +87,37 @@ RSpec.describe UsePackwerk do
           metadata: { 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} },
         )
 
-        expect(only_nonroot_package.name).to eq(expected_package.name)
-        expect(only_nonroot_package.enforce_privacy).to eq(expected_package.enforce_privacy)
-        expect(only_nonroot_package.enforce_dependencies).to eq(expected_package.enforce_dependencies)
-        expect(only_nonroot_package.dependencies).to eq(expected_package.dependencies)
-        expect(only_nonroot_package.metadata).to eq(expected_package.metadata)
+        ParsePackwerk.bust_cache!
+
+        actual_package = ParsePackwerk.find('packs/my_pack')
+        expect(actual_package.name).to eq(expected_package.name)
+        expect(actual_package.enforce_privacy).to eq(expected_package.enforce_privacy)
+        expect(actual_package.enforce_dependencies).to eq(expected_package.enforce_dependencies)
+        expect(actual_package.dependencies).to eq(expected_package.dependencies)
+        expect(actual_package.metadata).to eq(expected_package.metadata)
       end
     end
 
     context 'pack already exists and has content' do      
-      before do
-        write_file('packs/food/package.yml', <<~CONTENTS)
-          enforce_privacy: true
-          enforce_dependencies: true
-          dependencies:
-            - packs/some_other_pack
-          metadata:
-            protections:
-              prevent_this_package_from_exposing_an_untyped_api: fail_never
-              prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
-              prevent_other_packages_from_using_this_packages_internals: fail_on_new
-              prevent_this_package_from_creating_other_namespaces: fail_on_new
-        CONTENTS
-      end
-
-
       it 'is idempotent' do
-        expect(packages.count).to eq 1
-        existing_package = packages.first
-        expect(existing_package.dependencies).to eq(['packs/some_other_pack'])
-        expect(existing_package.metadata).to eq({
-          'protections' => {
-            'prevent_this_package_from_exposing_an_untyped_api' => 'fail_never',
-            'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new',
-            'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new',
-            'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new',
-          }
-        })
+        write_package_yml('packs/food', enforce_privacy: false, enforce_dependencies: true, dependencies: ['packs/some_other_pack'])
+        expect(packages.count).to eq 2
         UsePackwerk.create_pack!(pack_name: 'packs/food/')
-        new_packages = get_packages
-        expect(new_packages.count).to eq 1
-        new_package = new_packages.first
+        ParsePackwerk.bust_cache!
+        package = ParsePackwerk.find('packs/food')
 
-        expect(new_package.name).to eq(existing_package.name)
-        expect(new_package.enforce_privacy).to eq(existing_package.enforce_privacy)
-        expect(new_package.enforce_dependencies).to eq(existing_package.enforce_dependencies)
-        expect(new_package.dependencies).to eq(existing_package.dependencies)
-        expect(new_package.metadata).to eq(existing_package.metadata)
+        expect(package.name).to eq('packs/food')
+        expect(package.enforce_privacy).to eq(false)
+        expect(package.enforce_dependencies).to eq(true)
+        expect(package.dependencies).to eq(['packs/some_other_pack'])
       end
     end
 
     it 'automatically adds the owner metadata key' do
-      create_pack
-
-      expect(only_nonroot_package.metadata['owner']).to eq 'MyTeam'
-      package_yml_contents = only_nonroot_package.yml.read
+      UsePackwerk.create_pack!(pack_name: 'packs/my_pack')
+      package = ParsePackwerk.find('packs/my_pack')
+      expect(package.metadata['owner']).to eq 'MyTeam'
+      package_yml_contents = package.yml.read
       expect(package_yml_contents).to include ('owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team')
     end
 
@@ -156,8 +125,8 @@ RSpec.describe UsePackwerk do
       let(:pack_name) { 'gems/my_pack' }
 
       it 'creates the pack' do
-        create_pack
-        expect(only_nonroot_package.name).to eq('gems/my_pack')
+        UsePackwerk.create_pack!(pack_name: 'gems/my_pack')
+        expect(ParsePackwerk.find('gems/my_pack').name).to eq('gems/my_pack')
       end
     end
 
@@ -165,13 +134,14 @@ RSpec.describe UsePackwerk do
       let(:pack_name) { 'packs/fruits/apples' }
 
       it 'creates a package.yml correctly' do
-        create_pack
+        UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
 
-        expect(only_nonroot_package.name).to eq('packs/fruits/apples')
-        expect(only_nonroot_package.enforce_privacy).to eq(true)
-        expect(only_nonroot_package.enforce_dependencies).to eq(true)
-        expect(only_nonroot_package.dependencies).to eq([])
-        expect(only_nonroot_package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} })
+        package = ParsePackwerk.find('packs/fruits/apples')
+        expect(package.name).to eq('packs/fruits/apples')
+        expect(package.enforce_privacy).to eq(true)
+        expect(package.enforce_dependencies).to eq(true)
+        expect(package.dependencies).to eq([])
+        expect(package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} })
 
         expected = <<~EXPECTED
           enforce_dependencies: true
@@ -185,48 +155,7 @@ RSpec.describe UsePackwerk do
               prevent_this_package_from_creating_other_namespaces: fail_on_new
         EXPECTED
 
-        expect(only_nonroot_package.yml.read).to eq expected
-      end
-
-      context 'pack already exists and has content' do
-        before do
-          write_file('packs/fruit/apples/package.yml', <<~CONTENTS)
-            enforce_privacy: true
-            enforce_dependencies: true
-            dependencies:
-              - packs/some_other_pack
-            metadata:
-              protections:
-                prevent_this_package_from_exposing_an_untyped_api: fail_never
-                prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
-                prevent_other_packages_from_using_this_packages_internals: fail_on_new
-                prevent_this_package_from_creating_other_namespaces: fail_on_new
-          CONTENTS
-        end
-
-        it 'is idempotent' do
-          expect(packages.count).to eq 1
-          existing_package = packages.first
-          expect(existing_package.dependencies).to eq(['packs/some_other_pack'])
-          expect(existing_package.metadata).to eq({
-            'protections' => {
-              'prevent_this_package_from_exposing_an_untyped_api' => 'fail_never',
-              'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new',
-              'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new',
-              'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new',
-            }
-          })
-          UsePackwerk.create_pack!(pack_name: 'packs/fruit/apples/')
-          new_packages = get_packages
-          expect(new_packages.count).to eq 1
-          new_package = new_packages.first
-
-          expect(new_package.name).to eq(existing_package.name)
-          expect(new_package.enforce_privacy).to eq(existing_package.enforce_privacy)
-          expect(new_package.enforce_dependencies).to eq(existing_package.enforce_dependencies)
-          expect(new_package.dependencies).to eq(existing_package.dependencies)
-          expect(new_package.metadata).to eq(existing_package.metadata)
-        end
+        expect(package.yml.read).to eq expected
       end
     end
 
@@ -1136,398 +1065,6 @@ RSpec.describe UsePackwerk do
     end
   end
 
-  describe '.list_top_privacy_violations' do
-    let(:list_top_privacy_violations) do
-      UsePackwerk.list_top_privacy_violations(
-        pack_name: pack_name,
-        limit: limit,
-      )
-    end
-
-    let(:limit) { 10 }
-    before { app_with_lots_of_violations }
-
-    context 'analyzing the root pack' do
-      let(:pack_name) { ParsePackwerk::ROOT_PACKAGE_NAME }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_privacy_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 4
-        RandomMonolithFile
-          - Total Count: 4 (100.0% of total)
-          - By package:
-            - packs/food: 2
-            - packs/organisms: 2
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-
-    end
-
-    context 'analyzing packs/food' do
-      let(:pack_name) { 'packs/food' }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_privacy_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 3
-        Salad
-          - Total Count: 3 (100.0% of total)
-          - By package:
-            - packs/organisms: 2
-            - .: 1
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-    end
-
-    context 'analyzing packs/organisms' do
-      let(:pack_name) { 'packs/organisms' }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_privacy_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 4
-        Vulture
-          - Total Count: 2 (50.0% of total)
-          - By package:
-            - packs/food: 2
-        Eagle
-          - Total Count: 1 (25.0% of total)
-          - By package:
-            - packs/food: 1
-        OtherBird
-          - Total Count: 1 (25.0% of total)
-          - By package:
-            - packs/food: 1
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-
-      context 'user has set a limit of 2' do
-        let(:limit) { 2 }
-
-        it 'has the right output' do
-          logged_output = ""
-          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-            logged_output += string
-            logged_output += "\n"
-          end
-
-          list_top_privacy_violations
-          puts logged_output
-
-          expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          Vulture
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/food: 2
-          Eagle
-            - Total Count: 1 (25.0% of total)
-            - By package:
-              - packs/food: 1
-          OUTPUT
-          expect(logged_output).to eq expected_logged_output
-        end
-      end
-    end
-
-    context 'analyzing a pack with a trailing slash in the name' do
-      let(:pack_name) { 'packs/food/' }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_privacy_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 3
-        Salad
-          - Total Count: 3 (100.0% of total)
-          - By package:
-            - packs/organisms: 2
-            - .: 1
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-    end
-
-    context 'analyzing all packs' do
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        UsePackwerk.list_top_privacy_violations(
-          pack_name: nil,
-          limit: limit,
-        )
-
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 11
-        RandomMonolithFile (.)
-          - Total Count: 4 (36.36% of total)
-          - By package:
-            - packs/food: 2
-            - packs/organisms: 2
-        Salad (packs/food)
-          - Total Count: 3 (27.27% of total)
-          - By package:
-            - packs/organisms: 2
-            - .: 1
-        Vulture (packs/organisms)
-          - Total Count: 2 (18.18% of total)
-          - By package:
-            - packs/food: 2
-        Eagle (packs/organisms)
-          - Total Count: 1 (9.09% of total)
-          - By package:
-            - packs/food: 1
-        OtherBird (packs/organisms)
-          - Total Count: 1 (9.09% of total)
-          - By package:
-            - packs/food: 1
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-    end
-  end
-
-  describe '.list_top_dependency_violations' do
-    let(:list_top_dependency_violations) do
-      UsePackwerk.list_top_dependency_violations(
-        pack_name: pack_name,
-        limit: limit,
-      )
-    end
-
-    let(:limit) { 10 }
-    before { app_with_lots_of_violations }
-
-    context 'analyzing the root pack' do
-      let(:pack_name) { ParsePackwerk::ROOT_PACKAGE_NAME }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_dependency_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 4
-        RandomMonolithFile
-          - Total Count: 4 (100.0% of total)
-          - By package:
-            - packs/food: 2
-            - packs/organisms: 2
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-
-    end
-
-    context 'analyzing packs/food' do
-      let(:pack_name) { 'packs/food' }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_dependency_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 4
-        Burger
-          - Total Count: 2 (50.0% of total)
-          - By package:
-            - packs/organisms: 2
-        Salad
-          - Total Count: 2 (50.0% of total)
-          - By package:
-            - packs/organisms: 2
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-    end
-
-    context 'analyzing packs/organisms' do
-      let(:pack_name) { 'packs/organisms' }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_dependency_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 4
-        Vulture
-          - Total Count: 2 (50.0% of total)
-          - By package:
-            - packs/food: 2
-        Eagle
-          - Total Count: 1 (25.0% of total)
-          - By package:
-            - packs/food: 1
-        OtherBird
-          - Total Count: 1 (25.0% of total)
-          - By package:
-            - packs/food: 1
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-
-      context 'user has set a limit of 2' do
-        let(:limit) { 2 }
-
-        it 'has the right output' do
-          logged_output = ""
-          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-            logged_output += string
-            logged_output += "\n"
-          end
-
-          list_top_dependency_violations
-          puts logged_output
-
-          expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          Vulture
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/food: 2
-          Eagle
-            - Total Count: 1 (25.0% of total)
-            - By package:
-              - packs/food: 1
-          OUTPUT
-          expect(logged_output).to eq expected_logged_output
-        end
-      end
-    end
-
-    context 'analyzing a pack with a trailing slash in the name' do
-      let(:pack_name) { 'packs/food/' }
-
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        list_top_dependency_violations
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 4
-        Burger
-          - Total Count: 2 (50.0% of total)
-          - By package:
-            - packs/organisms: 2
-        Salad
-          - Total Count: 2 (50.0% of total)
-          - By package:
-            - packs/organisms: 2
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-    end
-
-    context 'analyzing all packs' do
-      it 'has the right output' do
-        logged_output = ""
-        expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-          logged_output += string
-          logged_output += "\n"
-        end
-
-        UsePackwerk.list_top_dependency_violations(
-          pack_name: nil,
-          limit: limit,
-        )
-
-        puts logged_output
-
-        expected_logged_output = <<~OUTPUT
-        Total Count: 12
-        RandomMonolithFile (.)
-          - Total Count: 4 (33.33% of total)
-          - By package:
-            - packs/food: 2
-            - packs/organisms: 2
-        Burger (packs/food)
-          - Total Count: 2 (16.67% of total)
-          - By package:
-            - packs/organisms: 2
-        Salad (packs/food)
-          - Total Count: 2 (16.67% of total)
-          - By package:
-            - packs/organisms: 2
-        Vulture (packs/organisms)
-          - Total Count: 2 (16.67% of total)
-          - By package:
-            - packs/food: 2
-        Eagle (packs/organisms)
-          - Total Count: 1 (8.33% of total)
-          - By package:
-            - packs/food: 1
-        OtherBird (packs/organisms)
-          - Total Count: 1 (8.33% of total)
-          - By package:
-            - packs/food: 1
-        OUTPUT
-        expect(logged_output).to eq expected_logged_output
-      end
-    end
-  end
 
   describe '.add_dependency!' do
     context 'pack has no dependencies' do
@@ -1588,6 +1125,491 @@ RSpec.describe UsePackwerk do
       it 'raises an error' do
         expect { UsePackwerk.add_dependency!(pack_name: 'packs/other_pack', dependency_name: '.') }.to raise_error do |e|
           expect(e.message).to eq "Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`"
+        end
+      end
+    end
+  end
+
+  # This will soon be moved into `query_packwerk`
+  describe 'query_packwerk' do
+    before do
+      write_package_yml('packs/food')
+      write_package_yml('packs/organisms')
+
+      write_file('deprecated_references.yml', <<~CONTENTS)
+        # This file contains a list of dependencies that are not part of the long term plan for ..
+        # We should generally work to reduce this list, but not at the expense of actually getting work done.
+        #
+        # You can regenerate this file using the following command:
+        #
+        # bundle exec packwerk update-deprecations .
+        ---
+        "packs/food":
+          "Salad":
+            violations:
+            - privacy
+            files:
+            - random_monolith_file.rb
+      CONTENTS
+
+      write_file('packs/food/deprecated_references.yml', <<~CONTENTS)
+        # This file contains a list of dependencies that are not part of the long term plan for ..
+        # We should generally work to reduce this list, but not at the expense of actually getting work done.
+        #
+        # You can regenerate this file using the following command:
+        #
+        # bundle exec packwerk update-deprecations .
+        ---
+        ".":
+          "RandomMonolithFile":
+            violations:
+            - privacy
+            - dependency
+            files:
+            - packs/organisms/app/public/swan.rb
+            - packs/organisms/app/services/other_bird.rb
+        "packs/organisms":
+          "OtherBird":
+            violations:
+            - dependency
+            - privacy
+            files:
+            - packs/food/app/public/burger.rb
+          "Eagle":
+            violations:
+            - dependency
+            - privacy
+            files:
+            - packs/food/app/public/burger.rb
+          "Vulture":
+            violations:
+            - dependency
+            - privacy
+            files:
+            - packs/food/app/public/burger.rb
+            - packs/food/app/services/salad.rb
+      CONTENTS
+
+      write_file('packs/organisms/deprecated_references.yml', <<~CONTENTS)
+        # This file contains a list of dependencies that are not part of the long term plan for ..
+        # We should generally work to reduce this list, but not at the expense of actually getting work done.
+        #
+        # You can regenerate this file using the following command:
+        #
+        # bundle exec packwerk update-deprecations .
+        ---
+        ".":
+          "RandomMonolithFile":
+            violations:
+            - privacy
+            - dependency
+            files:
+            - packs/organisms/app/public/swan.rb
+            - packs/organisms/app/services/other_bird.rb
+        "packs/food":
+          "Burger":
+            violations:
+            - dependency
+            files:
+            - packs/organisms/app/public/swan.rb
+            - packs/organisms/app/services/other_bird.rb
+          "Salad":
+            violations:
+            - privacy
+            - dependency
+            files:
+            - packs/organisms/app/public/swan.rb
+            - packs/organisms/app/services/other_bird.rb
+      CONTENTS
+    end
+
+    describe '.list_top_privacy_violations' do
+      let(:list_top_privacy_violations) do
+        UsePackwerk.list_top_privacy_violations(
+          pack_name: pack_name,
+          limit: limit,
+        )
+      end
+
+      let(:limit) { 10 }
+
+      context 'analyzing the root pack' do
+        let(:pack_name) { ParsePackwerk::ROOT_PACKAGE_NAME }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_privacy_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 4
+          RandomMonolithFile
+            - Total Count: 4 (100.0% of total)
+            - By package:
+              - packs/food: 2
+              - packs/organisms: 2
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+
+      end
+
+      context 'analyzing packs/food' do
+        let(:pack_name) { 'packs/food' }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_privacy_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 3
+          Salad
+            - Total Count: 3 (100.0% of total)
+            - By package:
+              - packs/organisms: 2
+              - .: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+      end
+
+      context 'analyzing packs/organisms' do
+        let(:pack_name) { 'packs/organisms' }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_privacy_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 4
+          Vulture
+            - Total Count: 2 (50.0% of total)
+            - By package:
+              - packs/food: 2
+          Eagle
+            - Total Count: 1 (25.0% of total)
+            - By package:
+              - packs/food: 1
+          OtherBird
+            - Total Count: 1 (25.0% of total)
+            - By package:
+              - packs/food: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+
+        context 'user has set a limit of 2' do
+          let(:limit) { 2 }
+
+          it 'has the right output' do
+            logged_output = ""
+            expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+              logged_output += string
+              logged_output += "\n"
+            end
+
+            list_top_privacy_violations
+            puts logged_output
+
+            expected_logged_output = <<~OUTPUT
+            Total Count: 4
+            Vulture
+              - Total Count: 2 (50.0% of total)
+              - By package:
+                - packs/food: 2
+            Eagle
+              - Total Count: 1 (25.0% of total)
+              - By package:
+                - packs/food: 1
+            OUTPUT
+            expect(logged_output).to eq expected_logged_output
+          end
+        end
+      end
+
+      context 'analyzing a pack with a trailing slash in the name' do
+        let(:pack_name) { 'packs/food/' }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_privacy_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 3
+          Salad
+            - Total Count: 3 (100.0% of total)
+            - By package:
+              - packs/organisms: 2
+              - .: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+      end
+
+      context 'analyzing all packs' do
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          UsePackwerk.list_top_privacy_violations(
+            pack_name: nil,
+            limit: limit,
+          )
+
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 11
+          RandomMonolithFile (.)
+            - Total Count: 4 (36.36% of total)
+            - By package:
+              - packs/food: 2
+              - packs/organisms: 2
+          Salad (packs/food)
+            - Total Count: 3 (27.27% of total)
+            - By package:
+              - packs/organisms: 2
+              - .: 1
+          Vulture (packs/organisms)
+            - Total Count: 2 (18.18% of total)
+            - By package:
+              - packs/food: 2
+          Eagle (packs/organisms)
+            - Total Count: 1 (9.09% of total)
+            - By package:
+              - packs/food: 1
+          OtherBird (packs/organisms)
+            - Total Count: 1 (9.09% of total)
+            - By package:
+              - packs/food: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+      end
+    end
+
+    describe '.list_top_dependency_violations' do
+      let(:list_top_dependency_violations) do
+        UsePackwerk.list_top_dependency_violations(
+          pack_name: pack_name,
+          limit: limit,
+        )
+      end
+
+      let(:limit) { 10 }
+
+      context 'analyzing the root pack' do
+        let(:pack_name) { ParsePackwerk::ROOT_PACKAGE_NAME }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_dependency_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 4
+          RandomMonolithFile
+            - Total Count: 4 (100.0% of total)
+            - By package:
+              - packs/food: 2
+              - packs/organisms: 2
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+
+      end
+
+      context 'analyzing packs/food' do
+        let(:pack_name) { 'packs/food' }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_dependency_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 4
+          Burger
+            - Total Count: 2 (50.0% of total)
+            - By package:
+              - packs/organisms: 2
+          Salad
+            - Total Count: 2 (50.0% of total)
+            - By package:
+              - packs/organisms: 2
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+      end
+
+      context 'analyzing packs/organisms' do
+        let(:pack_name) { 'packs/organisms' }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_dependency_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 4
+          Vulture
+            - Total Count: 2 (50.0% of total)
+            - By package:
+              - packs/food: 2
+          Eagle
+            - Total Count: 1 (25.0% of total)
+            - By package:
+              - packs/food: 1
+          OtherBird
+            - Total Count: 1 (25.0% of total)
+            - By package:
+              - packs/food: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+
+        context 'user has set a limit of 2' do
+          let(:limit) { 2 }
+
+          it 'has the right output' do
+            logged_output = ""
+            expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+              logged_output += string
+              logged_output += "\n"
+            end
+
+            list_top_dependency_violations
+            puts logged_output
+
+            expected_logged_output = <<~OUTPUT
+            Total Count: 4
+            Vulture
+              - Total Count: 2 (50.0% of total)
+              - By package:
+                - packs/food: 2
+            Eagle
+              - Total Count: 1 (25.0% of total)
+              - By package:
+                - packs/food: 1
+            OUTPUT
+            expect(logged_output).to eq expected_logged_output
+          end
+        end
+      end
+
+      context 'analyzing a pack with a trailing slash in the name' do
+        let(:pack_name) { 'packs/food/' }
+
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          list_top_dependency_violations
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 4
+          Burger
+            - Total Count: 2 (50.0% of total)
+            - By package:
+              - packs/organisms: 2
+          Salad
+            - Total Count: 2 (50.0% of total)
+            - By package:
+              - packs/organisms: 2
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+      end
+
+      context 'analyzing all packs' do
+        it 'has the right output' do
+          logged_output = ""
+          expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          UsePackwerk.list_top_dependency_violations(
+            pack_name: nil,
+            limit: limit,
+          )
+
+          puts logged_output
+
+          expected_logged_output = <<~OUTPUT
+          Total Count: 12
+          RandomMonolithFile (.)
+            - Total Count: 4 (33.33% of total)
+            - By package:
+              - packs/food: 2
+              - packs/organisms: 2
+          Burger (packs/food)
+            - Total Count: 2 (16.67% of total)
+            - By package:
+              - packs/organisms: 2
+          Salad (packs/food)
+            - Total Count: 2 (16.67% of total)
+            - By package:
+              - packs/organisms: 2
+          Vulture (packs/organisms)
+            - Total Count: 2 (16.67% of total)
+            - By package:
+              - packs/food: 2
+          Eagle (packs/organisms)
+            - Total Count: 1 (8.33% of total)
+            - By package:
+              - packs/food: 1
+          OtherBird (packs/organisms)
+            - Total Count: 1 (8.33% of total)
+            - By package:
+              - packs/food: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
         end
       end
     end
