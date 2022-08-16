@@ -96,16 +96,6 @@ module UsePackwerk
         raise StandardError.new("Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`")
       end
 
-      Logging.section('👋 Hi!') do
-        intro = <<~INTRO
-          You are moving a file to a pack, which is great. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-          Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-          We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
-        INTRO
-        Logging.print_bold_green(intro)
-      end
-
       add_public_directory(package)
       add_readme_todo(package)
       package_location = package.directory
@@ -128,7 +118,10 @@ module UsePackwerk
             # Later, if we choose to go back to moving whole directories at a time, it should be a refactor and all tests should still pass
             #
             if origin_pathname.directory?
-              origin_pathname.glob('**/*.*')
+              origin_pathname.glob('**/*.*').reject do |path|
+                path.to_s.include?(ParsePackwerk::PACKAGE_YML_NAME) ||
+                path.to_s.include?(ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME)
+              end
             else
               origin_pathname
             end
@@ -150,24 +143,6 @@ module UsePackwerk
       per_file_processors.each do |per_file_processor|
         per_file_processor.print_final_message!
       end
-
-      Logging.section('Next steps') do
-        next_steps = <<~NEXT_STEPS
-          Your next steps might be:
-
-          1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
-
-          2) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
-
-          3) Touch base with each team who owns files involved in this move
-
-          4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
-
-          5) Update your readme at #{pack_name}/README.md
-        NEXT_STEPS
-
-        Logging.print_bold_green(next_steps)
-      end
     end
 
   sig do
@@ -182,16 +157,6 @@ module UsePackwerk
     parent_name:,
     per_file_processors: []
   )
-    Logging.section('👋 Hi!') do
-      intro = <<~INTRO
-        You are moving one pack to be a child of a different pack.. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
-      INTRO
-      Logging.print_bold_green(intro)
-    end
-
     pack_name = Private.clean_pack_name(pack_name)
     package = ParsePackwerk.all.find { |package| package.name == pack_name }
     if package.nil?
@@ -225,28 +190,13 @@ module UsePackwerk
       per_file_processors: per_file_processors,
     )
 
+    # Then delete the old package.yml and deprecated_references.yml files
+    package.yml.delete
+    deprecated_references_file = ParsePackwerk::DeprecatedReferences.for(package).pathname
+    deprecated_references_file.delete if deprecated_references_file.exist?
+
     # Add a dependency from parent to child
     self.add_dependency!(pack_name: parent_name, dependency_name: new_package_name)
-
-    # Delete the old package.yml
-    package.yml.delete
-
-    # Delete the old deprecated_references file
-    ParsePackwerk::DeprecatedReferences.for(package).pathname.delete
-
-    Logging.section('Next steps') do
-      next_steps = <<~NEXT_STEPS
-        Your next steps might be:
-
-        1) Delete the old pack when things look good: `rm -rf #{package.directory}`
-
-        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` first.
-
-        3) Update your readme at #{new_package_name}/README.md
-      NEXT_STEPS
-
-      Logging.print_bold_green(next_steps)
-    end
   end
 
     sig do
@@ -256,13 +206,6 @@ module UsePackwerk
       ).void
     end
     def self.make_public!(paths_relative_to_root:, per_file_processors:)
-      Logging.section('Making files public') do
-        intro = <<~INTRO
-          You are moving some files into public API. See #{UsePackwerk.config.documentation_link} for other utilities!
-        INTRO
-        Logging.print_bold_green(intro)
-      end
-
       if paths_relative_to_root.any?
         Logging.section('File Operations') do
           file_paths = paths_relative_to_root.flat_map do |path|
@@ -292,22 +235,6 @@ module UsePackwerk
           end
         end
       end
-      
-      Logging.section('Next steps') do
-        next_steps = <<~NEXT_STEPS
-          Your next steps might be:
-
-          1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
-
-          2) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
-
-          3) Work to migrate clients of private API to your new public API
-
-          4) Update your README at packs/your_package_name/README.md
-        NEXT_STEPS
-
-        Logging.print_bold_green(next_steps)
-      end
     end
 
     sig do
@@ -317,13 +244,6 @@ module UsePackwerk
       ).void
     end
     def self.add_dependency!(pack_name:, dependency_name:)
-      Logging.section('Adding a dependency') do
-        intro = <<~INTRO
-          You are adding a dependency. See #{UsePackwerk.config.documentation_link} for other utilities!
-        INTRO
-        Logging.print_bold_green(intro)
-      end
-
       all_packages = ParsePackwerk.all
 
       pack_name = Private.clean_pack_name(pack_name)
@@ -346,18 +266,6 @@ module UsePackwerk
         metadata: package.metadata,
       )
       ParsePackwerk.write_package_yml!(new_package)
-      
-      Logging.section('Next steps') do
-        next_steps = <<~NEXT_STEPS
-          Your next steps might be:
-
-          1) Run `bin/packwerk validate` to ensure you haven't introduced a cyclic dependency
-
-          2) Run `bin/packwerk update-deprecations` to update the violations.
-        NEXT_STEPS
-
-        Logging.print_bold_green(next_steps)
-      end
     end
 
     sig { params(file_move_operation: FileMoveOperation, per_file_processors: T::Array[UsePackwerk::PerFileProcessorInterface]).void }

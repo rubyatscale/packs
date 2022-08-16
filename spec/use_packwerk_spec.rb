@@ -1163,9 +1163,55 @@ RSpec.describe UsePackwerk do
         'packs/apples/README.md',
       ])
 
-      expect(Pathname.new('packs/apples')).to_not exist
+      expect(Pathname.new('packs/apples')).to exist
 
       expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
+    end
+
+    it 'gives some helpful output to users' do
+      logged_output = ""
+
+      expect(UsePackwerk::Logging).to receive(:out).at_least(:once) do |string|
+        logged_output += ColorizedString.new(string).uncolorize
+        logged_output += "\n"
+      end
+
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples')
+      write_file('packs/apples/app/services/apples/foo.rb')
+
+      UsePackwerk.move_to_parent!(
+        pack_name: 'packs/apples',
+        parent_name: 'packs/fruits',
+      )
+
+      expect(logged_output).to eq <<~OUTPUT
+        ====================================================================================================
+        👋 Hi!
+
+
+        You are moving one pack to be a child of a different pack. Check out https://go/packwerk for more info!
+
+        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
+        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
+
+        ====================================================================================================
+        File Operations
+
+
+        Moving file packs/apples/app/services/apples/foo.rb to packs/fruits/apples/app/services/apples/foo.rb
+        [SKIP] Not moving packs/apples/spec/services/apples/foo_spec.rb, does not exist
+        ====================================================================================================
+        Next steps
+
+
+        Your next steps might be:
+
+        1) Delete the old pack when things look good: `rm -rf packs/apples`
+
+        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` first.
+
+      OUTPUT
     end
   end
 
