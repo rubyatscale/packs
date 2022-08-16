@@ -1114,6 +1114,56 @@ RSpec.describe UsePackwerk do
     end
   end
 
+  describe 'move_to_parent!' do
+    it 'moves over all files and the package.yml' do
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples', dependencies: ['packs/other_pack'], metadata: { 'custom_field' => 'custom value' })
+
+      write_file('packs/apples/deprecated_references.yml', <<~CONTENTS)
+        ---
+        ".":
+          "SomeConstant":
+            violations:
+            - privacy
+            files:
+            - packs/apples/app/services/apple.rb
+      CONTENTS
+
+      write_file('packs/apples/app/services/apples/some_yml.yml')
+      write_file('packs/apples/app/services/apples.rb')
+      write_file('packs/apples/app/services/apples/foo.rb')
+
+      UsePackwerk.move_to_parent!(
+        pack_name: 'packs/apples',
+        parent_pack: 'packs/fruits',
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(ParsePackwerk.find('packs/apples')).to be_nil
+      actual_package = ParsePackwerk.find('packs/apples/fruits')
+      expect(actual_package).to_not be_nil
+      expect(actual_package.metadata['custom_field']).to eq 'custom value'
+      expect(actual_package.dependencies).to eq(['packs/other_pack'])
+
+      expect_files_to_exist([
+        'packs/fruits/apples/app/services/apples/some_yml.yml',
+        'packs/fruits/apples/app/services/apples.rb',
+        'packs/fruits/apples/app/services/apples/foo.rb',
+      ])
+
+      expect_files_to_not_exist([
+        'packs/apples/app/services/apples/some_yml.yml',
+        'packs/apples/app/services/apples.rb',
+        'packs/apples/app/services/apples/foo.rb',
+        'packs/apples/package.yml',
+        'packs/apples/deprecated_references.yml',
+      ])
+
+      expect(Pathname.new('packs/apples')).to_not exist
+    end
+  end
+
   # This will soon be moved into `query_packwerk`
   describe 'query_packwerk' do
     before do
