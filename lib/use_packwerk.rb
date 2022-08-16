@@ -102,6 +102,25 @@ module UsePackwerk
 
   sig do
     params(
+      pack_name: String,
+      parent_name: String,
+      per_file_processors: T::Array[PerFileProcessorInterface],
+    ).void
+  end
+  def self.move_to_parent!(
+    pack_name:,
+    parent_name:,
+    per_file_processors: []
+  )
+    Private.move_to_parent!(
+      pack_name: pack_name,
+      parent_name: parent_name,
+      per_file_processors: per_file_processors,
+    )
+  end
+
+  sig do
+    params(
       pack_name: T.nilable(String),
       limit: Integer,
     ).void

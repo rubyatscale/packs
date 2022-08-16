@@ -170,6 +170,85 @@ module UsePackwerk
       end
     end
 
+  sig do
+    params(
+      pack_name: String,
+      parent_name: String,
+      per_file_processors: T::Array[PerFileProcessorInterface],
+    ).void
+  end
+  def self.move_to_parent!(
+    pack_name:,
+    parent_name:,
+    per_file_processors: []
+  )
+    Logging.section('👋 Hi!') do
+      intro = <<~INTRO
+        You are moving one pack to be a child of a different pack.. Check out #{UsePackwerk.config.documentation_link} for more info!
+
+        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
+        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
+      INTRO
+      Logging.print_bold_green(intro)
+    end
+
+    pack_name = Private.clean_pack_name(pack_name)
+    package = ParsePackwerk.all.find { |package| package.name == pack_name }
+    if package.nil?
+      raise StandardError.new("Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`")
+    end
+
+    parent_name = Private.clean_pack_name(parent_name)
+    parent_package = ParsePackwerk.all.find { |package| package.name == parent_name }
+    if parent_package.nil?
+      raise StandardError.new("Can not find package with name #{parent_name}. Make sure the argument is of the form `packs/my_pack/`")
+    end
+
+    # First we create a new pack that has the exact same properties of the old one!
+    package_last_name = package.directory.basename
+    new_package_name = parent_package.directory.join(package_last_name).to_s
+ 
+    new_package = ParsePackwerk::Package.new(
+      name: new_package_name,
+      enforce_privacy: package.enforce_dependencies,
+      enforce_dependencies: package.enforce_dependencies,
+      dependencies: package.dependencies,
+      metadata: package.metadata,
+    )
+    ParsePackwerk.write_package_yml!(new_package)
+    ParsePackwerk.bust_cache!
+
+    # Move everything from the old pack to the new one
+    self.move_to_pack!(
+      pack_name: new_package_name,
+      paths_relative_to_root: [package.directory.to_s],
+      per_file_processors: per_file_processors,
+    )
+
+    # Add a dependency from parent to child
+    self.add_dependency!(pack_name: parent_name, dependency_name: new_package_name)
+
+    # Delete the old package.yml
+    package.yml.delete
+
+    # Delete the old deprecated_references file
+    ParsePackwerk::DeprecatedReferences.for(package).pathname.delete
+
+    Logging.section('Next steps') do
+      next_steps = <<~NEXT_STEPS
+        Your next steps might be:
+
+        1) Delete the old pack when things look good: `rm -rf #{package.directory}`
+
+        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` first.
+
+        3) Update your readme at #{new_package_name}/README.md
+      NEXT_STEPS
+
+      Logging.print_bold_green(next_steps)
+    end
+  end
+
     sig do
       params(
         paths_relative_to_root: T::Array[String],

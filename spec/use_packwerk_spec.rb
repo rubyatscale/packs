@@ -1132,16 +1132,17 @@ RSpec.describe UsePackwerk do
       write_file('packs/apples/app/services/apples/some_yml.yml')
       write_file('packs/apples/app/services/apples.rb')
       write_file('packs/apples/app/services/apples/foo.rb')
+      write_file('packs/apples/README.md')
 
       UsePackwerk.move_to_parent!(
         pack_name: 'packs/apples',
-        parent_pack: 'packs/fruits',
+        parent_name: 'packs/fruits',
       )
 
       ParsePackwerk.bust_cache!
 
       expect(ParsePackwerk.find('packs/apples')).to be_nil
-      actual_package = ParsePackwerk.find('packs/apples/fruits')
+      actual_package = ParsePackwerk.find('packs/fruits/apples')
       expect(actual_package).to_not be_nil
       expect(actual_package.metadata['custom_field']).to eq 'custom value'
       expect(actual_package.dependencies).to eq(['packs/other_pack'])
@@ -1150,6 +1151,7 @@ RSpec.describe UsePackwerk do
         'packs/fruits/apples/app/services/apples/some_yml.yml',
         'packs/fruits/apples/app/services/apples.rb',
         'packs/fruits/apples/app/services/apples/foo.rb',
+        'packs/fruits/apples/README.md',
       ])
 
       expect_files_to_not_exist([
@@ -1158,9 +1160,12 @@ RSpec.describe UsePackwerk do
         'packs/apples/app/services/apples/foo.rb',
         'packs/apples/package.yml',
         'packs/apples/deprecated_references.yml',
+        'packs/apples/README.md',
       ])
 
       expect(Pathname.new('packs/apples')).to_not exist
+
+      expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
     end
   end
 
