@@ -128,7 +128,7 @@ module UsePackwerk
             # Later, if we choose to go back to moving whole directories at a time, it should be a refactor and all tests should still pass
             #
             if origin_pathname.directory?
-              origin_pathname.glob('**/*.{rb,rake,erb}')
+              origin_pathname.glob('**/*.*')
             else
               origin_pathname
             end
