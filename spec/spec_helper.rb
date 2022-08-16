@@ -3,7 +3,6 @@
 
 require 'use_packwerk'
 require 'tmpdir'
-require_relative 'support/app_fixtures'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -15,8 +14,6 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
-
-  config.include_context 'app fixtures'
 
   config.around do |example|
     ParsePackwerk.bust_cache!
@@ -41,4 +38,51 @@ def write_file(path, content = '')
   pathname = Pathname.new(path)
   FileUtils.mkdir_p(pathname.dirname)
   pathname.write(content)
+end
+
+sig do
+  params(
+    pack_name: String,
+    dependencies: T::Array[String],
+    enforce_dependencies: T::Boolean,
+    enforce_privacy: T::Boolean,
+    protections: T.untyped,
+    global_namespaces: T::Array[String],
+    visible_to: T::Array[String],
+    owner: T.nilable(String)
+  ).void
+end
+def write_package_yml(
+  pack_name,
+  dependencies: [],
+  enforce_dependencies: true,
+  enforce_privacy: true,
+  protections: {},
+  global_namespaces: [],
+  visible_to: [],
+  owner: nil
+)
+  defaults = {
+    'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new',
+    'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new',
+    'prevent_this_package_from_exposing_an_untyped_api' => 'fail_on_new',
+    'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new',
+    'prevent_other_packages_from_using_this_package_without_explicit_visibility' => 'fail_never',
+  }
+  protections_with_defaults = defaults.merge(protections)
+  metadata = { 'protections' => protections_with_defaults }
+
+  if owner
+    metadata.merge!({ 'owner' => owner })
+  end
+
+  package = ParsePackwerk::Package.new(
+    name: pack_name,
+    dependencies: dependencies,
+    enforce_dependencies: enforce_dependencies,
+    enforce_privacy: enforce_privacy,
+    metadata: metadata
+  )
+
+  ParsePackwerk.write_package_yml!(package)
 end
