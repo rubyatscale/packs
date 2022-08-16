@@ -67,5 +67,15 @@ module UsePackwerk
         per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
       )
     end
+
+    desc "move_to_parent packs/parent_pack packs/child_pack", "Pass in a parent pack and another pack to be made as a child to the parent pack!"
+    sig { params(parent_name: String, pack_name: String).void }
+    def move_to_parent(parent_name, pack_name)
+      UsePackwerk.move_to_parent!(
+        parent_name: parent_name,
+        pack_name: pack_name,
+        per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new],
+      )
+    end
   end
 end
