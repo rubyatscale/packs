@@ -1213,6 +1213,24 @@ RSpec.describe UsePackwerk do
 
       OUTPUT
     end
+
+    context 'parent pack does not already exist' do
+      it 'creates it' do
+        # Parent pack does not exist!
+        # write_package_yml('packs/fruits')
+
+        write_package_yml('packs/apples')
+
+        UsePackwerk.move_to_parent!(
+          pack_name: 'packs/apples',
+          parent_name: 'packs/fruits',
+        )
+
+        ParsePackwerk.bust_cache!
+        expect(Pathname.new('packs/apples')).to exist
+        expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
+      end
+    end
   end
 
   # This will soon be moved into `query_packwerk`
