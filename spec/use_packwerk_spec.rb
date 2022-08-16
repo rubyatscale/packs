@@ -1324,12 +1324,12 @@ RSpec.describe UsePackwerk do
   end
 
   describe '.make_public!' do
-    let(:make_public) do
-      UsePackwerk.make_public!(
-        paths_relative_to_root: [file_to_make_public],
-        per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
-      )
-    end
+    # let(:make_public) do
+    #   UsePackwerk.make_public!(
+    #     paths_relative_to_root: [file_to_make_public],
+    #     per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+    #   )
+    # end
 
     it 'can make files in the monolith public' do
       complex_app
