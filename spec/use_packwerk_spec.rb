@@ -1050,7 +1050,6 @@ RSpec.describe UsePackwerk do
     end
   end
 
-
   describe '.add_dependency!' do
     context 'pack has no dependencies' do
       it 'adds the dependency' do
@@ -1111,6 +1110,125 @@ RSpec.describe UsePackwerk do
         expect { UsePackwerk.add_dependency!(pack_name: 'packs/other_pack', dependency_name: '.') }.to raise_error do |e|
           expect(e.message).to eq "Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`"
         end
+      end
+    end
+  end
+
+  describe 'move_to_parent!' do
+    it 'moves over all files and the package.yml' do
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples', dependencies: ['packs/other_pack'], metadata: { 'custom_field' => 'custom value' })
+
+      write_file('packs/apples/deprecated_references.yml', <<~CONTENTS)
+        ---
+        ".":
+          "SomeConstant":
+            violations:
+            - privacy
+            files:
+            - packs/apples/app/services/apple.rb
+      CONTENTS
+
+      write_file('packs/apples/app/services/apples/some_yml.yml')
+      write_file('packs/apples/app/services/apples.rb')
+      write_file('packs/apples/app/services/apples/foo.rb')
+      write_file('packs/apples/README.md')
+
+      UsePackwerk.move_to_parent!(
+        pack_name: 'packs/apples',
+        parent_name: 'packs/fruits',
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(ParsePackwerk.find('packs/apples')).to be_nil
+      actual_package = ParsePackwerk.find('packs/fruits/apples')
+      expect(actual_package).to_not be_nil
+      expect(actual_package.metadata['custom_field']).to eq 'custom value'
+      expect(actual_package.dependencies).to eq(['packs/other_pack'])
+
+      expect_files_to_exist([
+        'packs/fruits/apples/app/services/apples/some_yml.yml',
+        'packs/fruits/apples/app/services/apples.rb',
+        'packs/fruits/apples/app/services/apples/foo.rb',
+        'packs/fruits/apples/README.md',
+      ])
+
+      expect_files_to_not_exist([
+        'packs/apples/app/services/apples/some_yml.yml',
+        'packs/apples/app/services/apples.rb',
+        'packs/apples/app/services/apples/foo.rb',
+        'packs/apples/package.yml',
+        'packs/apples/deprecated_references.yml',
+        'packs/apples/README.md',
+      ])
+
+      expect(Pathname.new('packs/apples')).to exist
+
+      expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
+    end
+
+    it 'gives some helpful output to users' do
+      logged_output = ""
+
+      expect(UsePackwerk::Logging).to receive(:out).at_least(:once) do |string|
+        logged_output += ColorizedString.new(string).uncolorize
+        logged_output += "\n"
+      end
+
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples')
+      write_file('packs/apples/app/services/apples/foo.rb')
+
+      UsePackwerk.move_to_parent!(
+        pack_name: 'packs/apples',
+        parent_name: 'packs/fruits',
+      )
+
+      expect(logged_output).to eq <<~OUTPUT
+        ====================================================================================================
+        👋 Hi!
+
+
+        You are moving one pack to be a child of a different pack. Check out https://go/packwerk for more info!
+
+        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
+        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
+
+        ====================================================================================================
+        File Operations
+
+
+        Moving file packs/apples/app/services/apples/foo.rb to packs/fruits/apples/app/services/apples/foo.rb
+        [SKIP] Not moving packs/apples/spec/services/apples/foo_spec.rb, does not exist
+        ====================================================================================================
+        Next steps
+
+
+        Your next steps might be:
+
+        1) Delete the old pack when things look good: `rm -rf packs/apples`
+
+        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` first.
+
+      OUTPUT
+    end
+
+    context 'parent pack does not already exist' do
+      it 'creates it' do
+        # Parent pack does not exist!
+        # write_package_yml('packs/fruits')
+
+        write_package_yml('packs/apples')
+
+        UsePackwerk.move_to_parent!(
+          pack_name: 'packs/apples',
+          parent_name: 'packs/fruits',
+        )
+
+        ParsePackwerk.bust_cache!
+        expect(Pathname.new('packs/apples')).to exist
+        expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
       end
     end
   end

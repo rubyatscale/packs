@@ -9,24 +9,29 @@ module UsePackwerk
     sig { params(title: String, block: T.proc.void).void }
     def self.section(title, &block)
       print_divider
-      puts ColorizedString.new("#{title}").green.bold
-      puts "\n"
+      out ColorizedString.new("#{title}").green.bold
+      out "\n"
       yield
     end
 
     sig { params(text: String).void }
     def self.print_bold_green(text)
-      puts ColorizedString.new(text).green.bold
+      out ColorizedString.new(text).green.bold
     end
 
     sig { params(text: String).void }
     def self.print(text)
-      puts text
+      out text
     end
 
     sig { void }
     def self.print_divider
-      puts '=' * 100
+      out '=' * 100
+    end
+
+    sig { params(str: String).void }
+    def self.out(str)
+      puts str
     end
   end
 end

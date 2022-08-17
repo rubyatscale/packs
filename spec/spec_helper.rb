@@ -49,6 +49,7 @@ sig do
     protections: T.untyped,
     global_namespaces: T::Array[String],
     visible_to: T::Array[String],
+    metadata: T.untyped,
     owner: T.nilable(String)
   ).void
 end
@@ -60,6 +61,7 @@ def write_package_yml(
   protections: {},
   global_namespaces: [],
   visible_to: [],
+  metadata: {},
   owner: nil
 )
   defaults = {
@@ -70,7 +72,7 @@ def write_package_yml(
     'prevent_other_packages_from_using_this_package_without_explicit_visibility' => 'fail_never',
   }
   protections_with_defaults = defaults.merge(protections)
-  metadata = { 'protections' => protections_with_defaults }
+  metadata.merge!({ 'protections' => protections_with_defaults })
 
   if owner
     metadata.merge!({ 'owner' => owner })
