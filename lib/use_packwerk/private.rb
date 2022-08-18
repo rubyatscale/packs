@@ -203,7 +203,7 @@ module UsePackwerk
         new_dependencies += [new_package_name]
       end
 
-      new_package = ParsePackwerk::Package.new(
+      new_other_package = ParsePackwerk::Package.new(
         name: other_package.name,
         enforce_privacy: other_package.enforce_dependencies,
         enforce_dependencies: other_package.enforce_dependencies,
@@ -211,7 +211,16 @@ module UsePackwerk
         metadata: other_package.metadata,
       )
 
-      ParsePackwerk.write_package_yml!(new_package)
+      ParsePackwerk.write_package_yml!(new_other_package)
+    end
+
+    sorbet_config = Pathname.new('sorbet/config')
+    if sorbet_config.exist?
+      UsePackwerk.replace_in_file(
+        file: sorbet_config.to_s,
+        find: package.directory.join('spec'),
+        replace_with: new_package.directory.join('spec'),
+      )
     end
   end
 
