@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.53.0)
+    use_packwerk (0.54.0)
       code_ownership
       colorize
       package_protections
@@ -33,7 +33,7 @@ GEM
       concurrent-ruby (~> 1.0)
     json (2.6.2)
     method_source (1.0.0)
-    minitest (5.16.2)
+    minitest (5.16.3)
     package_protections (1.4.0)
       activesupport
       parse_packwerk
