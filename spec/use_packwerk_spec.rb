@@ -1214,6 +1214,22 @@ RSpec.describe UsePackwerk do
       OUTPUT
     end
 
+    it 'rewrites other packs package.yml files to point to the new nested package' do
+      write_package_yml('packs/fruits', dependencies: ['packs/apples'])
+      write_package_yml('packs/other_pack', dependencies: ['packs/apples', 'packs/something_else'])
+      write_package_yml('packs/apples')
+
+      UsePackwerk.move_to_parent!(
+        pack_name: 'packs/apples',
+        parent_name: 'packs/fruits',
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
+      expect(ParsePackwerk.find('packs/other_pack').dependencies).to eq(['packs/fruits/apples', 'packs/something_else'])
+    end
+
     context 'parent pack does not already exist' do
       it 'creates it' do
         # Parent pack does not exist!
