@@ -205,7 +205,7 @@ module UsePackwerk
 
       new_other_package = ParsePackwerk::Package.new(
         name: other_package.name,
-        enforce_privacy: other_package.enforce_dependencies,
+        enforce_privacy: other_package.enforce_privacy,
         enforce_dependencies: other_package.enforce_dependencies,
         dependencies: new_dependencies.uniq.sort,
         metadata: other_package.metadata,
