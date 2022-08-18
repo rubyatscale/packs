@@ -195,8 +195,24 @@ module UsePackwerk
     deprecated_references_file = ParsePackwerk::DeprecatedReferences.for(package).pathname
     deprecated_references_file.delete if deprecated_references_file.exist?
 
-    # Add a dependency from parent to child
-    self.add_dependency!(pack_name: parent_name, dependency_name: new_package_name)
+    ParsePackwerk.bust_cache!
+
+    ParsePackwerk.all.each do |other_package|
+      new_dependencies = other_package.dependencies.map{|d| d == pack_name ? new_package_name : d}
+      if other_package.name == parent_name && !new_dependencies.include?(new_package_name)
+        new_dependencies += [new_package_name]
+      end
+
+      new_package = ParsePackwerk::Package.new(
+        name: other_package.name,
+        enforce_privacy: other_package.enforce_dependencies,
+        enforce_dependencies: other_package.enforce_dependencies,
+        dependencies: new_dependencies.uniq.sort,
+        metadata: other_package.metadata,
+      )
+
+      ParsePackwerk.write_package_yml!(new_package)
+    end
   end
 
     sig do
