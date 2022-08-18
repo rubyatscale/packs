@@ -1230,6 +1230,31 @@ RSpec.describe UsePackwerk do
       expect(ParsePackwerk.find('packs/other_pack').dependencies).to eq(['packs/fruits/apples', 'packs/something_else'])
     end
 
+    it 'updates sorbet config to point at the new spec location' do
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples')
+      write_file('sorbet/config', <<~CONTENTS)
+        --dir
+        .
+        --ignore=/packs/other_pack/spec
+        --ignore=/packs/apples/spec
+      CONTENTS
+
+      UsePackwerk.move_to_parent!(
+        pack_name: 'packs/apples',
+        parent_name: 'packs/fruits',
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(Pathname.new('sorbet/config').read).to eq <<~CONTENTS
+        --dir
+        .
+        --ignore=/packs/other_pack/spec
+        --ignore=/packs/fruits/apples/spec
+      CONTENTS
+    end
+
     context 'parent pack does not already exist' do
       it 'creates it' do
         # Parent pack does not exist!
