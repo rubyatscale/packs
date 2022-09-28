@@ -12,23 +12,35 @@ module UsePackwerk
 
     sig { void }
     def initialize
-      @enforce_dependencies = T.let(@enforce_dependencies, T.nilable(T::Boolean))
-      @documentation_link = T.let(documentation_link, T.nilable(String))
+      @enforce_dependencies = T.let(default_enforce_dependencies, T::Boolean)
+      @documentation_link = T.let(default_documentation_link, String)
     end
 
     sig { returns(T::Boolean) }
     def enforce_dependencies
-      if @enforce_dependencies.nil?
-        true
-      else
-        @enforce_dependencies
-      end
+      @enforce_dependencies
     end
 
     # Configure a link to show up for users who are looking for more info
     sig { returns(String) }
     def documentation_link
+      @documentation_link
+    end
+
+    sig { void }
+    def bust_cache!
+      @enforce_dependencies = default_enforce_dependencies
+      @documentation_link = default_documentation_link
+    end
+
+    sig { returns(String) }
+    def default_documentation_link
       'https://go/packwerk'
+    end
+
+    sig { returns(T::Boolean) }
+    def default_enforce_dependencies
+      true
     end
   end
 
@@ -37,6 +49,7 @@ module UsePackwerk
 
     sig { returns(Configuration) }
     def config
+      Private.load_client_configuration
       @config = T.let(@config, T.nilable(Configuration))
       @config ||= Configuration.new
     end

@@ -14,11 +14,8 @@ RSpec.describe UsePackwerk do
   end
 
   before do
+    UsePackwerk.bust_cache!
     CodeTeams.bust_caches!
-    UsePackwerk.configure do |config|
-      config.enforce_dependencies = true
-    end
-
     # Always add the root package for every spec
     write_package_yml('.')
   end
@@ -1269,6 +1266,22 @@ RSpec.describe UsePackwerk do
         ParsePackwerk.bust_cache!
         expect(Pathname.new('packs/apples')).to exist
         expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
+      end
+    end
+  end
+
+  describe 'configuration' do
+    context 'app has a user defined configuration' do
+      before do
+        write_file('config/use_packwerk.rb', <<~CONFIGURATION)
+          UsePackwerk.configure do |config|
+            config.documentation_link = 'Blah'
+          end
+        CONFIGURATION
+      end
+
+      it 'properly configures package protections' do
+        expect(UsePackwerk.config.documentation_link).to eq('Blah')
       end
     end
   end
