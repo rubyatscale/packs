@@ -31,7 +31,7 @@ RSpec.configure do |config|
   end
 end
 
-extend T::Sig
+extend T::Sig # rubocop:disable Style/MixinUsage:
 
 sig { params(path: String, content: String).returns(Integer) }
 def write_file(path, content = '')

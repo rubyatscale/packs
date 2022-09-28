@@ -589,7 +589,6 @@ RSpec.describe UsePackwerk do
               - spec/services/horse_like/donkey_spec.rb
           CONTENTS
 
-          before_codeownership_yml = File.read(Pathname.new('config/code_ownership.yml'))
           write_file('app/services/horse_like/donkey.rb')
           write_file('spec/services/horse_like/donkey_spec.rb')
           write_package_yml('packs/animals')

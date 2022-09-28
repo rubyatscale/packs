@@ -113,3 +113,6 @@ Layout/ArgumentAlignment:
 
 Style/AccessorGrouping:
   Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false

@@ -92,7 +92,7 @@ module UsePackwerk
     end
     def self.move_to_pack!(pack_name:, paths_relative_to_root:, per_file_processors: [])
       pack_name = Private.clean_pack_name(pack_name)
-      package = ParsePackwerk.all.find { |package| package.name == pack_name }
+      package = ParsePackwerk.all.find { |p| p.name == pack_name }
       if package.nil?
         raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
@@ -119,9 +119,9 @@ module UsePackwerk
             # Later, if we choose to go back to moving whole directories at a time, it should be a refactor and all tests should still pass
             #
             if origin_pathname.directory?
-              origin_pathname.glob('**/*.*').reject do |path|
-                path.to_s.include?(ParsePackwerk::PACKAGE_YML_NAME) ||
-                  path.to_s.include?(ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME)
+              origin_pathname.glob('**/*.*').reject do |origin_path|
+                origin_path.to_s.include?(ParsePackwerk::PACKAGE_YML_NAME) ||
+                  origin_path.to_s.include?(ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME)
               end
             else
               origin_pathname
@@ -141,9 +141,7 @@ module UsePackwerk
         end
       end
 
-      per_file_processors.each do |per_file_processor|
-        per_file_processor.print_final_message!
-      end
+      per_file_processors.each(&:print_final_message!)
     end
 
     sig do
@@ -159,13 +157,13 @@ module UsePackwerk
       per_file_processors: []
     )
       pack_name = Private.clean_pack_name(pack_name)
-      package = ParsePackwerk.all.find { |package| package.name == pack_name }
+      package = ParsePackwerk.all.find { |p| p.name == pack_name }
       if package.nil?
         raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
       parent_name = Private.clean_pack_name(parent_name)
-      parent_package = ParsePackwerk.all.find { |package| package.name == parent_name }
+      parent_package = ParsePackwerk.all.find { |p| p.name == parent_name }
       if parent_package.nil?
         parent_package = create_pack_if_not_exists!(pack_name: parent_name, enforce_privacy: true, enforce_dependencies: true)
       end
@@ -272,13 +270,13 @@ module UsePackwerk
       all_packages = ParsePackwerk.all
 
       pack_name = Private.clean_pack_name(pack_name)
-      package = all_packages.find { |package| package.name == pack_name }
+      package = all_packages.find { |p| p.name == pack_name }
       if package.nil?
         raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
       dependency_name = Private.clean_pack_name(dependency_name)
-      package_dependency = all_packages.find { |package| package.name == dependency_name }
+      package_dependency = all_packages.find { |p| p.name == dependency_name }
       if package_dependency.nil?
         raise StandardError, "Can not find package with name #{dependency_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
@@ -395,10 +393,7 @@ module UsePackwerk
         raise StandardError, "UsePackwerk only supports packages in the the following directories: #{PERMITTED_PACK_LOCATIONS.inspect}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
       end
 
-      existing_package = ParsePackwerk.all.find { |package| package.name == pack_name }
-
-      package_location = Pathname.new(pack_name)
-
+      existing_package = ParsePackwerk.all.find { |p| p.name == pack_name }
       if existing_package.nil?
         should_enforce_dependenceies = enforce_dependencies.nil? ? UsePackwerk.config.enforce_dependencies : enforce_dependencies
 
@@ -428,7 +423,7 @@ module UsePackwerk
     sig { params(original_package: ParsePackwerk::Package).returns(ParsePackwerk::Package) }
     def self.rewrite_package_with_original_packwerk_values(original_package)
       ParsePackwerk.bust_cache!
-      package_with_protection_defaults = T.must(ParsePackwerk.all.find { |package| package.name == original_package.name })
+      package_with_protection_defaults = T.must(ParsePackwerk.all.find { |p| p.name == original_package.name })
       # PackageProtections also sets `enforce_privacy` and `enforce_dependency` to be true, so we set these back down to their original values
       package = ParsePackwerk::Package.new(
         enforce_dependencies: original_package.enforce_dependencies,

@@ -25,7 +25,7 @@ module UsePackwerk
           to_package_names = all_packages.map(&:name)
         else
           pack_name = Private.clean_pack_name(pack_name)
-          package = all_packages.find { |package| package.name == pack_name }
+          package = all_packages.find { |p| p.name == pack_name }
           if package.nil?
             raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
           end
@@ -85,7 +85,7 @@ module UsePackwerk
             if pack_name.nil?
               violated_symbol = "#{violation.class_name} (#{violation.to_package_name})"
             else
-              violated_symbol = "#{violation.class_name}"
+              violated_symbol = violation.class_name
             end
             violations_by_count[violated_symbol] ||= {}
             violations_by_count[violated_symbol][:total_count] ||= 0
@@ -133,7 +133,7 @@ module UsePackwerk
           to_package_names = all_packages.map(&:name)
         else
           pack_name = Private.clean_pack_name(pack_name)
-          package = all_packages.find { |package| package.name == pack_name }
+          package = all_packages.find { |p| p.name == pack_name }
           if package.nil?
             raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
           end
@@ -191,7 +191,7 @@ module UsePackwerk
             if pack_name.nil?
               violated_symbol = "#{violation.class_name} (#{violation.to_package_name})"
             else
-              violated_symbol = "#{violation.class_name}"
+              violated_symbol = violation.class_name
             end
             violations_by_count[violated_symbol] ||= {}
             violations_by_count[violated_symbol][:total_count] ||= 0

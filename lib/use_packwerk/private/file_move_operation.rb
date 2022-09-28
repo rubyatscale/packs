@@ -18,7 +18,6 @@ module UsePackwerk
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
         origin_pack = T.must(ParsePackwerk.package_from_path(origin_pathname))
 
-        new_implementation = nil
         if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
           new_package_root.join(origin_pathname).cleanpath
         else

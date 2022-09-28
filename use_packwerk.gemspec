@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
           'public gem pushes.'
   end
 
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.6.0')
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir['README.md', 'lib/**/*', 'bin/**/*']
 

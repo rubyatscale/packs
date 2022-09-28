@@ -9,7 +9,7 @@ module UsePackwerk
     sig { params(title: String, block: T.proc.void).void }
     def self.section(title, &block)
       print_divider
-      out ColorizedString.new("#{title}").green.bold
+      out ColorizedString.new(title).green.bold
       out "\n"
       yield
     end
