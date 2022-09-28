@@ -8,16 +8,26 @@ module UsePackwerk
       sig do
         params(
           pack_name: T.nilable(String),
-          limit: Integer,
+          limit: Integer
         ).void
       end
       def self.list_top_privacy_violations(pack_name, limit)
         all_packages = ParsePackwerk.all
-        if !pack_name.nil?
+        if pack_name.nil?
+          pack_specific_content = <<~PACK_CONTENT
+            You are listing top #{limit} privacy violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
+            Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
+
+            This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
+            Anything not in pack_name/app/public is considered private API.
+          PACK_CONTENT
+
+          to_package_names = all_packages.map(&:name)
+        else
           pack_name = Private.clean_pack_name(pack_name)
           package = all_packages.find { |package| package.name == pack_name }
           if package.nil?
-            raise StandardError.new("Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`")
+            raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
           end
 
           pack_specific_content = <<~PACK_CONTENT
@@ -29,16 +39,6 @@ module UsePackwerk
           PACK_CONTENT
 
           to_package_names = [pack_name]
-        else
-          pack_specific_content = <<~PACK_CONTENT
-            You are listing top #{limit} privacy violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
-            Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
-
-            This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
-            Anything not in pack_name/app/public is considered private API.
-          PACK_CONTENT
-
-          to_package_names = all_packages.map(&:name)
         end
 
         violations_by_count = {}
@@ -81,6 +81,7 @@ module UsePackwerk
         all_packages.each do |client_package|
           PackageProtections::ProtectedPackage.from(client_package).violations.select(&:privacy?).each do |violation|
             next unless to_package_names.include?(violation.to_package_name)
+
             if pack_name.nil?
               violated_symbol = "#{violation.class_name} (#{violation.to_package_name})"
             else
@@ -104,8 +105,8 @@ module UsePackwerk
           Logging.print(violated_symbol)
           Logging.print("  - Total Count: #{count_info[:total_count]} (#{percentage_of_total}% of total)")
 
-          Logging.print("  - By package:")
-          count_info[:by_package].sort_by{ |client_package_name, count| [-count, client_package_name] }.each do |client_package_name, count|
+          Logging.print('  - By package:')
+          count_info[:by_package].sort_by { |client_package_name, count| [-count, client_package_name] }.each do |client_package_name, count|
             Logging.print("    - #{client_package_name}: #{count}")
           end
         end
@@ -120,11 +121,21 @@ module UsePackwerk
       def self.list_top_dependency_violations(pack_name, limit)
         all_packages = ParsePackwerk.all
 
-        if !pack_name.nil?
+        if pack_name.nil?
+          pack_specific_content = <<~PACK_CONTENT
+            You are listing top #{limit} dependency violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
+            Pass in a limit to display more or less, e.g. `use_packwerk list_top_dependency_violations #{pack_name} -l 1000`
+
+            This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
+            Anything not in pack_name/app/public is considered private API.
+          PACK_CONTENT
+
+          to_package_names = all_packages.map(&:name)
+        else
           pack_name = Private.clean_pack_name(pack_name)
           package = all_packages.find { |package| package.name == pack_name }
           if package.nil?
-            raise StandardError.new("Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`")
+            raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
           end
 
           pack_specific_content = <<~PACK_CONTENT
@@ -136,16 +147,6 @@ module UsePackwerk
           PACK_CONTENT
 
           to_package_names = [pack_name]
-        else
-          pack_specific_content = <<~PACK_CONTENT
-            You are listing top #{limit} dependency violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
-            Pass in a limit to display more or less, e.g. `use_packwerk list_top_dependency_violations #{pack_name} -l 1000`
-
-            This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
-            Anything not in pack_name/app/public is considered private API.
-          PACK_CONTENT
-
-          to_package_names = all_packages.map(&:name)
         end
 
         violations_by_count = {}
@@ -186,6 +187,7 @@ module UsePackwerk
         all_packages.each do |client_package|
           PackageProtections::ProtectedPackage.from(client_package).violations.select(&:dependency?).each do |violation|
             next unless to_package_names.include?(violation.to_package_name)
+
             if pack_name.nil?
               violated_symbol = "#{violation.class_name} (#{violation.to_package_name})"
             else
@@ -208,8 +210,8 @@ module UsePackwerk
           percentage_of_total = (count_info[:total_count] * 100.0 / total_pack_violation_count).round(2)
           Logging.print(violated_symbol)
           Logging.print("  - Total Count: #{count_info[:total_count]} (#{percentage_of_total}% of total)")
-          Logging.print("  - By package:")
-          count_info[:by_package].sort_by{ |client_package_name, count| [-count, client_package_name] }.each do |client_package_name, count|
+          Logging.print('  - By package:')
+          count_info[:by_package].sort_by { |client_package_name, count| [-count, client_package_name] }.each do |client_package_name, count|
             Logging.print("    - #{client_package_name}: #{count}")
           end
         end

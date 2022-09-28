@@ -18,25 +18,26 @@ module UsePackwerk
       # This results in the pack not being found, but when we write the package YML it writes to the same place,
       # causing a behaviorally confusing diff.
       # We ignore trailing slashes as an ergonomic feature to the user.
-      pack_name.gsub(/\/$/, '')
+      pack_name.gsub(%r{/$}, '')
     end
 
     sig do
       params(
         file: String,
         find: Pathname,
-        replace_with: Pathname,
+        replace_with: Pathname
       ).void
     end
     def self.replace_in_file(file:, find:, replace_with:)
       file = Pathname.new(file)
       return if !file.exist?
+
       count = 0
       file.write(file.read.gsub(find.to_s) do
         count += 1
         replace_with.to_s
       end)
-      Logging.print "Replaced #{count} occurrence(s) of #{find} in #{file.to_s}" if count > 0
+      Logging.print "Replaced #{count} occurrence(s) of #{find} in #{file}" if count > 0
     end
 
     sig do
@@ -93,7 +94,7 @@ module UsePackwerk
       pack_name = Private.clean_pack_name(pack_name)
       package = ParsePackwerk.all.find { |package| package.name == pack_name }
       if package.nil?
-        raise StandardError.new("Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`")
+        raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
       add_public_directory(package)
@@ -120,7 +121,7 @@ module UsePackwerk
             if origin_pathname.directory?
               origin_pathname.glob('**/*.*').reject do |path|
                 path.to_s.include?(ParsePackwerk::PACKAGE_YML_NAME) ||
-                path.to_s.include?(ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME)
+                  path.to_s.include?(ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME)
               end
             else
               origin_pathname
@@ -130,7 +131,7 @@ module UsePackwerk
             FileMoveOperation.new(
               origin_pathname: origin_pathname,
               destination_pathname: FileMoveOperation.destination_pathname_for_package_move(origin_pathname, package_location),
-              destination_pack: package,
+              destination_pack: package
             )
           end
           file_move_operations.each do |file_move_operation|
@@ -145,84 +146,84 @@ module UsePackwerk
       end
     end
 
-  sig do
-    params(
-      pack_name: String,
-      parent_name: String,
-      per_file_processors: T::Array[PerFileProcessorInterface],
-    ).void
-  end
-  def self.move_to_parent!(
-    pack_name:,
-    parent_name:,
-    per_file_processors: []
-  )
-    pack_name = Private.clean_pack_name(pack_name)
-    package = ParsePackwerk.all.find { |package| package.name == pack_name }
-    if package.nil?
-      raise StandardError.new("Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`")
+    sig do
+      params(
+        pack_name: String,
+        parent_name: String,
+        per_file_processors: T::Array[PerFileProcessorInterface]
+      ).void
     end
-
-    parent_name = Private.clean_pack_name(parent_name)
-    parent_package = ParsePackwerk.all.find { |package| package.name == parent_name }
-    if parent_package.nil?
-      parent_package = create_pack_if_not_exists!(pack_name: parent_name, enforce_privacy: true, enforce_dependencies: true)
-    end
-
-    # First we create a new pack that has the exact same properties of the old one!
-    package_last_name = package.directory.basename
-    new_package_name = parent_package.directory.join(package_last_name).to_s
- 
-    new_package = ParsePackwerk::Package.new(
-      name: new_package_name,
-      enforce_privacy: package.enforce_dependencies,
-      enforce_dependencies: package.enforce_dependencies,
-      dependencies: package.dependencies,
-      metadata: package.metadata,
+    def self.move_to_parent!(
+      pack_name:,
+      parent_name:,
+      per_file_processors: []
     )
-    ParsePackwerk.write_package_yml!(new_package)
-    ParsePackwerk.bust_cache!
-
-    # Move everything from the old pack to the new one
-    self.move_to_pack!(
-      pack_name: new_package_name,
-      paths_relative_to_root: [package.directory.to_s],
-      per_file_processors: per_file_processors,
-    )
-
-    # Then delete the old package.yml and deprecated_references.yml files
-    package.yml.delete
-    deprecated_references_file = ParsePackwerk::DeprecatedReferences.for(package).pathname
-    deprecated_references_file.delete if deprecated_references_file.exist?
-
-    ParsePackwerk.bust_cache!
-
-    ParsePackwerk.all.each do |other_package|
-      new_dependencies = other_package.dependencies.map{|d| d == pack_name ? new_package_name : d}
-      if other_package.name == parent_name && !new_dependencies.include?(new_package_name)
-        new_dependencies += [new_package_name]
+      pack_name = Private.clean_pack_name(pack_name)
+      package = ParsePackwerk.all.find { |package| package.name == pack_name }
+      if package.nil?
+        raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
-      new_other_package = ParsePackwerk::Package.new(
-        name: other_package.name,
-        enforce_privacy: other_package.enforce_privacy,
-        enforce_dependencies: other_package.enforce_dependencies,
-        dependencies: new_dependencies.uniq.sort,
-        metadata: other_package.metadata,
+      parent_name = Private.clean_pack_name(parent_name)
+      parent_package = ParsePackwerk.all.find { |package| package.name == parent_name }
+      if parent_package.nil?
+        parent_package = create_pack_if_not_exists!(pack_name: parent_name, enforce_privacy: true, enforce_dependencies: true)
+      end
+
+      # First we create a new pack that has the exact same properties of the old one!
+      package_last_name = package.directory.basename
+      new_package_name = parent_package.directory.join(package_last_name).to_s
+
+      new_package = ParsePackwerk::Package.new(
+        name: new_package_name,
+        enforce_privacy: package.enforce_dependencies,
+        enforce_dependencies: package.enforce_dependencies,
+        dependencies: package.dependencies,
+        metadata: package.metadata
+      )
+      ParsePackwerk.write_package_yml!(new_package)
+      ParsePackwerk.bust_cache!
+
+      # Move everything from the old pack to the new one
+      move_to_pack!(
+        pack_name: new_package_name,
+        paths_relative_to_root: [package.directory.to_s],
+        per_file_processors: per_file_processors
       )
 
-      ParsePackwerk.write_package_yml!(new_other_package)
-    end
+      # Then delete the old package.yml and deprecated_references.yml files
+      package.yml.delete
+      deprecated_references_file = ParsePackwerk::DeprecatedReferences.for(package).pathname
+      deprecated_references_file.delete if deprecated_references_file.exist?
 
-    sorbet_config = Pathname.new('sorbet/config')
-    if sorbet_config.exist?
-      UsePackwerk.replace_in_file(
-        file: sorbet_config.to_s,
-        find: package.directory.join('spec'),
-        replace_with: new_package.directory.join('spec'),
-      )
+      ParsePackwerk.bust_cache!
+
+      ParsePackwerk.all.each do |other_package|
+        new_dependencies = other_package.dependencies.map { |d| d == pack_name ? new_package_name : d }
+        if other_package.name == parent_name && !new_dependencies.include?(new_package_name)
+          new_dependencies += [new_package_name]
+        end
+
+        new_other_package = ParsePackwerk::Package.new(
+          name: other_package.name,
+          enforce_privacy: other_package.enforce_privacy,
+          enforce_dependencies: other_package.enforce_dependencies,
+          dependencies: new_dependencies.uniq.sort,
+          metadata: other_package.metadata
+        )
+
+        ParsePackwerk.write_package_yml!(new_other_package)
+      end
+
+      sorbet_config = Pathname.new('sorbet/config')
+      if sorbet_config.exist?
+        UsePackwerk.replace_in_file(
+          file: sorbet_config.to_s,
+          find: package.directory.join('spec'),
+          replace_with: new_package.directory.join('spec')
+        )
+      end
     end
-  end
 
     sig do
       params(
@@ -242,7 +243,6 @@ module UsePackwerk
             end
           end
 
-
           file_move_operations = file_paths.map do |path|
             package = T.must(ParsePackwerk.package_from_path(path))
             origin_pathname = Pathname.new(path).cleanpath
@@ -250,7 +250,7 @@ module UsePackwerk
             FileMoveOperation.new(
               origin_pathname: origin_pathname,
               destination_pathname: FileMoveOperation.destination_pathname_for_new_public_api(origin_pathname),
-              destination_pack: package,
+              destination_pack: package
             )
           end
 
@@ -274,13 +274,13 @@ module UsePackwerk
       pack_name = Private.clean_pack_name(pack_name)
       package = all_packages.find { |package| package.name == pack_name }
       if package.nil?
-        raise StandardError.new("Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`")
+        raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
       dependency_name = Private.clean_pack_name(dependency_name)
       package_dependency = all_packages.find { |package| package.name == dependency_name }
       if package_dependency.nil?
-        raise StandardError.new("Can not find package with name #{dependency_name}. Make sure the argument is of the form `packs/my_pack/`")
+        raise StandardError, "Can not find package with name #{dependency_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
       new_package = ParsePackwerk::Package.new(
@@ -288,7 +288,7 @@ module UsePackwerk
         dependencies: (package.dependencies + [dependency_name]).uniq.sort,
         enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
-        metadata: package.metadata,
+        metadata: package.metadata
       )
       ParsePackwerk.write_package_yml!(new_package)
     end
@@ -322,13 +322,13 @@ module UsePackwerk
         # use git mv so that git knows that it was a move
         FileUtils.mv(origin, destination)
       elsif !origin.exist? && destination.exist?
-        Logging.print ColorizedString.new("[SKIP] Not moving #{origin.to_s}, does not exist, (#{destination.to_s} already exists)").red
+        Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, does not exist, (#{destination} already exists)").red
       else
-        Logging.print ColorizedString.new("[SKIP] Not moving #{origin.to_s}, does not exist").red
+        Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, does not exist").red
       end
     end
 
-    sig { params(package: ParsePackwerk::Package).void  }
+    sig { params(package: ParsePackwerk::Package).void }
     def self.add_public_directory(package)
       public_directory = package.directory.join('app/public')
 
@@ -357,7 +357,7 @@ module UsePackwerk
       end
     end
 
-    sig { params(package: ParsePackwerk::Package).void  }
+    sig { params(package: ParsePackwerk::Package).void }
     def self.add_readme_todo(package)
       pack_directory = package.directory
 
@@ -375,7 +375,7 @@ module UsePackwerk
           - When in doubt, keep it simple
           - Anything else you may want to include!
 
-          README.md files are under version control and should change as your public API changes. 
+          README.md files are under version control and should change as your public API changes.#{' '}
 
           See #{UsePackwerk.config.documentation_link} for more info!
         TODO
@@ -392,7 +392,7 @@ module UsePackwerk
     end
     def self.create_pack_if_not_exists!(pack_name:, enforce_privacy:, enforce_dependencies:)
       if PERMITTED_PACK_LOCATIONS.none? { |permitted_location| pack_name.start_with?(permitted_location) }
-        raise StandardError.new("UsePackwerk only supports packages in the the following directories: #{PERMITTED_PACK_LOCATIONS.inspect}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`.")
+        raise StandardError, "UsePackwerk only supports packages in the the following directories: #{PERMITTED_PACK_LOCATIONS.inspect}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
       end
 
       existing_package = ParsePackwerk.all.find { |package| package.name == pack_name }
@@ -409,7 +409,7 @@ module UsePackwerk
           metadata: {
             'owner' => 'MyTeam'
           },
-          name: pack_name,
+          name: pack_name
         )
 
         ParsePackwerk.write_package_yml!(package)
@@ -417,7 +417,7 @@ module UsePackwerk
         package = rewrite_package_with_original_packwerk_values(package)
 
         current_contents = package.yml.read
-        new_contents = current_contents.gsub("MyTeam", "MyTeam # specify your team here, or delete this key if this package is not owned by one team")
+        new_contents = current_contents.gsub('MyTeam', 'MyTeam # specify your team here, or delete this key if this package is not owned by one team')
         package.yml.write(new_contents)
         existing_package = package
       end
@@ -435,7 +435,7 @@ module UsePackwerk
         enforce_privacy: original_package.enforce_privacy,
         dependencies: original_package.dependencies,
         metadata: package_with_protection_defaults.metadata,
-        name: original_package.name,
+        name: original_package.name
       )
 
       ParsePackwerk.write_package_yml!(package)

@@ -13,22 +13,22 @@ module UsePackwerk
     sig { void }
     def initialize
       @enforce_dependencies = T.let(@enforce_dependencies, T.nilable(T::Boolean))
-      @documentation_link = T.let(documentation_link, T.nilable(String) )
+      @documentation_link = T.let(documentation_link, T.nilable(String))
     end
 
     sig { returns(T::Boolean) }
     def enforce_dependencies
-      if !@enforce_dependencies.nil?
-        @enforce_dependencies
-      else
+      if @enforce_dependencies.nil?
         true
+      else
+        @enforce_dependencies
       end
     end
 
     # Configure a link to show up for users who are looking for more info
     sig { returns(String) }
     def documentation_link
-      "https://go/packwerk"
+      'https://go/packwerk'
     end
   end
 
@@ -42,7 +42,7 @@ module UsePackwerk
     end
 
     sig { params(blk: T.proc.params(arg0: Configuration).void).void }
-    def configure(&blk) # rubocop:disable Lint/UnusedMethodArgument
+    def configure(&blk)
       yield(config)
     end
   end

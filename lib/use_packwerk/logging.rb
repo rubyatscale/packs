@@ -35,4 +35,3 @@ module UsePackwerk
     end
   end
 end
-
