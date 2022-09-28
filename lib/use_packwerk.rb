@@ -24,11 +24,11 @@ require 'use_packwerk/cli'
 module UsePackwerk
   extend T::Sig
 
-  PERMITTED_PACK_LOCATIONS = T.let([
-    'gems',
-    'components',
-    'packs',
-  ], T::Array[String])
+  PERMITTED_PACK_LOCATIONS = T.let(%w[
+                                     gems
+                                     components
+                                     packs
+                                   ], T::Array[String])
 
   sig do
     params(
@@ -45,7 +45,7 @@ module UsePackwerk
     Private.create_pack!(
       pack_name: pack_name,
       enforce_privacy: enforce_privacy,
-      enforce_dependencies: enforce_dependencies, 
+      enforce_dependencies: enforce_dependencies
     )
   end
 
@@ -53,7 +53,7 @@ module UsePackwerk
     params(
       pack_name: String,
       paths_relative_to_root: T::Array[String],
-      per_file_processors: T::Array[PerFileProcessorInterface],
+      per_file_processors: T::Array[PerFileProcessorInterface]
     ).void
   end
   def self.move_to_pack!(
@@ -74,7 +74,7 @@ module UsePackwerk
     Private.move_to_pack!(
       pack_name: pack_name,
       paths_relative_to_root: paths_relative_to_root,
-      per_file_processors: per_file_processors,
+      per_file_processors: per_file_processors
     )
 
     Logging.section('Next steps') do
@@ -99,7 +99,7 @@ module UsePackwerk
   sig do
     params(
       paths_relative_to_root: T::Array[String],
-      per_file_processors: T::Array[PerFileProcessorInterface],
+      per_file_processors: T::Array[PerFileProcessorInterface]
     ).void
   end
   def self.make_public!(
@@ -117,7 +117,7 @@ module UsePackwerk
       paths_relative_to_root: paths_relative_to_root,
       per_file_processors: per_file_processors
     )
-  
+
     Logging.section('Next steps') do
       next_steps = <<~NEXT_STEPS
         Your next steps might be:
@@ -174,7 +174,7 @@ module UsePackwerk
     params(
       pack_name: String,
       parent_name: String,
-      per_file_processors: T::Array[PerFileProcessorInterface],
+      per_file_processors: T::Array[PerFileProcessorInterface]
     ).void
   end
   def self.move_to_parent!(
@@ -195,7 +195,7 @@ module UsePackwerk
     Private.move_to_parent!(
       pack_name: pack_name,
       parent_name: parent_name,
-      per_file_processors: per_file_processors,
+      per_file_processors: per_file_processors
     )
 
     Logging.section('Next steps') do
@@ -214,7 +214,7 @@ module UsePackwerk
   sig do
     params(
       pack_name: T.nilable(String),
-      limit: Integer,
+      limit: Integer
     ).void
   end
   def self.list_top_privacy_violations(
@@ -247,14 +247,14 @@ module UsePackwerk
     params(
       file: String,
       find: Pathname,
-      replace_with: Pathname,
+      replace_with: Pathname
     ).void
   end
   def self.replace_in_file(file:, find:, replace_with:)
     Private.replace_in_file(
       file: file,
       find: find,
-      replace_with: replace_with,
+      replace_with: replace_with
     )
   end
 end

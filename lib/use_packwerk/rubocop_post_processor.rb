@@ -15,7 +15,7 @@ module UsePackwerk
         UsePackwerk.replace_in_file(
           file: rubocop_todo.to_s,
           find: relative_path_to_origin,
-          replace_with: relative_path_to_destination,
+          replace_with: relative_path_to_destination
         )
       end
 
@@ -26,23 +26,23 @@ module UsePackwerk
           new_origin_rubocop_todo = loaded_origin_rubocop_todo.dup
 
           loaded_origin_rubocop_todo.each do |cop_name, cop_config|
-            if cop_config['Exclude'].include?(relative_path_to_origin.to_s)
-              new_origin_rubocop_todo[cop_name]['Exclude'] = cop_config['Exclude'] - [relative_path_to_origin.to_s]
-              origin_rubocop_todo.write(YAML.dump(new_origin_rubocop_todo))
-              
-              destination_rubocop_todo = file_move_operation.destination_pack.directory.join('.rubocop_todo.yml')
-              if destination_rubocop_todo.exist?
-                new_destination_rubocop_todo = YAML.load_file(destination_rubocop_todo).dup
-              else
-                new_destination_rubocop_todo = {}
-              end
+            next unless cop_config['Exclude'].include?(relative_path_to_origin.to_s)
 
-              new_destination_rubocop_todo[cop_name] ||= { 'Exclude' => [] }
+            new_origin_rubocop_todo[cop_name]['Exclude'] = cop_config['Exclude'] - [relative_path_to_origin.to_s]
+            origin_rubocop_todo.write(YAML.dump(new_origin_rubocop_todo))
 
-              new_destination_rubocop_todo[cop_name]['Exclude'] += [relative_path_to_destination.to_s]
-              destination_rubocop_todo.write(YAML.dump(new_destination_rubocop_todo))
+            destination_rubocop_todo = file_move_operation.destination_pack.directory.join('.rubocop_todo.yml')
+            if destination_rubocop_todo.exist?
+              new_destination_rubocop_todo = YAML.load_file(destination_rubocop_todo).dup
+            else
+              new_destination_rubocop_todo = {}
             end
-          end 
+
+            new_destination_rubocop_todo[cop_name] ||= { 'Exclude' => [] }
+
+            new_destination_rubocop_todo[cop_name]['Exclude'] += [relative_path_to_destination.to_s]
+            destination_rubocop_todo.write(YAML.dump(new_destination_rubocop_todo))
+          end
         end
       end
     end

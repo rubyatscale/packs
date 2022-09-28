@@ -1,4 +1,5 @@
 # typed: false
+
 RSpec.describe UsePackwerk do
   def expect_files_to_exist(files)
     files.each do |file|
@@ -29,7 +30,7 @@ RSpec.describe UsePackwerk do
 
       it 'errors' do
         expect { UsePackwerk.create_pack!(pack_name: 'foo/my_pack') }.to raise_error(
-          "UsePackwerk only supports packages in the the following directories: [\"gems\", \"components\", \"packs\"]. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
+          'UsePackwerk only supports packages in the the following directories: ["gems", "components", "packs"]. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`.'
         )
       end
     end
@@ -42,7 +43,7 @@ RSpec.describe UsePackwerk do
       expect(package.enforce_privacy).to eq(true)
       expect(package.enforce_dependencies).to eq(true)
       expect(package.dependencies).to eq([])
-      expect(package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} })
+      expect(package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => { 'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new', 'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new', 'prevent_this_package_from_exposing_an_untyped_api' => 'fail_on_new', 'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new' } })
 
       expected = <<~EXPECTED
         enforce_dependencies: true
@@ -68,7 +69,7 @@ RSpec.describe UsePackwerk do
           enforce_privacy: true,
           enforce_dependencies: false,
           dependencies: [],
-          metadata: { 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} },
+          metadata: { 'owner' => 'MyTeam', 'protections' => { 'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new', 'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new', 'prevent_this_package_from_exposing_an_untyped_api' => 'fail_on_new', 'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new' } }
         )
 
         ParsePackwerk.bust_cache!
@@ -82,7 +83,7 @@ RSpec.describe UsePackwerk do
       end
     end
 
-    context 'pack already exists and has content' do      
+    context 'pack already exists and has content' do
       it 'is idempotent' do
         write_package_yml('packs/food', enforce_privacy: false, enforce_dependencies: true, dependencies: ['packs/some_other_pack'])
         expect(ParsePackwerk.all.count).to eq 2
@@ -103,7 +104,7 @@ RSpec.describe UsePackwerk do
       package = ParsePackwerk.find('packs/my_pack')
       expect(package.metadata['owner']).to eq 'MyTeam'
       package_yml_contents = package.yml.read
-      expect(package_yml_contents).to include ('owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team')
+      expect(package_yml_contents).to include('owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team')
     end
 
     context 'pack is in gems' do
@@ -126,7 +127,7 @@ RSpec.describe UsePackwerk do
         expect(package.enforce_privacy).to eq(true)
         expect(package.enforce_dependencies).to eq(true)
         expect(package.dependencies).to eq([])
-        expect(package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => {"prevent_other_packages_from_using_this_packages_internals"=>"fail_on_new", "prevent_this_package_from_creating_other_namespaces"=>"fail_on_new", "prevent_this_package_from_exposing_an_untyped_api"=>"fail_on_new", "prevent_this_package_from_violating_its_stated_dependencies"=>"fail_on_new"} })
+        expect(package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => { 'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new', 'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new', 'prevent_this_package_from_exposing_an_untyped_api' => 'fail_on_new', 'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new' } })
 
         expected = <<~EXPECTED
           enforce_dependencies: true
@@ -200,7 +201,7 @@ RSpec.describe UsePackwerk do
           - When in doubt, keep it simple
           - Anything else you may want to include!
 
-          README.md files are under version control and should change as your public API changes. 
+          README.md files are under version control and should change as your public API changes.#{' '}
 
           See #{UsePackwerk.config.documentation_link} for more info!
         EXPECTED
@@ -218,7 +219,7 @@ RSpec.describe UsePackwerk do
           write_file('packs/organisms/README_TODO.md', 'This is outdated')
           write_package_yml('packs/organisms')
           actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
-          expect(actual_readme_todo.read).to eq "This is outdated"
+          expect(actual_readme_todo.read).to eq 'This is outdated'
           UsePackwerk.create_pack!(pack_name: 'packs/organisms')
           expect(actual_readme_todo.read).to eq expected_readme_todo
         end
@@ -241,10 +242,10 @@ RSpec.describe UsePackwerk do
       context 'pack not yet created' do
         it 'errors' do
           write_file('app/services/foo.rb')
-          
-          expect { 
+
+          expect {
             UsePackwerk.move_to_pack!(pack_name: 'packs/animals', paths_relative_to_root: ['app/services/foo.rb'])
-           }.to raise_error("Can not find package with name packs/animals. Make sure the argument is of the form `packs/my_pack/`")
+          }.to raise_error('Can not find package with name packs/animals. Make sure the argument is of the form `packs/my_pack/`')
         end
       end
 
@@ -258,14 +259,14 @@ RSpec.describe UsePackwerk do
         )
 
         expect_files_to_not_exist([
-          'app/services/horse_like/donkey.rb',
-          'spec/services/horse_like/donkey_spec.rb'
-        ])
+                                    'app/services/horse_like/donkey.rb',
+                                    'spec/services/horse_like/donkey_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/animals/app/services/horse_like/donkey.rb',
-          'packs/animals/spec/services/horse_like/donkey_spec.rb'
-        ])
+                                'packs/animals/app/services/horse_like/donkey.rb',
+                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
+                              ])
       end
 
       it 'can move directories from a monolith and their specs into a package' do
@@ -278,14 +279,14 @@ RSpec.describe UsePackwerk do
         )
 
         expect_files_to_not_exist([
-          'app/services/horse_like/donkey.rb',
-          'spec/services/horse_like/donkey_spec.rb'
-        ])
+                                    'app/services/horse_like/donkey.rb',
+                                    'spec/services/horse_like/donkey_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/animals/app/services/horse_like/donkey.rb',
-          'packs/animals/spec/services/horse_like/donkey_spec.rb'
-        ])
+                                'packs/animals/app/services/horse_like/donkey.rb',
+                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
+                              ])
       end
 
       it 'can move files from a parent pack to another parent pack' do
@@ -294,21 +295,21 @@ RSpec.describe UsePackwerk do
 
         write_file('packs/organisms/app/services/horse_like/donkey.rb')
         write_file('packs/organisms/spec/services/horse_like/donkey_spec.rb')
-        
+
         UsePackwerk.move_to_pack!(
           pack_name: 'packs/animals',
           paths_relative_to_root: ['packs/organisms/app/services/horse_like/donkey.rb']
         )
 
         expect_files_to_not_exist([
-          'packs/organisms/app/services/horse_like/donkey.rb',
-          'packs/organisms/spec/services/horse_like/donkey_spec.rb',
-        ])
+                                    'packs/organisms/app/services/horse_like/donkey.rb',
+                                    'packs/organisms/spec/services/horse_like/donkey_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/animals/app/services/horse_like/donkey.rb',
-          'packs/animals/spec/services/horse_like/donkey_spec.rb',
-        ])
+                                'packs/animals/app/services/horse_like/donkey.rb',
+                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
+                              ])
       end
 
       it 'can move files from a child pack to a parent pack' do
@@ -317,21 +318,21 @@ RSpec.describe UsePackwerk do
 
         write_file('packs/animals/horse_like/app/services/horse_like/donkey.rb')
         write_file('packs/animals/horse_like/spec/services/horse_like/donkey_spec.rb')
-        
+
         UsePackwerk.move_to_pack!(
           pack_name: 'packs/animals',
           paths_relative_to_root: ['packs/animals/horse_like/app/services/horse_like/donkey.rb']
         )
 
         expect_files_to_not_exist([
-          'packs/animals/horse_like/app/services/horse_like/donkey.rb',
-          'packs/animals/horse_like/spec/services/horse_like/donkey_spec.rb',
-        ])
+                                    'packs/animals/horse_like/app/services/horse_like/donkey.rb',
+                                    'packs/animals/horse_like/spec/services/horse_like/donkey_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/animals/app/services/horse_like/donkey.rb',
-          'packs/animals/spec/services/horse_like/donkey_spec.rb',
-        ])
+                                'packs/animals/app/services/horse_like/donkey.rb',
+                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
+                              ])
       end
 
       context 'directory moves have trailing slashes' do
@@ -341,21 +342,21 @@ RSpec.describe UsePackwerk do
 
           write_file('packs/organisms/app/services/horse_like/donkey.rb')
           write_file('packs/organisms/spec/services/horse_like/donkey_spec.rb')
-          
+
           UsePackwerk.move_to_pack!(
             pack_name: 'packs/animals',
             paths_relative_to_root: ['packs/organisms/app/services/horse_like/']
           )
 
           expect_files_to_not_exist([
-            'packs/organisms/app/services/horse_like/donkey.rb',
-            'packs/organisms/spec/services/horse_like/donkey_spec.rb',
-          ])
+                                      'packs/organisms/app/services/horse_like/donkey.rb',
+                                      'packs/organisms/spec/services/horse_like/donkey_spec.rb'
+                                    ])
 
           expect_files_to_exist([
-            'packs/animals/app/services/horse_like/donkey.rb',
-            'packs/animals/spec/services/horse_like/donkey_spec.rb',
-          ])
+                                  'packs/animals/app/services/horse_like/donkey.rb',
+                                  'packs/animals/spec/services/horse_like/donkey_spec.rb'
+                                ])
         end
       end
 
@@ -371,21 +372,21 @@ RSpec.describe UsePackwerk do
           UsePackwerk.move_to_pack!(
             pack_name: 'packs/food',
             paths_relative_to_root: [
-              'packs/organisms/app/services',
-            ],
+              'packs/organisms/app/services'
+            ]
           )
 
           expect_files_to_not_exist([
-            'packs/organisms/app/services/sunflower.rb',
-            'packs/organisms/app/services/apple.rb',
-          ])
+                                      'packs/organisms/app/services/sunflower.rb',
+                                      'packs/organisms/app/services/apple.rb'
+                                    ])
 
           expect_files_to_exist([
-            'packs/food/app/services/salad.rb',
-            'packs/food/app/services/tomato.rb',
-            'packs/food/app/services/sunflower.rb',
-            'packs/food/app/services/apple.rb',
-          ])
+                                  'packs/food/app/services/salad.rb',
+                                  'packs/food/app/services/tomato.rb',
+                                  'packs/food/app/services/sunflower.rb',
+                                  'packs/food/app/services/apple.rb'
+                                ])
         end
       end
 
@@ -399,14 +400,14 @@ RSpec.describe UsePackwerk do
           UsePackwerk.move_to_pack!(
             pack_name: 'packs/food',
             paths_relative_to_root: [
-              'packs/organisms/app/services',
-            ],
+              'packs/organisms/app/services'
+            ]
           )
 
           expect_files_to_exist([
-            'packs/food/app/services/salad.rb',
-            'packs/organisms/app/services/salad.rb',
-          ])
+                                  'packs/food/app/services/salad.rb',
+                                  'packs/organisms/app/services/salad.rb'
+                                ])
         end
       end
 
@@ -423,26 +424,25 @@ RSpec.describe UsePackwerk do
             pack_name: 'packs/my_pack',
             paths_relative_to_root: [
               'lib/tasks/my_task.rake',
-              'packs/organisms/lib/tasks/my_other_task.rake',
-            ],
+              'packs/organisms/lib/tasks/my_other_task.rake'
+            ]
           )
 
           expect_files_to_not_exist([
-            'lib/tasks/my_task.rake',
-            'spec/lib/tasks/my_task_spec.rb',
-            'packs/organisms/lib/tasks/my_other_task.rake',
-            'packs/organisms/spec/lib/tasks/my_other_task_spec.rb',
-          ])
+                                      'lib/tasks/my_task.rake',
+                                      'spec/lib/tasks/my_task_spec.rb',
+                                      'packs/organisms/lib/tasks/my_other_task.rake',
+                                      'packs/organisms/spec/lib/tasks/my_other_task_spec.rb'
+                                    ])
 
           expect_files_to_exist([
-            'packs/my_pack/lib/tasks/my_task.rake',
-            'packs/my_pack/spec/lib/tasks/my_task_spec.rb',
-            'packs/my_pack/lib/tasks/my_other_task.rake',
-            'packs/my_pack/spec/lib/tasks/my_other_task_spec.rb',
-          ])
+                                  'packs/my_pack/lib/tasks/my_task.rake',
+                                  'packs/my_pack/spec/lib/tasks/my_task_spec.rb',
+                                  'packs/my_pack/lib/tasks/my_other_task.rake',
+                                  'packs/my_pack/spec/lib/tasks/my_other_task_spec.rb'
+                                ])
         end
       end
-
 
       describe 'RubocopPostProcessor' do
         context 'moving file listed in top-level .rubocop_todo.yml' do
@@ -456,19 +456,19 @@ RSpec.describe UsePackwerk do
 
             before_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
 
-            expect(before_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
-            
+            expect(before_rubocop_todo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/foo/app/services/foo.rb'] } })
+
             write_file('packs/foo/app/services/foo.rb')
             UsePackwerk.create_pack!(pack_name: 'packs/bar')
             UsePackwerk.create_pack!(pack_name: 'packs/foo')
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
             )
 
             after_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
-            expect(after_rubocop_todo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
+            expect(after_rubocop_todo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/bar/app/services/foo.rb'] } })
           end
         end
 
@@ -482,7 +482,7 @@ RSpec.describe UsePackwerk do
             CONTENTS
 
             before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-            expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+            expect(before_rubocop_todo_foo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/foo/app/services/foo.rb'] } })
             expect(Pathname.new('packs/bar/.rubocop_todo.yml')).to_not exist
 
             write_file('packs/foo/app/services/foo.rb')
@@ -491,13 +491,13 @@ RSpec.describe UsePackwerk do
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
             )
 
             after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-            expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+            expect(after_rubocop_todo_foo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => [] } })
             after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-            expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]}})
+            expect(after_rubocop_todo_bar).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/bar/app/services/foo.rb'] } })
           end
         end
 
@@ -518,9 +518,9 @@ RSpec.describe UsePackwerk do
             CONTENTS
 
             before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-            expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+            expect(before_rubocop_todo_foo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/foo/app/services/foo.rb'] } })
             before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-            expect(before_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
+            expect(before_rubocop_todo_bar).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/bar/app/services/bar.rb'] } })
 
             write_file('packs/foo/app/services/foo.rb')
             UsePackwerk.create_pack!(pack_name: 'packs/bar')
@@ -528,13 +528,13 @@ RSpec.describe UsePackwerk do
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
             )
 
             after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-            expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+            expect(after_rubocop_todo_foo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => [] } })
             after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-            expect(after_rubocop_todo_bar).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/bar.rb", "packs/bar/app/services/foo.rb"]}})
+            expect(after_rubocop_todo_bar).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/bar/app/services/bar.rb', 'packs/bar/app/services/foo.rb'] } })
           end
         end
 
@@ -555,9 +555,9 @@ RSpec.describe UsePackwerk do
             CONTENTS
 
             before_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-            expect(before_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>["packs/foo/app/services/foo.rb"]}})
+            expect(before_rubocop_todo_foo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/foo/app/services/foo.rb'] } })
             before_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
-            expect(before_rubocop_todo_bar).to eq({"Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]}})
+            expect(before_rubocop_todo_bar).to eq({ 'Layout/OtherCop' => { 'Exclude' => ['packs/bar/app/services/bar.rb'] } })
 
             write_file('packs/foo/app/services/foo.rb')
             UsePackwerk.create_pack!(pack_name: 'packs/bar')
@@ -565,16 +565,16 @@ RSpec.describe UsePackwerk do
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
-              per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+              per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
             )
 
             after_rubocop_todo_foo = YAML.load_file(Pathname.new('packs/foo/.rubocop_todo.yml'))
-            expect(after_rubocop_todo_foo).to eq({"Layout/BeginEndAlignment" => {"Exclude"=>[]}})
+            expect(after_rubocop_todo_foo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => [] } })
             after_rubocop_todo_bar = YAML.load_file(Pathname.new('packs/bar/.rubocop_todo.yml'))
             expect(after_rubocop_todo_bar).to eq({
-              "Layout/BeginEndAlignment" => {"Exclude"=>["packs/bar/app/services/foo.rb"]},
-              "Layout/OtherCop" => {"Exclude"=>["packs/bar/app/services/bar.rb"]},
-            })
+                                                   'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/bar/app/services/foo.rb'] },
+                                                   'Layout/OtherCop' => { 'Exclude' => ['packs/bar/app/services/bar.rb'] }
+                                                 })
           end
         end
       end
@@ -589,7 +589,6 @@ RSpec.describe UsePackwerk do
               - spec/services/horse_like/donkey_spec.rb
           CONTENTS
 
-          before_codeownership_yml = File.read(Pathname.new('config/code_ownership.yml'))
           write_file('app/services/horse_like/donkey.rb')
           write_file('spec/services/horse_like/donkey_spec.rb')
           write_package_yml('packs/animals')
@@ -597,15 +596,15 @@ RSpec.describe UsePackwerk do
           UsePackwerk.move_to_pack!(
             pack_name: 'packs/animals',
             paths_relative_to_root: ['app/services/horse_like'],
-            per_file_processors: [UsePackwerk::CodeOwnershipPostProcessor.new],
+            per_file_processors: [UsePackwerk::CodeOwnershipPostProcessor.new]
           )
 
           after_codeownership_yml = File.read(Pathname.new('config/code_ownership.yml'))
 
-          expect(after_codeownership_yml).to_not include "- app/services/horse_like/donkey.rb"
-          expect(after_codeownership_yml).to_not include "- spec/services/horse_like/donkey_spec.rb"
-          expect(after_codeownership_yml).to include "- packs/animals/app/services/horse_like/donkey.rb"
-          expect(after_codeownership_yml).to include "- packs/animals/spec/services/horse_like/donkey_spec.rb"
+          expect(after_codeownership_yml).to_not include '- app/services/horse_like/donkey.rb'
+          expect(after_codeownership_yml).to_not include '- spec/services/horse_like/donkey_spec.rb'
+          expect(after_codeownership_yml).to include '- packs/animals/app/services/horse_like/donkey.rb'
+          expect(after_codeownership_yml).to include '- packs/animals/spec/services/horse_like/donkey_spec.rb'
         end
 
         it 'prints out the right ownership' do
@@ -613,7 +612,7 @@ RSpec.describe UsePackwerk do
           write_file('packs/owned_by_artists/app/services/foo.rb')
           write_file('config/teams/artists.yml', 'name: Artists')
 
-          logged_output = ""
+          logged_output = ''
 
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
@@ -623,24 +622,24 @@ RSpec.describe UsePackwerk do
           UsePackwerk.move_to_pack!(
             pack_name: '.',
             paths_relative_to_root: ['packs/owned_by_artists/app/services/foo.rb'],
-            per_file_processors: [UsePackwerk::CodeOwnershipPostProcessor.new],
+            per_file_processors: [UsePackwerk::CodeOwnershipPostProcessor.new]
           )
 
           expected_logged_output = <<~OUTPUT
-          This section contains info about the current ownership distribution of the moved files.
-            Artists - 1 files
+            This section contains info about the current ownership distribution of the moved files.
+              Artists - 1 files
           OUTPUT
 
           expect(logged_output).to include expected_logged_output
         end
-      
+
         it 'removes file annotations if the destination pack has file annotations' do
           write_package_yml('packs/owned_by_artists', owner: 'Artists')
           write_file('app/services/foo.rb', '# @team Chefs')
           write_file('config/teams/artists.yml', 'name: Artists')
           write_file('config/teams/chefs.yml', 'name: Chefs')
 
-          logged_output = ""
+          logged_output = ''
 
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
@@ -650,13 +649,13 @@ RSpec.describe UsePackwerk do
           UsePackwerk.move_to_pack!(
             pack_name: 'packs/owned_by_artists',
             paths_relative_to_root: ['app/services/foo.rb'],
-            per_file_processors: [UsePackwerk::CodeOwnershipPostProcessor.new],
+            per_file_processors: [UsePackwerk::CodeOwnershipPostProcessor.new]
           )
 
           expected_logged_output = <<~OUTPUT
-          This section contains info about the current ownership distribution of the moved files.
-            Chefs - 1 files
-          Since the destination package has package-based ownership, file-annotations were removed from moved files.
+            This section contains info about the current ownership distribution of the moved files.
+              Chefs - 1 files
+            Since the destination package has package-based ownership, file-annotations were removed from moved files.
           OUTPUT
 
           expect(logged_output).to include expected_logged_output
@@ -671,9 +670,9 @@ RSpec.describe UsePackwerk do
 
       context 'pack not yet created' do
         it 'errors' do
-          expect { 
+          expect {
             UsePackwerk.move_to_pack!(paths_relative_to_root: ['packs/fruits/apples/app/services/mcintosh.rb'], pack_name: 'packs/fruits/apples')
-           }.to raise_error("Can not find package with name packs/fruits/apples. Make sure the argument is of the form `packs/my_pack/`")
+          }.to raise_error('Can not find package with name packs/fruits/apples. Make sure the argument is of the form `packs/my_pack/`')
         end
       end
 
@@ -681,20 +680,20 @@ RSpec.describe UsePackwerk do
         write_package_yml('packs/fruits/apples')
         write_file('app/services/mcintosh.rb')
         write_file('spec/services/mcintosh_spec.rb')
-        
+
         UsePackwerk.move_to_pack!(
           paths_relative_to_root: ['app/services/mcintosh.rb'],
           pack_name: 'packs/fruits/apples'
         )
         expect_files_to_not_exist([
-          'app/services/mcintosh.rb',
-          'spec/services/mcintosh_spec.rb'
-        ])
+                                    'app/services/mcintosh.rb',
+                                    'spec/services/mcintosh_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/fruits/apples/app/services/mcintosh.rb',
-          'packs/fruits/apples/spec/services/mcintosh_spec.rb'
-        ])
+                                'packs/fruits/apples/app/services/mcintosh.rb',
+                                'packs/fruits/apples/spec/services/mcintosh_spec.rb'
+                              ])
       end
 
       it 'can move files from a parent pack to a child pack' do
@@ -702,20 +701,20 @@ RSpec.describe UsePackwerk do
         write_package_yml('packs/fruits')
         write_file('packs/fruits/app/services/mcintosh.rb')
         write_file('packs/fruits/spec/services/mcintosh_spec.rb')
-        
+
         UsePackwerk.move_to_pack!(
           paths_relative_to_root: ['packs/fruits/app/services/mcintosh.rb'],
           pack_name: 'packs/fruits/apples'
         )
         expect_files_to_not_exist([
-          'packs/fruits/app/services/mcintosh.rb',
-          'packs/fruits/spec/services/mcintosh_spec.rb'
-        ])
+                                    'packs/fruits/app/services/mcintosh.rb',
+                                    'packs/fruits/spec/services/mcintosh_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/fruits/apples/app/services/mcintosh.rb',
-          'packs/fruits/apples/spec/services/mcintosh_spec.rb'
-        ])
+                                'packs/fruits/apples/app/services/mcintosh.rb',
+                                'packs/fruits/apples/spec/services/mcintosh_spec.rb'
+                              ])
       end
     end
 
@@ -787,7 +786,7 @@ RSpec.describe UsePackwerk do
           - When in doubt, keep it simple
           - Anything else you may want to include!
 
-          README.md files are under version control and should change as your public API changes. 
+          README.md files are under version control and should change as your public API changes.#{' '}
 
           See #{UsePackwerk.config.documentation_link} for more info!
         EXPECTED
@@ -811,7 +810,7 @@ RSpec.describe UsePackwerk do
           write_package_yml('packs/organisms')
           write_file('packs/organisms/README_TODO.md', 'This is outdated')
           actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
-          expect(actual_readme_todo.read).to eq "This is outdated"
+          expect(actual_readme_todo.read).to eq 'This is outdated'
           UsePackwerk.move_to_pack!(
             pack_name: 'packs/organisms',
             paths_relative_to_root: ['app/services/foo.rb']
@@ -842,18 +841,18 @@ RSpec.describe UsePackwerk do
       write_file('spec/services/horse_like/donkey_spec.rb')
 
       UsePackwerk.make_public!(
-        paths_relative_to_root: ['app/services/horse_like/donkey.rb'],
+        paths_relative_to_root: ['app/services/horse_like/donkey.rb']
       )
 
       expect_files_to_not_exist([
-        'app/services/horse_like/donkey.rb',
-        'spec/services/horse_like/donkey_spec.rb',
-      ])
+                                  'app/services/horse_like/donkey.rb',
+                                  'spec/services/horse_like/donkey_spec.rb'
+                                ])
 
       expect_files_to_exist([
-        'app/public/horse_like/donkey.rb',
-        'spec/public/horse_like/donkey_spec.rb',
-      ])
+                              'app/public/horse_like/donkey.rb',
+                              'spec/public/horse_like/donkey_spec.rb'
+                            ])
     end
 
     it 'can make directories in the monolith and their specs public' do
@@ -863,22 +862,22 @@ RSpec.describe UsePackwerk do
       write_file('spec/services/fish_like/big_ones/whale_spec.rb')
 
       UsePackwerk.make_public!(
-        paths_relative_to_root: ['app/services/fish_like'],
+        paths_relative_to_root: ['app/services/fish_like']
       )
 
       expect_files_to_not_exist([
-        'app/services/fish_like/small_ones/goldfish.rb',
-        'app/services/fish_like/small_ones/seahorse.rb',
-        'app/services/fish_like/big_ones/whale.rb',
-        'spec/services/fish_like/big_ones/whale_spec.rb',
-      ])
+                                  'app/services/fish_like/small_ones/goldfish.rb',
+                                  'app/services/fish_like/small_ones/seahorse.rb',
+                                  'app/services/fish_like/big_ones/whale.rb',
+                                  'spec/services/fish_like/big_ones/whale_spec.rb'
+                                ])
 
       expect_files_to_exist([
-        'app/public/fish_like/small_ones/goldfish.rb',
-        'app/public/fish_like/small_ones/seahorse.rb',
-        'app/public/fish_like/big_ones/whale.rb',
-        'spec/public/fish_like/big_ones/whale_spec.rb',
-      ])
+                              'app/public/fish_like/small_ones/goldfish.rb',
+                              'app/public/fish_like/small_ones/seahorse.rb',
+                              'app/public/fish_like/big_ones/whale.rb',
+                              'spec/public/fish_like/big_ones/whale_spec.rb'
+                            ])
     end
 
     it 'can make files in a nested pack public' do
@@ -887,18 +886,18 @@ RSpec.describe UsePackwerk do
       write_file('packs/fruits/apples/spec/services/apple_spec.rb')
 
       UsePackwerk.make_public!(
-        paths_relative_to_root: [ 'packs/fruits/apples/app/services/apple.rb' ]
+        paths_relative_to_root: ['packs/fruits/apples/app/services/apple.rb']
       )
 
       expect_files_to_not_exist([
-        'packs/fruits/apples/app/services/apple.rb',
-        'packs/fruits/apples/spec/services/apple_spec.rb'
-      ])
+                                  'packs/fruits/apples/app/services/apple.rb',
+                                  'packs/fruits/apples/spec/services/apple_spec.rb'
+                                ])
 
       expect_files_to_exist([
-        'packs/fruits/apples/app/public/apple.rb',
-        'packs/fruits/apples/spec/public/apple_spec.rb'
-      ])
+                              'packs/fruits/apples/app/public/apple.rb',
+                              'packs/fruits/apples/spec/public/apple_spec.rb'
+                            ])
     end
 
     context 'pack has empty public directory' do
@@ -906,20 +905,20 @@ RSpec.describe UsePackwerk do
         write_package_yml('packs/organisms')
         write_file('packs/organisms/app/services/other_bird.rb')
         write_file('packs/organisms/spec/services/other_bird_spec.rb')
-        
+
         UsePackwerk.make_public!(
-          paths_relative_to_root: [ 'packs/organisms/app/services/other_bird.rb' ]
+          paths_relative_to_root: ['packs/organisms/app/services/other_bird.rb']
         )
 
         expect_files_to_not_exist([
-          'packs/organisms/app/services/other_bird.rb',
-          'packs/organisms/spec/services/other_bird_spec.rb'
-        ])
+                                    'packs/organisms/app/services/other_bird.rb',
+                                    'packs/organisms/spec/services/other_bird_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/organisms/app/public/other_bird.rb',
-          'packs/organisms/spec/public/other_bird_spec.rb'
-        ])
+                                'packs/organisms/app/public/other_bird.rb',
+                                'packs/organisms/spec/public/other_bird_spec.rb'
+                              ])
       end
 
       it 'replaces the file in the top-level .rubocop_todo.yml' do
@@ -942,7 +941,7 @@ RSpec.describe UsePackwerk do
 
         UsePackwerk.make_public!(
           paths_relative_to_root: ['packs/organisms/app/services/other_bird.rb'],
-          per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+          per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
         )
 
         expect(rubocop_todo.read).to_not include 'packs/organisms/app/services/other_bird.rb'
@@ -969,7 +968,7 @@ RSpec.describe UsePackwerk do
 
         UsePackwerk.make_public!(
           paths_relative_to_root: ['packs/organisms/app/services/other_bird.rb'],
-          per_file_processors: [UsePackwerk::RubocopPostProcessor.new],
+          per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
         )
 
         expect(rubocop_todo.read).to_not include 'packs/organisms/app/services/other_bird.rb'
@@ -983,21 +982,21 @@ RSpec.describe UsePackwerk do
         write_file('packs/organisms/app/public/swan.rb')
         write_file('packs/organisms/app/services/other_bird.rb')
         write_file('packs/organisms/spec/services/other_bird_spec.rb')
-        
+
         UsePackwerk.make_public!(
-          paths_relative_to_root: [ 'packs/organisms/app/services/other_bird.rb' ]
+          paths_relative_to_root: ['packs/organisms/app/services/other_bird.rb']
         )
 
         expect_files_to_not_exist([
-          'packs/organisms/app/services/other_bird.rb',
-          'packs/organisms/spec/services/other_bird_spec.rb'
-        ])
+                                    'packs/organisms/app/services/other_bird.rb',
+                                    'packs/organisms/spec/services/other_bird_spec.rb'
+                                  ])
 
         expect_files_to_exist([
-          'packs/organisms/app/public/swan.rb',
-          'packs/organisms/app/public/other_bird.rb',
-          'packs/organisms/spec/public/other_bird_spec.rb'
-        ])
+                                'packs/organisms/app/public/swan.rb',
+                                'packs/organisms/app/public/other_bird.rb',
+                                'packs/organisms/spec/public/other_bird_spec.rb'
+                              ])
       end
     end
 
@@ -1007,7 +1006,7 @@ RSpec.describe UsePackwerk do
         write_file('gems/my_gem/app/public/my_gem_service.rb')
 
         UsePackwerk.make_public!(
-          paths_relative_to_root: [ 'gems/my_gem/app/services/my_gem_service.rb' ]
+          paths_relative_to_root: ['gems/my_gem/app/services/my_gem_service.rb']
         )
 
         expect_files_to_exist(['gems/my_gem/app/public/my_gem_service.rb'])
@@ -1034,15 +1033,15 @@ RSpec.describe UsePackwerk do
         )
 
         expect_files_to_not_exist([
-          'packs/food/app/services/salad_dressing.rb',
-          'packs/food/spec/services/salad_dressing_spec.rb',
-        ])
+                                    'packs/food/app/services/salad_dressing.rb',
+                                    'packs/food/spec/services/salad_dressing_spec.rb'
+                                  ])
 
         expected_files_after = [
           'packs/food/app/public/salad.rb',
           'packs/food/spec/public/salad_spec.rb',
           'packs/food/app/services/salad.rb',
-          'packs/food/spec/services/salad_spec.rb',
+          'packs/food/spec/services/salad_spec.rb'
         ]
 
         expect_files_to_exist expected_files_after
@@ -1100,7 +1099,7 @@ RSpec.describe UsePackwerk do
       it 'raises an error' do
         expect(ParsePackwerk.find('.').dependencies).to eq([])
         expect { UsePackwerk.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack') }.to raise_error do |e|
-          expect(e.message).to eq "Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`"
+          expect(e.message).to eq 'Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`'
         end
       end
     end
@@ -1108,7 +1107,7 @@ RSpec.describe UsePackwerk do
     context 'pack does not exist' do
       it 'raises an error' do
         expect { UsePackwerk.add_dependency!(pack_name: 'packs/other_pack', dependency_name: '.') }.to raise_error do |e|
-          expect(e.message).to eq "Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`"
+          expect(e.message).to eq 'Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`'
         end
       end
     end
@@ -1136,7 +1135,7 @@ RSpec.describe UsePackwerk do
 
       UsePackwerk.move_to_parent!(
         pack_name: 'packs/apples',
-        parent_name: 'packs/fruits',
+        parent_name: 'packs/fruits'
       )
 
       ParsePackwerk.bust_cache!
@@ -1148,20 +1147,20 @@ RSpec.describe UsePackwerk do
       expect(actual_package.dependencies).to eq(['packs/other_pack'])
 
       expect_files_to_exist([
-        'packs/fruits/apples/app/services/apples/some_yml.yml',
-        'packs/fruits/apples/app/services/apples.rb',
-        'packs/fruits/apples/app/services/apples/foo.rb',
-        'packs/fruits/apples/README.md',
-      ])
+                              'packs/fruits/apples/app/services/apples/some_yml.yml',
+                              'packs/fruits/apples/app/services/apples.rb',
+                              'packs/fruits/apples/app/services/apples/foo.rb',
+                              'packs/fruits/apples/README.md'
+                            ])
 
       expect_files_to_not_exist([
-        'packs/apples/app/services/apples/some_yml.yml',
-        'packs/apples/app/services/apples.rb',
-        'packs/apples/app/services/apples/foo.rb',
-        'packs/apples/package.yml',
-        'packs/apples/deprecated_references.yml',
-        'packs/apples/README.md',
-      ])
+                                  'packs/apples/app/services/apples/some_yml.yml',
+                                  'packs/apples/app/services/apples.rb',
+                                  'packs/apples/app/services/apples/foo.rb',
+                                  'packs/apples/package.yml',
+                                  'packs/apples/deprecated_references.yml',
+                                  'packs/apples/README.md'
+                                ])
 
       expect(Pathname.new('packs/apples')).to exist
 
@@ -1169,7 +1168,7 @@ RSpec.describe UsePackwerk do
     end
 
     it 'gives some helpful output to users' do
-      logged_output = ""
+      logged_output = ''
 
       expect(UsePackwerk::Logging).to receive(:out).at_least(:once) do |string|
         logged_output += ColorizedString.new(string).uncolorize
@@ -1182,7 +1181,7 @@ RSpec.describe UsePackwerk do
 
       UsePackwerk.move_to_parent!(
         pack_name: 'packs/apples',
-        parent_name: 'packs/fruits',
+        parent_name: 'packs/fruits'
       )
 
       expect(logged_output).to eq <<~OUTPUT
@@ -1221,7 +1220,7 @@ RSpec.describe UsePackwerk do
 
       UsePackwerk.move_to_parent!(
         pack_name: 'packs/apples',
-        parent_name: 'packs/fruits',
+        parent_name: 'packs/fruits'
       )
 
       ParsePackwerk.bust_cache!
@@ -1242,7 +1241,7 @@ RSpec.describe UsePackwerk do
 
       UsePackwerk.move_to_parent!(
         pack_name: 'packs/apples',
-        parent_name: 'packs/fruits',
+        parent_name: 'packs/fruits'
       )
 
       ParsePackwerk.bust_cache!
@@ -1264,7 +1263,7 @@ RSpec.describe UsePackwerk do
 
         UsePackwerk.move_to_parent!(
           pack_name: 'packs/apples',
-          parent_name: 'packs/fruits',
+          parent_name: 'packs/fruits'
         )
 
         ParsePackwerk.bust_cache!
@@ -1371,7 +1370,7 @@ RSpec.describe UsePackwerk do
       let(:list_top_privacy_violations) do
         UsePackwerk.list_top_privacy_violations(
           pack_name: pack_name,
-          limit: limit,
+          limit: limit
         )
       end
 
@@ -1381,7 +1380,7 @@ RSpec.describe UsePackwerk do
         let(:pack_name) { ParsePackwerk::ROOT_PACKAGE_NAME }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1391,23 +1390,22 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          RandomMonolithFile
-            - Total Count: 4 (100.0% of total)
-            - By package:
-              - packs/food: 2
-              - packs/organisms: 2
+            Total Count: 4
+            RandomMonolithFile
+              - Total Count: 4 (100.0% of total)
+              - By package:
+                - packs/food: 2
+                - packs/organisms: 2
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
-
       end
 
       context 'analyzing packs/food' do
         let(:pack_name) { 'packs/food' }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1417,12 +1415,12 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 3
-          Salad
-            - Total Count: 3 (100.0% of total)
-            - By package:
-              - packs/organisms: 2
-              - .: 1
+            Total Count: 3
+            Salad
+              - Total Count: 3 (100.0% of total)
+              - By package:
+                - packs/organisms: 2
+                - .: 1
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
@@ -1432,7 +1430,7 @@ RSpec.describe UsePackwerk do
         let(:pack_name) { 'packs/organisms' }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1442,37 +1440,6 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          Vulture
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/food: 2
-          Eagle
-            - Total Count: 1 (25.0% of total)
-            - By package:
-              - packs/food: 1
-          OtherBird
-            - Total Count: 1 (25.0% of total)
-            - By package:
-              - packs/food: 1
-          OUTPUT
-          expect(logged_output).to eq expected_logged_output
-        end
-
-        context 'user has set a limit of 2' do
-          let(:limit) { 2 }
-
-          it 'has the right output' do
-            logged_output = ""
-            expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-              logged_output += string
-              logged_output += "\n"
-            end
-
-            list_top_privacy_violations
-            puts logged_output
-
-            expected_logged_output = <<~OUTPUT
             Total Count: 4
             Vulture
               - Total Count: 2 (50.0% of total)
@@ -1482,6 +1449,37 @@ RSpec.describe UsePackwerk do
               - Total Count: 1 (25.0% of total)
               - By package:
                 - packs/food: 1
+            OtherBird
+              - Total Count: 1 (25.0% of total)
+              - By package:
+                - packs/food: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+
+        context 'user has set a limit of 2' do
+          let(:limit) { 2 }
+
+          it 'has the right output' do
+            logged_output = ''
+            expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+              logged_output += string
+              logged_output += "\n"
+            end
+
+            list_top_privacy_violations
+            puts logged_output
+
+            expected_logged_output = <<~OUTPUT
+              Total Count: 4
+              Vulture
+                - Total Count: 2 (50.0% of total)
+                - By package:
+                  - packs/food: 2
+              Eagle
+                - Total Count: 1 (25.0% of total)
+                - By package:
+                  - packs/food: 1
             OUTPUT
             expect(logged_output).to eq expected_logged_output
           end
@@ -1492,7 +1490,7 @@ RSpec.describe UsePackwerk do
         let(:pack_name) { 'packs/food/' }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1502,12 +1500,12 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 3
-          Salad
-            - Total Count: 3 (100.0% of total)
-            - By package:
-              - packs/organisms: 2
-              - .: 1
+            Total Count: 3
+            Salad
+              - Total Count: 3 (100.0% of total)
+              - By package:
+                - packs/organisms: 2
+                - .: 1
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
@@ -1515,7 +1513,7 @@ RSpec.describe UsePackwerk do
 
       context 'analyzing all packs' do
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1523,35 +1521,35 @@ RSpec.describe UsePackwerk do
 
           UsePackwerk.list_top_privacy_violations(
             pack_name: nil,
-            limit: limit,
+            limit: limit
           )
 
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 11
-          RandomMonolithFile (.)
-            - Total Count: 4 (36.36% of total)
-            - By package:
-              - packs/food: 2
-              - packs/organisms: 2
-          Salad (packs/food)
-            - Total Count: 3 (27.27% of total)
-            - By package:
-              - packs/organisms: 2
-              - .: 1
-          Vulture (packs/organisms)
-            - Total Count: 2 (18.18% of total)
-            - By package:
-              - packs/food: 2
-          Eagle (packs/organisms)
-            - Total Count: 1 (9.09% of total)
-            - By package:
-              - packs/food: 1
-          OtherBird (packs/organisms)
-            - Total Count: 1 (9.09% of total)
-            - By package:
-              - packs/food: 1
+            Total Count: 11
+            RandomMonolithFile (.)
+              - Total Count: 4 (36.36% of total)
+              - By package:
+                - packs/food: 2
+                - packs/organisms: 2
+            Salad (packs/food)
+              - Total Count: 3 (27.27% of total)
+              - By package:
+                - packs/organisms: 2
+                - .: 1
+            Vulture (packs/organisms)
+              - Total Count: 2 (18.18% of total)
+              - By package:
+                - packs/food: 2
+            Eagle (packs/organisms)
+              - Total Count: 1 (9.09% of total)
+              - By package:
+                - packs/food: 1
+            OtherBird (packs/organisms)
+              - Total Count: 1 (9.09% of total)
+              - By package:
+                - packs/food: 1
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
@@ -1562,7 +1560,7 @@ RSpec.describe UsePackwerk do
       let(:list_top_dependency_violations) do
         UsePackwerk.list_top_dependency_violations(
           pack_name: pack_name,
-          limit: limit,
+          limit: limit
         )
       end
 
@@ -1572,7 +1570,7 @@ RSpec.describe UsePackwerk do
         let(:pack_name) { ParsePackwerk::ROOT_PACKAGE_NAME }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1582,23 +1580,22 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          RandomMonolithFile
-            - Total Count: 4 (100.0% of total)
-            - By package:
-              - packs/food: 2
-              - packs/organisms: 2
+            Total Count: 4
+            RandomMonolithFile
+              - Total Count: 4 (100.0% of total)
+              - By package:
+                - packs/food: 2
+                - packs/organisms: 2
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
-
       end
 
       context 'analyzing packs/food' do
         let(:pack_name) { 'packs/food' }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1608,15 +1605,15 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          Burger
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/organisms: 2
-          Salad
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/organisms: 2
+            Total Count: 4
+            Burger
+              - Total Count: 2 (50.0% of total)
+              - By package:
+                - packs/organisms: 2
+            Salad
+              - Total Count: 2 (50.0% of total)
+              - By package:
+                - packs/organisms: 2
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
@@ -1626,7 +1623,7 @@ RSpec.describe UsePackwerk do
         let(:pack_name) { 'packs/organisms' }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1636,37 +1633,6 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          Vulture
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/food: 2
-          Eagle
-            - Total Count: 1 (25.0% of total)
-            - By package:
-              - packs/food: 1
-          OtherBird
-            - Total Count: 1 (25.0% of total)
-            - By package:
-              - packs/food: 1
-          OUTPUT
-          expect(logged_output).to eq expected_logged_output
-        end
-
-        context 'user has set a limit of 2' do
-          let(:limit) { 2 }
-
-          it 'has the right output' do
-            logged_output = ""
-            expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
-              logged_output += string
-              logged_output += "\n"
-            end
-
-            list_top_dependency_violations
-            puts logged_output
-
-            expected_logged_output = <<~OUTPUT
             Total Count: 4
             Vulture
               - Total Count: 2 (50.0% of total)
@@ -1676,6 +1642,37 @@ RSpec.describe UsePackwerk do
               - Total Count: 1 (25.0% of total)
               - By package:
                 - packs/food: 1
+            OtherBird
+              - Total Count: 1 (25.0% of total)
+              - By package:
+                - packs/food: 1
+          OUTPUT
+          expect(logged_output).to eq expected_logged_output
+        end
+
+        context 'user has set a limit of 2' do
+          let(:limit) { 2 }
+
+          it 'has the right output' do
+            logged_output = ''
+            expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+              logged_output += string
+              logged_output += "\n"
+            end
+
+            list_top_dependency_violations
+            puts logged_output
+
+            expected_logged_output = <<~OUTPUT
+              Total Count: 4
+              Vulture
+                - Total Count: 2 (50.0% of total)
+                - By package:
+                  - packs/food: 2
+              Eagle
+                - Total Count: 1 (25.0% of total)
+                - By package:
+                  - packs/food: 1
             OUTPUT
             expect(logged_output).to eq expected_logged_output
           end
@@ -1686,7 +1683,7 @@ RSpec.describe UsePackwerk do
         let(:pack_name) { 'packs/food/' }
 
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1696,15 +1693,15 @@ RSpec.describe UsePackwerk do
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 4
-          Burger
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/organisms: 2
-          Salad
-            - Total Count: 2 (50.0% of total)
-            - By package:
-              - packs/organisms: 2
+            Total Count: 4
+            Burger
+              - Total Count: 2 (50.0% of total)
+              - By package:
+                - packs/organisms: 2
+            Salad
+              - Total Count: 2 (50.0% of total)
+              - By package:
+                - packs/organisms: 2
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
@@ -1712,7 +1709,7 @@ RSpec.describe UsePackwerk do
 
       context 'analyzing all packs' do
         it 'has the right output' do
-          logged_output = ""
+          logged_output = ''
           expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
             logged_output += string
             logged_output += "\n"
@@ -1720,38 +1717,38 @@ RSpec.describe UsePackwerk do
 
           UsePackwerk.list_top_dependency_violations(
             pack_name: nil,
-            limit: limit,
+            limit: limit
           )
 
           puts logged_output
 
           expected_logged_output = <<~OUTPUT
-          Total Count: 12
-          RandomMonolithFile (.)
-            - Total Count: 4 (33.33% of total)
-            - By package:
-              - packs/food: 2
-              - packs/organisms: 2
-          Burger (packs/food)
-            - Total Count: 2 (16.67% of total)
-            - By package:
-              - packs/organisms: 2
-          Salad (packs/food)
-            - Total Count: 2 (16.67% of total)
-            - By package:
-              - packs/organisms: 2
-          Vulture (packs/organisms)
-            - Total Count: 2 (16.67% of total)
-            - By package:
-              - packs/food: 2
-          Eagle (packs/organisms)
-            - Total Count: 1 (8.33% of total)
-            - By package:
-              - packs/food: 1
-          OtherBird (packs/organisms)
-            - Total Count: 1 (8.33% of total)
-            - By package:
-              - packs/food: 1
+            Total Count: 12
+            RandomMonolithFile (.)
+              - Total Count: 4 (33.33% of total)
+              - By package:
+                - packs/food: 2
+                - packs/organisms: 2
+            Burger (packs/food)
+              - Total Count: 2 (16.67% of total)
+              - By package:
+                - packs/organisms: 2
+            Salad (packs/food)
+              - Total Count: 2 (16.67% of total)
+              - By package:
+                - packs/organisms: 2
+            Vulture (packs/organisms)
+              - Total Count: 2 (16.67% of total)
+              - By package:
+                - packs/food: 2
+            Eagle (packs/organisms)
+              - Total Count: 1 (8.33% of total)
+              - By package:
+                - packs/food: 1
+            OtherBird (packs/organisms)
+              - Total Count: 1 (8.33% of total)
+              - By package:
+                - packs/food: 1
           OUTPUT
           expect(logged_output).to eq expected_logged_output
         end
@@ -1759,4 +1756,3 @@ RSpec.describe UsePackwerk do
     end
   end
 end
-

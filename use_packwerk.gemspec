@@ -19,27 +19,30 @@ Gem::Specification.new do |spec|
           'public gem pushes.'
   end
 
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.6.0')
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir['README.md', 'lib/**/*', 'bin/**/*']
 
   # https://guides.rubygems.org/make-your-own-gem/#adding-an-executable
   # and
   # https://bundler.io/blog/2015/03/20/moving-bins-to-exe.html
-  spec.executables   = ['use_packwerk']
+  spec.executables = ['use_packwerk']
 
+  spec.add_dependency 'code_ownership'
   spec.add_dependency 'colorize'
+  spec.add_dependency 'package_protections'
   spec.add_dependency 'parse_packwerk'
   spec.add_dependency 'sorbet-runtime'
-  spec.add_dependency 'code_ownership'
-  spec.add_dependency 'package_protections'
   spec.add_dependency 'thor'
 
-  spec.add_development_dependency 'rake'
   spec.add_development_dependency 'bundler', '~> 2.2'
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'pry-byebug'
+  spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop-rspec'
   spec.add_development_dependency 'sorbet'
   spec.add_development_dependency 'sorbet-static'
   spec.add_development_dependency 'tapioca'
-  spec.add_development_dependency 'pry-byebug'
 end
