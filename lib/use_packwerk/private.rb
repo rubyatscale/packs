@@ -436,6 +436,24 @@ module UsePackwerk
       ParsePackwerk.write_package_yml!(package)
       package
     end
+
+    sig { void }
+    def self.load_client_configuration
+      @loaded_client_configuration ||= T.let(false, T.nilable(T::Boolean))
+      return if @loaded_client_configuration
+
+      @loaded_client_configuration = true
+      client_configuration = Pathname.pwd.join('config/use_packwerk.rb')
+      require client_configuration.to_s if client_configuration.exist?
+    end
+
+    sig { void }
+    def self.bust_cache!
+      UsePackwerk.config.bust_cache!
+      # This comes explicitly after `PackageProtections.config.bust_cache!` because
+      # otherwise `PackageProtections.config` will attempt to reload the client configuratoin.
+      @loaded_client_configuration = false
+    end
   end
 
   private_constant :Private

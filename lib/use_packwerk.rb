@@ -257,4 +257,9 @@ module UsePackwerk
       replace_with: replace_with
     )
   end
+
+  sig { void }
+  def self.bust_cache!
+    Private.bust_cache!
+  end
 end
