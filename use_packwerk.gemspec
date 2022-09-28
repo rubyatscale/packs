@@ -42,4 +42,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'sorbet-static'
   spec.add_development_dependency 'tapioca'
   spec.add_development_dependency 'pry-byebug'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop-rspec'
 end
