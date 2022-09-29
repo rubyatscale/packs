@@ -21,6 +21,7 @@ module UsePackwerk
           if package.nil?
             raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
           end
+
           to_package_names = [pack_name]
         end
 
@@ -84,9 +85,9 @@ module UsePackwerk
           if package.nil?
             raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
           end
+
           to_package_names = [pack_name]
         end
-
 
         Logging.section('👋 Hi there') do
           intro = UsePackwerk.config.user_event_logger.before_list_top_dependency_violations(pack_name, limit)

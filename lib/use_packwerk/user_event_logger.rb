@@ -136,7 +136,6 @@ module UsePackwerk
       MSG
     end
 
-
     sig { params(pack_name: String).returns(String) }
     def on_create_readme_todo(pack_name)
       <<~MSG
@@ -257,7 +256,7 @@ module UsePackwerk
         Lastly, remember you can use `bin/use_packwerk make_public #{pack_name}/path/to/file.rb` to make your class, constant, or module public API.
       MSG
     end
-    
+
     sig { returns(String) }
     def documentation_link
       'https://github.com/rubyatscale/use_packwerk#readme'
