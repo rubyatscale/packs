@@ -10,10 +10,14 @@ module UsePackwerk
     sig { params(documentation_link: String).void }
     attr_writer :documentation_link
 
+    sig { returns(UserEventLogger) }
+    attr_accessor :user_event_logger
+
     sig { void }
     def initialize
       @enforce_dependencies = T.let(default_enforce_dependencies, T::Boolean)
       @documentation_link = T.let(default_documentation_link, String)
+      @user_event_logger = T.let(DefaultUserEventLogger.new, UserEventLogger)
     end
 
     sig { returns(T::Boolean) }

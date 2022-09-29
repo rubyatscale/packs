@@ -49,12 +49,7 @@ module UsePackwerk
     end
     def self.create_pack!(pack_name:, enforce_privacy:, enforce_dependencies:)
       Logging.section('👋 Hi!') do
-        intro = <<~INTRO
-          You are creating a pack, which is great. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-          Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-          We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
-        INTRO
+        intro = UsePackwerk.config.user_event_logger.before_create_pack(pack_name)
         Logging.print_bold_green(intro)
       end
 
@@ -65,19 +60,7 @@ module UsePackwerk
       add_readme_todo(package)
 
       Logging.section('Next steps') do
-        next_steps = <<~NEXT_STEPS
-          Your next steps might be:
-
-          1) Move files into your pack with `bin/use_packwerk move #{pack_name} path/to/file.rb`
-
-          2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
-
-          3) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
-
-          4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
-
-          5) Update your readme at #{pack_name}/README.md
-        NEXT_STEPS
+        next_steps = UsePackwerk.config.user_event_logger.after_create_pack(pack_name)
 
         Logging.print_bold_green(next_steps)
       end
