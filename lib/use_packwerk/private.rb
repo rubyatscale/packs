@@ -49,12 +49,7 @@ module UsePackwerk
     end
     def self.create_pack!(pack_name:, enforce_privacy:, enforce_dependencies:)
       Logging.section('👋 Hi!') do
-        intro = <<~INTRO
-          You are creating a pack, which is great. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-          Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-          We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
-        INTRO
+        intro = UsePackwerk.config.user_event_logger.before_create_pack(pack_name)
         Logging.print_bold_green(intro)
       end
 
@@ -65,19 +60,7 @@ module UsePackwerk
       add_readme_todo(package)
 
       Logging.section('Next steps') do
-        next_steps = <<~NEXT_STEPS
-          Your next steps might be:
-
-          1) Move files into your pack with `bin/use_packwerk move #{pack_name} path/to/file.rb`
-
-          2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
-
-          3) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
-
-          4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
-
-          5) Update your readme at #{pack_name}/README.md
-        NEXT_STEPS
+        next_steps = UsePackwerk.config.user_event_logger.after_create_pack(pack_name)
 
         Logging.print_bold_green(next_steps)
       end
@@ -332,25 +315,7 @@ module UsePackwerk
 
       if public_directory.glob('**/**.rb').none?
         FileUtils.mkdir_p(public_directory)
-        todo_md = <<~TODO
-          This directory holds your public API!
-
-          Any classes, constants, or modules that you want other packs to use and you intend to support should go in here.
-          Anything that is considered private should go in other folders.
-
-          If another pack uses classes, constants, or modules that are not in your public folder, it will be considered a "privacy violation" by packwerk.
-          You can prevent other packs from using private API by using package_protections.
-
-          Want to find how your private API is being used today?
-          Try running: `bin/use_packwerk list_top_privacy_violations #{package.name}`
-
-          Want to move something into this folder?
-          Try running: `bin/use_packwerk make_public #{package.name}/path/to/file.rb`
-
-          One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
-
-          See #{UsePackwerk.config.documentation_link} for more info!
-        TODO
+        todo_md = UsePackwerk.config.user_event_logger.on_create_public_directory_todo(package.name)
         public_directory.join('TODO.md').write(todo_md)
       end
     end
@@ -360,23 +325,7 @@ module UsePackwerk
       pack_directory = package.directory
 
       if !pack_directory.join('README.md').exist?
-        readme_todo_md = <<~TODO
-          Welcome to `#{package.name}`!
-
-          If you're the author, please consider replacing this file with a README.md, which may contain:
-          - What your pack is and does
-          - How you expect people to use your pack
-          - Example usage of your pack's public API (which lives in `#{package.name}/app/public`)
-          - Limitations, risks, and important considerations of usage
-          - How to get in touch with eng and other stakeholders for questions or issues pertaining to this pack (note: it is recommended to add ownership in `#{package.name}/package.yml` under the `owner` metadata key)
-          - What SLAs/SLOs (service level agreements/objectives), if any, your package provides
-          - When in doubt, keep it simple
-          - Anything else you may want to include!
-
-          README.md files are under version control and should change as your public API changes.#{' '}
-
-          See #{UsePackwerk.config.documentation_link} for more info!
-        TODO
+        readme_todo_md = UsePackwerk.config.user_event_logger.on_create_readme_todo(package.name)
         pack_directory.join('README_TODO.md').write(readme_todo_md)
       end
     end

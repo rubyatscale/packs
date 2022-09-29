@@ -161,7 +161,7 @@ RSpec.describe UsePackwerk do
 
           One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
-          See #{UsePackwerk.config.documentation_link} for more info!
+          See https://github.com/rubyatscale/use_packwerk#readme for more info!
         TODO
       end
 
@@ -200,7 +200,7 @@ RSpec.describe UsePackwerk do
 
           README.md files are under version control and should change as your public API changes.#{' '}
 
-          See #{UsePackwerk.config.documentation_link} for more info!
+          See https://github.com/rubyatscale/use_packwerk#readme for more info!
         EXPECTED
       end
 
@@ -734,7 +734,7 @@ RSpec.describe UsePackwerk do
 
           One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
-          See #{UsePackwerk.config.documentation_link} for more info!
+          See https://github.com/rubyatscale/use_packwerk#readme for more info!
         TODO
       end
 
@@ -785,7 +785,7 @@ RSpec.describe UsePackwerk do
 
           README.md files are under version control and should change as your public API changes.#{' '}
 
-          See #{UsePackwerk.config.documentation_link} for more info!
+          See https://github.com/rubyatscale/use_packwerk#readme for more info!
         EXPECTED
       end
 
@@ -1186,10 +1186,7 @@ RSpec.describe UsePackwerk do
         👋 Hi!
 
 
-        You are moving one pack to be a child of a different pack. Check out https://go/packwerk for more info!
-
-        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
+        You are moving one pack to be a child of a different pack. Check out https://github.com/rubyatscale/use_packwerk#readme for more info!
 
         ====================================================================================================
         File Operations
@@ -1266,22 +1263,6 @@ RSpec.describe UsePackwerk do
         ParsePackwerk.bust_cache!
         expect(Pathname.new('packs/apples')).to exist
         expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
-      end
-    end
-  end
-
-  describe 'configuration' do
-    context 'app has a user defined configuration' do
-      before do
-        write_file('config/use_packwerk.rb', <<~CONFIGURATION)
-          UsePackwerk.configure do |config|
-            config.documentation_link = 'Blah'
-          end
-        CONFIGURATION
-      end
-
-      it 'properly configures package protections' do
-        expect(UsePackwerk.config.documentation_link).to eq('Blah')
       end
     end
   end

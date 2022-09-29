@@ -1,5 +1,8 @@
 # typed: strict
 
+require 'use_packwerk/user_event_logger'
+require 'use_packwerk/default_user_event_logger'
+
 module UsePackwerk
   class Configuration
     extend T::Sig
@@ -7,13 +10,13 @@ module UsePackwerk
     sig { params(enforce_dependencies: T::Boolean).void }
     attr_writer :enforce_dependencies
 
-    sig { params(documentation_link: String).void }
-    attr_writer :documentation_link
+    sig { returns(UserEventLogger) }
+    attr_accessor :user_event_logger
 
     sig { void }
     def initialize
       @enforce_dependencies = T.let(default_enforce_dependencies, T::Boolean)
-      @documentation_link = T.let(default_documentation_link, String)
+      @user_event_logger = T.let(DefaultUserEventLogger.new, UserEventLogger)
     end
 
     sig { returns(T::Boolean) }
@@ -21,21 +24,9 @@ module UsePackwerk
       @enforce_dependencies
     end
 
-    # Configure a link to show up for users who are looking for more info
-    sig { returns(String) }
-    def documentation_link
-      @documentation_link
-    end
-
     sig { void }
     def bust_cache!
       @enforce_dependencies = default_enforce_dependencies
-      @documentation_link = default_documentation_link
-    end
-
-    sig { returns(String) }
-    def default_documentation_link
-      'https://go/packwerk'
     end
 
     sig { returns(T::Boolean) }

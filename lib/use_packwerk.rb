@@ -62,12 +62,7 @@ module UsePackwerk
     per_file_processors: []
   )
     Logging.section('👋 Hi!') do
-      intro = <<~INTRO
-        You are moving a file to a pack, which is great. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
-      INTRO
+      intro = UsePackwerk.config.user_event_logger.before_move_to_pack(pack_name)
       Logging.print_bold_green(intro)
     end
 
@@ -78,20 +73,7 @@ module UsePackwerk
     )
 
     Logging.section('Next steps') do
-      next_steps = <<~NEXT_STEPS
-        Your next steps might be:
-
-        1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
-
-        2) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
-
-        3) Touch base with each team who owns files involved in this move
-
-        4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
-
-        5) Update your readme at #{pack_name}/README.md
-      NEXT_STEPS
-
+      next_steps = UsePackwerk.config.user_event_logger.after_move_to_pack(pack_name)
       Logging.print_bold_green(next_steps)
     end
   end
@@ -107,9 +89,7 @@ module UsePackwerk
     per_file_processors: []
   )
     Logging.section('Making files public') do
-      intro = <<~INTRO
-        You are moving some files into public API. See #{UsePackwerk.config.documentation_link} for other utilities!
-      INTRO
+      intro = UsePackwerk.config.user_event_logger.before_make_public
       Logging.print_bold_green(intro)
     end
 
@@ -119,18 +99,7 @@ module UsePackwerk
     )
 
     Logging.section('Next steps') do
-      next_steps = <<~NEXT_STEPS
-        Your next steps might be:
-
-        1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
-
-        2) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
-
-        3) Work to migrate clients of private API to your new public API
-
-        4) Update your README at packs/your_package_name/README.md
-      NEXT_STEPS
-
+      next_steps = UsePackwerk.config.user_event_logger.after_make_public
       Logging.print_bold_green(next_steps)
     end
   end
@@ -146,9 +115,7 @@ module UsePackwerk
     dependency_name:
   )
     Logging.section('Adding a dependency') do
-      intro = <<~INTRO
-        You are adding a dependency. See #{UsePackwerk.config.documentation_link} for other utilities!
-      INTRO
+      intro = UsePackwerk.config.user_event_logger.before_add_dependency(pack_name)
       Logging.print_bold_green(intro)
     end
 
@@ -158,14 +125,7 @@ module UsePackwerk
     )
 
     Logging.section('Next steps') do
-      next_steps = <<~NEXT_STEPS
-        Your next steps might be:
-
-        1) Run `bin/packwerk validate` to ensure you haven't introduced a cyclic dependency
-
-        2) Run `bin/packwerk update-deprecations` to update the violations.
-      NEXT_STEPS
-
+      next_steps = UsePackwerk.config.user_event_logger.after_add_dependency(pack_name)
       Logging.print_bold_green(next_steps)
     end
   end
@@ -183,12 +143,7 @@ module UsePackwerk
     per_file_processors: []
   )
     Logging.section('👋 Hi!') do
-      intro = <<~INTRO
-        You are moving one pack to be a child of a different pack. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
-      INTRO
+      intro = UsePackwerk.config.user_event_logger.before_move_to_parent(pack_name)
       Logging.print_bold_green(intro)
     end
 
@@ -199,13 +154,7 @@ module UsePackwerk
     )
 
     Logging.section('Next steps') do
-      next_steps = <<~NEXT_STEPS
-        Your next steps might be:
-
-        1) Delete the old pack when things look good: `rm -rf #{pack_name}`
-
-        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` first.
-      NEXT_STEPS
+      next_steps = UsePackwerk.config.user_event_logger.after_move_to_parent(pack_name)
 
       Logging.print_bold_green(next_steps)
     end
