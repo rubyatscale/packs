@@ -10,10 +10,7 @@ module UsePackwerk
     sig { params(pack_name: String).returns(String) }
     def before_create_pack(pack_name)
       <<~MSG
-        You are creating a pack, which is great. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
+        You are creating a pack, which is great. Check out #{documentation_link} for more info!
       MSG
     end
 
@@ -26,7 +23,7 @@ module UsePackwerk
 
         2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
-        3) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
+        3) Update TODO lists for rubocop implemented protections. See #{documentation_link} for more info
 
         4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
 
@@ -37,10 +34,7 @@ module UsePackwerk
     sig { params(pack_name: String).returns(String) }
     def before_move_to_pack(pack_name)
       <<~MSG
-        You are moving a file to a pack, which is great. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
+        You are moving a file to a pack, which is great. Check out #{documentation_link} for more info!
       MSG
     end
 
@@ -51,7 +45,7 @@ module UsePackwerk
 
         1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
-        2) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
+        2) Update TODO lists for rubocop implemented protections. See #{documentation_link} for more info
 
         3) Touch base with each team who owns files involved in this move
 
@@ -64,7 +58,7 @@ module UsePackwerk
     sig { returns(String) }
     def before_make_public
       <<~MSG
-        You are moving some files into public API. See #{UsePackwerk.config.documentation_link} for other utilities!
+        You are moving some files into public API. See #{documentation_link} for other utilities!
       MSG
     end
 
@@ -75,7 +69,7 @@ module UsePackwerk
 
         1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
-        2) Update TODO lists for rubocop implemented protections. See #{UsePackwerk.config.documentation_link} for more info
+        2) Update TODO lists for rubocop implemented protections. See #{documentation_link} for more info
 
         3) Work to migrate clients of private API to your new public API
 
@@ -86,7 +80,7 @@ module UsePackwerk
     sig { params(pack_name: String).returns(String) }
     def before_add_dependency(pack_name)
       <<~MSG
-        You are adding a dependency. See #{UsePackwerk.config.documentation_link} for other utilities!
+        You are adding a dependency. See #{documentation_link} for other utilities!
       MSG
     end
 
@@ -104,10 +98,7 @@ module UsePackwerk
     sig { params(pack_name: String).returns(String) }
     def before_move_to_parent(pack_name)
       <<~MSG
-        You are moving one pack to be a child of a different pack. Check out #{UsePackwerk.config.documentation_link} for more info!
-
-        Please bring any questions or issues you have in your development process to #ruby-modularity or #product-infrastructure.
-        We'd be happy to try to help through pairing, accepting feedback, changing our process, changing our tools, and more.
+        You are moving one pack to be a child of a different pack. Check out #{documentation_link} for more info!
       MSG
     end
 
@@ -141,7 +132,7 @@ module UsePackwerk
 
         One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
-        See #{UsePackwerk.config.documentation_link} for more info!
+        See #{documentation_link} for more info!
       MSG
     end
 
@@ -163,7 +154,7 @@ module UsePackwerk
 
         README.md files are under version control and should change as your public API changes.#{' '}
 
-        See #{UsePackwerk.config.documentation_link} for more info!
+        See #{documentation_link} for more info!
       MSG
     end
 
@@ -171,7 +162,7 @@ module UsePackwerk
     def before_list_top_dependency_violations(pack_name, limit)
       if pack_name.nil?
         pack_specific_content = <<~PACK_CONTENT
-          You are listing top #{limit} dependency violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
+          You are listing top #{limit} dependency violations for all packs. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `use_packwerk list_top_dependency_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
@@ -179,7 +170,7 @@ module UsePackwerk
         PACK_CONTENT
       else
         pack_specific_content = <<~PACK_CONTENT
-          You are listing top #{limit} dependency violations for #{pack_name}. See #{UsePackwerk.config.documentation_link} for other utilities!
+          You are listing top #{limit} dependency violations for #{pack_name}. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_dependency_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
@@ -220,7 +211,7 @@ module UsePackwerk
     def before_list_top_privacy_violations(pack_name, limit)
       if pack_name.nil?
         pack_specific_content = <<~PACK_CONTENT
-          You are listing top #{limit} privacy violations for all packs. See #{UsePackwerk.config.documentation_link} for other utilities!
+          You are listing top #{limit} privacy violations for all packs. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
@@ -228,7 +219,7 @@ module UsePackwerk
         PACK_CONTENT
       else
         pack_specific_content = <<~PACK_CONTENT
-          You are listing top #{limit} privacy violations for #{pack_name}. See #{UsePackwerk.config.documentation_link} for other utilities!
+          You are listing top #{limit} privacy violations for #{pack_name}. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
@@ -265,6 +256,11 @@ module UsePackwerk
 
         Lastly, remember you can use `bin/use_packwerk make_public #{pack_name}/path/to/file.rb` to make your class, constant, or module public API.
       MSG
+    end
+    
+    sig { returns(String) }
+    def documentation_link
+      'https://github.com/rubyatscale/use_packwerk#readme'
     end
   end
 end
