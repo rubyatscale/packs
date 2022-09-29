@@ -1,5 +1,8 @@
 # typed: strict
 
+require 'use_packwerk/user_event_logger'
+require 'use_packwerk/default_user_event_logger'
+
 module UsePackwerk
   class Configuration
     extend T::Sig
