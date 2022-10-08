@@ -34,7 +34,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'parse_packwerk'
   spec.add_dependency 'sorbet-runtime'
   spec.add_dependency 'thor'
-
+  spec.add_dependency 'tty-prompt'
+  
   spec.add_development_dependency 'bundler', '~> 2.2'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'pry-byebug'

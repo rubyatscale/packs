@@ -20,6 +20,7 @@ require 'use_packwerk/code_ownership_post_processor'
 require 'use_packwerk/logging'
 require 'use_packwerk/configuration'
 require 'use_packwerk/cli'
+require 'use_packwerk/interactive_cli'
 
 module UsePackwerk
   extend T::Sig

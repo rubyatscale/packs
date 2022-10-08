@@ -2,4 +2,4 @@
 # typed: strict
 
 require_relative '../lib/use_packwerk'
-UsePackwerk::CLI.start(ARGV)
+UsePackwerk::InteractiveCli.start!
