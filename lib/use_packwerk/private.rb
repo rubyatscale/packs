@@ -7,6 +7,7 @@ require 'sorbet-runtime'
 
 require 'use_packwerk/private/file_move_operation'
 require 'use_packwerk/private/pack_relationship_analyzer'
+require 'use_packwerk/private/interactive_cli'
 
 module UsePackwerk
   module Private
@@ -44,10 +45,11 @@ module UsePackwerk
       params(
         pack_name: String,
         enforce_privacy: T::Boolean,
-        enforce_dependencies: T.nilable(T::Boolean)
+        enforce_dependencies: T.nilable(T::Boolean),
+        team: T.nilable(CodeTeams::Team)
       ).void
     end
-    def self.create_pack!(pack_name:, enforce_privacy:, enforce_dependencies:)
+    def self.create_pack!(pack_name:, enforce_privacy:, enforce_dependencies:, team:)
       Logging.section('👋 Hi!') do
         intro = UsePackwerk.config.user_event_logger.before_create_pack(pack_name)
         Logging.print_bold_green(intro)
@@ -55,7 +57,7 @@ module UsePackwerk
 
       pack_name = Private.clean_pack_name(pack_name)
 
-      package = create_pack_if_not_exists!(pack_name: pack_name, enforce_privacy: enforce_privacy, enforce_dependencies: enforce_dependencies)
+      package = create_pack_if_not_exists!(pack_name: pack_name, enforce_privacy: enforce_privacy, enforce_dependencies: enforce_dependencies, team: team)
       add_public_directory(package)
       add_readme_todo(package)
 
@@ -334,10 +336,11 @@ module UsePackwerk
       params(
         pack_name: String,
         enforce_privacy: T::Boolean,
-        enforce_dependencies: T.nilable(T::Boolean)
+        enforce_dependencies: T.nilable(T::Boolean),
+        team: T.nilable(CodeTeams::Team)
       ).returns(ParsePackwerk::Package)
     end
-    def self.create_pack_if_not_exists!(pack_name:, enforce_privacy:, enforce_dependencies:)
+    def self.create_pack_if_not_exists!(pack_name:, enforce_privacy:, enforce_dependencies:, team: nil)
       if PERMITTED_PACK_LOCATIONS.none? { |permitted_location| pack_name.start_with?(permitted_location) }
         raise StandardError, "UsePackwerk only supports packages in the the following directories: #{PERMITTED_PACK_LOCATIONS.inspect}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
       end
@@ -351,7 +354,7 @@ module UsePackwerk
           enforce_privacy: enforce_privacy,
           dependencies: [],
           metadata: {
-            'owner' => 'MyTeam'
+            'owner' => team.nil? ? 'MyTeam' : team.name
           },
           name: pack_name
         )

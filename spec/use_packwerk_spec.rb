@@ -104,6 +104,17 @@ RSpec.describe UsePackwerk do
       expect(package_yml_contents).to include('owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team')
     end
 
+    context 'team owner is provided' do
+      it 'automatically adds the owner metadata key' do
+        write_file('config/teams/artists.yml', 'name: Artists')
+        UsePackwerk.create_pack!(pack_name: 'packs/my_pack', team: CodeTeams.find('Artists'))
+        package = ParsePackwerk.find('packs/my_pack')
+        expect(package.metadata['owner']).to eq 'Artists'
+        package_yml_contents = package.yml.read
+        expect(package_yml_contents).to include('owner: Artists')
+      end
+    end
+
     context 'pack is in gems' do
       let(:pack_name) { 'gems/my_pack' }
 

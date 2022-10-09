@@ -116,3 +116,6 @@ Style/AccessorGrouping:
 
 Style/NumericPredicate:
   Enabled: false
+
+Layout/BlockEndNewline:
+  Enabled: false

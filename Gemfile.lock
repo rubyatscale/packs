@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.56.0)
+    use_packwerk (0.57.0)
       code_ownership
       colorize
       package_protections
@@ -35,10 +35,11 @@ GEM
     json (2.6.2)
     method_source (1.0.0)
     minitest (5.16.3)
-    package_protections (2.2.1)
+    package_protections (2.5.1)
       activesupport
       parse_packwerk
       rubocop
+      rubocop-packs
       rubocop-sorbet
       sorbet-runtime
     parallel (1.22.1)
@@ -88,6 +89,12 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
+    rubocop-packs (0.0.10)
+      activesupport
+      parse_packwerk
+      rubocop
+      rubocop-sorbet
+      sorbet-runtime
     rubocop-rspec (2.13.2)
       rubocop (~> 1.33)
     rubocop-sorbet (0.6.11)

@@ -20,7 +20,6 @@ require 'use_packwerk/code_ownership_post_processor'
 require 'use_packwerk/logging'
 require 'use_packwerk/configuration'
 require 'use_packwerk/cli'
-require 'use_packwerk/interactive_cli'
 
 module UsePackwerk
   extend T::Sig
@@ -31,22 +30,30 @@ module UsePackwerk
                                      packs
                                    ], T::Array[String])
 
+  sig { void }
+  def self.start_interactive_mode!
+    Private::InteractiveCli.start!
+  end
+
   sig do
     params(
       pack_name: String,
       enforce_privacy: T::Boolean,
-      enforce_dependencies: T.nilable(T::Boolean)
+      enforce_dependencies: T.nilable(T::Boolean),
+      team: T.nilable(CodeTeams::Team)
     ).void
   end
   def self.create_pack!(
     pack_name:,
     enforce_privacy: true,
-    enforce_dependencies: nil
+    enforce_dependencies: nil,
+    team: nil
   )
     Private.create_pack!(
       pack_name: pack_name,
       enforce_privacy: enforce_privacy,
-      enforce_dependencies: enforce_dependencies
+      enforce_dependencies: enforce_dependencies,
+      team: team
     )
   end
 
