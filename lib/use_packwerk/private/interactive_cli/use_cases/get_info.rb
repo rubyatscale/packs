@@ -52,7 +52,7 @@ module UsePackwerk
             puts "There are #{all_outbound.select(&:privacy?).sum { |v| v.files.count }} total outbound privacy violations"
             puts "There are #{all_outbound.select(&:dependency?).sum { |v| v.files.count }} total outbound dependency violations"
 
-            selected_packs.sort_by{|p| -p.directory.glob('**/*.rb').count }.each do |pack|
+            selected_packs.sort_by { |p| -p.directory.glob('**/*.rb').count }.each do |pack|
               puts "\n=========== Info about: #{pack.name}"
               owner = CodeOwnership.for_package(pack)
               puts "Owned by: #{owner.nil? ? 'No one' : owner.name}"
