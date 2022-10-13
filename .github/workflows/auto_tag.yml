@@ -1,0 +1,17 @@
+name: Automatically tag `main` with the version in the gemspec
+
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
+      - name: Tag main with version in gemspec
+        uses: duderman/gh-gem-tag-action@9f47f1896915be2a41f9d18a3fe84bcdfe3211fb
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: v

@@ -1,0 +1,24 @@
+---
+name: Automatically create new release on new tag
+
+on:
+  push:
+    branches:
+      - "main"
+    tags:
+      - "v*"
+
+jobs:
+  tagged-release:
+    name: "Tagged Release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      # ...
+      - name: "Build & test"
+        run: |
+          echo "done!"
+      - uses: marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
