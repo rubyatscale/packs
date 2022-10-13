@@ -30,22 +30,30 @@ module UsePackwerk
                                      packs
                                    ], T::Array[String])
 
+  sig { void }
+  def self.start_interactive_mode!
+    Private::InteractiveCli.start!
+  end
+
   sig do
     params(
       pack_name: String,
       enforce_privacy: T::Boolean,
-      enforce_dependencies: T.nilable(T::Boolean)
+      enforce_dependencies: T.nilable(T::Boolean),
+      team: T.nilable(CodeTeams::Team)
     ).void
   end
   def self.create_pack!(
     pack_name:,
     enforce_privacy: true,
-    enforce_dependencies: nil
+    enforce_dependencies: nil,
+    team: nil
   )
     Private.create_pack!(
       pack_name: pack_name,
       enforce_privacy: enforce_privacy,
-      enforce_dependencies: enforce_dependencies
+      enforce_dependencies: enforce_dependencies,
+      team: team
     )
   end
 

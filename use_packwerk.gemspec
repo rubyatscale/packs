@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'use_packwerk'
-  spec.version       = '0.56.0'
+  spec.version       = '0.57.0'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 
@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   # https://guides.rubygems.org/make-your-own-gem/#adding-an-executable
   # and
   # https://bundler.io/blog/2015/03/20/moving-bins-to-exe.html
-  spec.executables = ['use_packwerk']
+  spec.executables = %w[use_packwerk packs]
 
   spec.add_dependency 'code_ownership'
   spec.add_dependency 'colorize'
@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'parse_packwerk'
   spec.add_dependency 'sorbet-runtime'
   spec.add_dependency 'thor'
+  spec.add_dependency 'tty-prompt'
 
   spec.add_development_dependency 'bundler', '~> 2.2'
   spec.add_development_dependency 'pry'
