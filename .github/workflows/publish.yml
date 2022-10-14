@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
       - name: Release Gem
-        uses: cadwallion/publish-rubygems-action@8f9e0538302643309e4e43bf48cd34173ca48cfc
+        uses: discourse/publish-rubygems-action@2d713f2092b4f02da811f4b591a10b6b56f0780e
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           GIT_EMAIL: ${{secrets.ALEX_GIT_EMAIL}}
