@@ -10,10 +10,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
-      - name: Release Gem
+      - name: Tag and Push Gem
         uses: discourse/publish-rubygems-action@2d713f2092b4f02da811f4b591a10b6b56f0780e
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           GIT_EMAIL: ${{secrets.ALEX_GIT_EMAIL}}
           GIT_NAME: ${{secrets.ALEX_GIT_NAME}}
           RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@cd28b0f5ee8571b76cfdaa62a30d51d752317477
