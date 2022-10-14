@@ -16,7 +16,7 @@ jobs:
           - head
     env:
       BUNDLE_GEMFILE: Gemfile
-    name: "Tests: Ruby ${{ matrix.ruby }}"
+    name: "RSpec tests: Ruby ${{ matrix.ruby }}"
     steps:
       - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
       - name: Set up Ruby ${{ matrix.ruby }}
@@ -29,6 +29,7 @@ jobs:
           bundle install --jobs 4 --retry 3
           bundle exec rspec
   static_type_check:
+    name: "Type Check"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
@@ -43,6 +44,7 @@ jobs:
           bundle exec srb tc
   rubocop:
     runs-on: ubuntu-latest
+    name: Rubocop
     steps:
       - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
       - name: Set up Ruby
