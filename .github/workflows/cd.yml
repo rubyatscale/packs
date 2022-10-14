@@ -22,4 +22,5 @@ jobs:
         if: ${{ steps.tag-and-push-gem.outputs.new_version == 'true' }}
         env:
           INPUT_TAG_NAME: v${{steps.tag-and-push-gem.outputs.gem_version}}
+          GITHUB_REF: refs/tags/v${{steps.tag-and-push-gem.outputs.gem_version}}
         uses: softprops/action-gh-release@cd28b0f5ee8571b76cfdaa62a30d51d752317477
