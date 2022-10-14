@@ -11,6 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
       - name: Tag and Push Gem
+        id: tag-and-push-gem
         uses: discourse/publish-rubygems-action@2d713f2092b4f02da811f4b591a10b6b56f0780e
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -18,5 +19,5 @@ jobs:
           GIT_NAME: ${{secrets.ALEX_GIT_NAME}}
           RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: steps.tag-and-push-gem.outputs.new_version
         uses: softprops/action-gh-release@cd28b0f5ee8571b76cfdaa62a30d51d752317477
