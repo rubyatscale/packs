@@ -1,11 +1,11 @@
-name: Publish Gem
+name: Continuous Deployment
 
 on:
   push:
     branches:
       - "main"
 jobs:
-  publish:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:

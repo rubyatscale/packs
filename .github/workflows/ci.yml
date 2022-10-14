@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
+  rspec:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,7 +28,7 @@ jobs:
           gem install bundler
           bundle install --jobs 4 --retry 3
           bundle exec rspec
-  static-type-checking:
+  static_type_check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
@@ -41,7 +41,7 @@ jobs:
           gem install bundler
           bundle install --jobs 4 --retry 3
           bundle exec srb tc
-  lint:
+  rubocop:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@5126516654c75f76bca1de45dd82a3006d8890f9
