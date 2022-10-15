@@ -21,5 +21,4 @@ jobs:
           RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
       - name: Create GitHub Release
         run: gh release create v${{steps.tag-and-push-gem.outputs.gem_version}} --generate-notes
-        uses: softprops/action-gh-release@cd28b0f5ee8571b76cfdaa62a30d51d752317477
         if: ${{ steps.tag-and-push-gem.outputs.new_version == 'true' }}
