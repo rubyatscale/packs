@@ -22,3 +22,5 @@ jobs:
       - name: Create GitHub Release
         run: gh release create v${{steps.tag-and-push-gem.outputs.gem_version}} --generate-notes
         if: ${{ steps.tag-and-push-gem.outputs.new_version == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
