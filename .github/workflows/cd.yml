@@ -1,9 +1,11 @@
 name: CD
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches:
-      - "main"
+      - 'main'
 jobs:
   deploy:
     runs-on: ubuntu-latest
