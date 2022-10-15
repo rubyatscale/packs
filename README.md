@@ -43,6 +43,9 @@ If no pack name is passed in, this will list out violations across all packs.
 
 This can be used to quickly modify a `package.yml` file and add a dependency. It also cleans up the list of dependencies to sort the list and remove redundant entries.
 
+### Releasing
+Releases happen automatically through github actions once a version update is committed to `main`.
+
 ## Discussions, Issues, Questions, and More
 To keep things organized, here are some recommended homes:
 
