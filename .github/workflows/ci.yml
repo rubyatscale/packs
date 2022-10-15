@@ -4,5 +4,5 @@ on: [push]
 
 jobs:
   ci:
-    uses: rubyatscale/ruby-gem-ci-and-cd-action/.github/actions/ci.yml@main
+    uses: rubyatscale/ruby-gem-ci-and-cd-action/.github/workflows/ci.yml@main
     secrets: inherit

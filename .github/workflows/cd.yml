@@ -7,5 +7,5 @@ on:
     branches: [main]
 jobs:
   cd:
-    uses: rubyatscale/ruby-gem-ci-and-cd-action/.github/actions/cd.yml@main
+    uses: rubyatscale/ruby-gem-ci-and-cd-action/.github/workflows/cd.yml@main
     secrets: inherit
