@@ -1,6 +1,6 @@
 name: CI
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   rspec:
@@ -22,12 +22,10 @@ jobs:
       - name: Set up Ruby ${{ matrix.ruby }}
         uses: ruby/setup-ruby@eae47962baca661befdfd24e4d6c34ade04858f7
         with:
+          bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
       - name: Run tests
-        run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3
-          bundle exec rspec
+        run: bundle exec rspec
   static_type_check:
     name: "Type Check"
     runs-on: ubuntu-latest
@@ -36,12 +34,10 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@eae47962baca661befdfd24e4d6c34ade04858f7
         with:
+          bundler-cache: true
           ruby-version: head
       - name: Run static type checks
-        run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3
-          bundle exec srb tc
+        run: bundle exec srb tc
   rubocop:
     runs-on: ubuntu-latest
     name: Rubocop
@@ -50,9 +46,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@eae47962baca661befdfd24e4d6c34ade04858f7
         with:
+          bundler-cache: true
           ruby-version: head
       - name: Run style checks
-        run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3
-          bundle exec rubocop
+        run: bundle exec rubocop
