@@ -19,8 +19,7 @@ jobs:
           GIT_NAME: ${{secrets.ALEX_GIT_NAME}}
           RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
       - name: Create GitHub Release
-        if: ${{ steps.tag-and-push-gem.outputs.new_version == 'true' }}
-        env:
-          INPUT_TAG_NAME: v${{steps.tag-and-push-gem.outputs.gem_version}}
-          GITHUB_REF: refs/tags/v${{steps.tag-and-push-gem.outputs.gem_version}}
         uses: softprops/action-gh-release@cd28b0f5ee8571b76cfdaa62a30d51d752317477
+        if: ${{ steps.tag-and-push-gem.outputs.new_version == 'true' }}
+        with:
+          tag_name: v${{steps.tag-and-push-gem.outputs.gem_version}}
