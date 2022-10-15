@@ -7,4 +7,4 @@ jobs:
     name: CI and CD
     runs-on: ubuntu-latest
     steps:
-      - uses: alexevanczuk/ruby-gem-ci-and-cd-action@v0.0.1
+      - uses: alexevanczuk/ruby-gem-ci-and-cd-action@v0.0.2
