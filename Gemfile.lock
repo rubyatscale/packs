@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.57.14)
+    use_packwerk (0.57.15)
       code_ownership
       colorize
       package_protections
@@ -89,7 +89,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
-    rubocop-packs (0.0.11)
+    rubocop-packs (0.0.12)
       activesupport
       parse_packwerk
       rubocop
