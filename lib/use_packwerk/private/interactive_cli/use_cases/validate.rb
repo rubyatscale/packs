@@ -16,7 +16,7 @@ module UsePackwerk
 
           sig { override.params(prompt: TTY::Prompt).void }
           def perform!(prompt)
-            `bin/packwerk validate`
+            system('bin/packwerk validate')
           end
         end
       end

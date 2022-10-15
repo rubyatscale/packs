@@ -16,7 +16,7 @@ module UsePackwerk
 
           sig { override.params(prompt: TTY::Prompt).void }
           def perform!(prompt)
-            `bin/packwerk update-deprecations`
+            system('bin/packwerk update-deprecations')
           end
         end
       end
