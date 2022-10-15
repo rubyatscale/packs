@@ -2,10 +2,9 @@ name: CD
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: [CI]
     types: [completed]
-    branches:
-      - 'main'
+    branches: [main]
 jobs:
   deploy:
     runs-on: ubuntu-latest
