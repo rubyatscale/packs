@@ -6,6 +6,7 @@ PATH
       colorize
       package_protections
       parse_packwerk
+      rubocop-packs
       sorbet-runtime
       thor
       tty-prompt
