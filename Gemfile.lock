@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.57.17)
+    use_packwerk (0.58.0)
       code_ownership
       colorize
       package_protections
