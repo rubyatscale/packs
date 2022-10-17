@@ -32,10 +32,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'colorize'
   spec.add_dependency 'package_protections'
   spec.add_dependency 'parse_packwerk'
+  spec.add_dependency 'rubocop-packs'
   spec.add_dependency 'sorbet-runtime'
   spec.add_dependency 'thor'
   spec.add_dependency 'tty-prompt'
-  spec.add_dependency 'rubocop-packs'
 
   spec.add_development_dependency 'bundler', '~> 2.2'
   spec.add_development_dependency 'pry'
