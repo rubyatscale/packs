@@ -16,6 +16,8 @@ require 'use_packwerk/private/interactive_cli/use_cases/nest'
 require 'use_packwerk/private/interactive_cli/use_cases/rename'
 require 'use_packwerk/private/interactive_cli/use_cases/update_deprecations'
 require 'use_packwerk/private/interactive_cli/use_cases/validate'
+require 'use_packwerk/private/interactive_cli/use_cases/regenerate_rubocop_todo'
+require 'use_packwerk/private/interactive_cli/use_cases/lint_package_yml'
 
 module UsePackwerk
   module Private
