@@ -219,4 +219,30 @@ module UsePackwerk
   def self.bust_cache!
     Private.bust_cache!
   end
+
+  #
+  # execute_command is like `run` except it does not `exit`
+  #
+  sig { params(argv: T.untyped, formatter: T.nilable(Packwerk::OffensesFormatter)).void }
+  def self.execute(argv, formatter = nil)
+    Private::PackwerkWrapper.with_safe_exit_if_no_files_found do
+      Private::PackwerkWrapper.packwerk_cli(formatter).execute_command(argv)
+    end
+  end
+
+  sig { params(files: T::Array[String]).returns(T::Array[Packwerk::ReferenceOffense]) }
+  def self.get_offenses_for_files(files)
+    formatter = Private::PackwerkWrapper::OffensesAggregatorFormatter.new
+    Private::PackwerkWrapper.packwerk_cli_execute_safely(['check', *files], formatter)
+    formatter.aggregated_offenses.compact
+  end
+
+  sig { params(files: T::Array[String]).returns(T::Array[Packwerk::ReferenceOffense]) }
+  def self.get_offenses_for_files_by_package(files)
+    packages = Private::PackwerkWrapper.package_names_for_files(files)
+    argv = ['check', '--packages', packages.join(',')]
+    formatter = Private::PackwerkWrapper::OffensesAggregatorFormatter.new
+    Private::PackwerkWrapper.packwerk_cli_execute_safely(argv, formatter)
+    formatter.aggregated_offenses.compact
+  end
 end

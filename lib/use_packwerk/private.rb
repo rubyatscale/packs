@@ -8,6 +8,7 @@ require 'sorbet-runtime'
 require 'use_packwerk/private/file_move_operation'
 require 'use_packwerk/private/pack_relationship_analyzer'
 require 'use_packwerk/private/interactive_cli'
+require 'use_packwerk/private/packwerk_wrapper'
 
 module UsePackwerk
   module Private
