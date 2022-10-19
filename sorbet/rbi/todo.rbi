@@ -2,10 +2,6 @@
 #   srb rbi todo
 
 # typed: strong
-module ::Rake::DSL; end
-module ::Rake::TaskLib; end
-module T::InterfaceWrapper::Helpers; end
-module T::Private::Abstract::Hooks; end
-module T::Private::Methods::MethodHooks; end
-module T::Private::Methods::SingletonMethodHooks; end
-module T::Private::MixesInClassMethods; end
+module Spring
+  def self.register_command(*args); end
+end
