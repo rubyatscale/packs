@@ -24,8 +24,8 @@ module UsePackwerk
           ''
         end
 
-        sig { override.params(offense_collection: Packwerk::OffenseCollection).returns(String) }
-        def show_stale_violations(offense_collection)
+        sig { override.params(offense_collection: Packwerk::OffenseCollection, for_files: T::Set[String]).returns(String) }
+        def show_stale_violations(offense_collection, for_files)
           ''
         end
       end

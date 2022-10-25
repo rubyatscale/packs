@@ -1,11 +1,11 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.59.0)
+    use_packwerk (0.60.0)
       code_ownership
       colorize
       package_protections
-      packwerk
+      packwerk (>= 2.2.1)
       parse_packwerk
       rubocop-packs
       sorbet-runtime
