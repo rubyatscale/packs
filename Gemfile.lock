@@ -5,7 +5,7 @@ PATH
       code_ownership
       colorize
       package_protections
-      packwerk
+      packwerk (>= 2.2.1)
       parse_packwerk
       rubocop-packs
       sorbet-runtime
