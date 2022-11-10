@@ -18,6 +18,7 @@ require 'use_packwerk/private/interactive_cli/use_cases/update_deprecations'
 require 'use_packwerk/private/interactive_cli/use_cases/validate'
 require 'use_packwerk/private/interactive_cli/use_cases/regenerate_rubocop_todo'
 require 'use_packwerk/private/interactive_cli/use_cases/lint_package_yml'
+require 'use_packwerk/private/interactive_cli/use_cases/visualize'
 
 module UsePackwerk
   module Private
