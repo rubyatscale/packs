@@ -64,7 +64,7 @@ module UsePackwerk
 
       sig { params(files: T::Array[String]).returns(T::Array[String]) }
       def self.package_names_for_files(files)
-        files.map { |f| ParsePackwerk.package_from_path(f)&.name }.compact.uniq
+        files.map { |f| ParsePackwerk.package_from_path(f).name }.compact.uniq
       end
     end
   end

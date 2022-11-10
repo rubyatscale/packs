@@ -1,10 +1,9 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.61.0)
+    use_packwerk (0.62.0)
       code_ownership
       colorize
-      package_protections
       packwerk (>= 2.2.1)
       parse_packwerk
       rubocop-packs
@@ -62,13 +61,6 @@ GEM
     nokogiri (1.13.9)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    package_protections (4.0.0)
-      activesupport
-      parse_packwerk
-      rubocop
-      rubocop-packs
-      rubocop-sorbet
-      sorbet-runtime
     packwerk (2.2.1)
       activesupport (>= 5.2)
       ast
@@ -131,7 +123,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
-    rubocop-packs (0.0.17)
+    rubocop-packs (0.0.18)
       activesupport
       parse_packwerk
       rubocop
