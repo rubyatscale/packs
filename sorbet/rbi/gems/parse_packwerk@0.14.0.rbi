@@ -15,7 +15,7 @@ module ParsePackwerk
     sig { params(name: ::String).returns(T.nilable(::ParsePackwerk::Package)) }
     def find(name); end
 
-    sig { params(file_path: T.any(::Pathname, ::String)).returns(T.nilable(::ParsePackwerk::Package)) }
+    sig { params(file_path: T.any(::Pathname, ::String)).returns(::ParsePackwerk::Package) }
     def package_from_path(file_path); end
 
     sig { params(package: ::ParsePackwerk::Package).void }
@@ -51,6 +51,7 @@ end
 
 ParsePackwerk::DEFAULT_EXCLUDE_GLOBS = T.let(T.unsafe(nil), Array)
 ParsePackwerk::DEFAULT_PACKAGE_PATHS = T.let(T.unsafe(nil), Array)
+ParsePackwerk::DEFAULT_PUBLIC_PATH = T.let(T.unsafe(nil), String)
 ParsePackwerk::DEPENDENCIES = T.let(T.unsafe(nil), String)
 ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME = T.let(T.unsafe(nil), String)
 
@@ -81,6 +82,7 @@ end
 
 ParsePackwerk::PACKAGE_YML_NAME = T.let(T.unsafe(nil), String)
 ParsePackwerk::PACKWERK_YML_NAME = T.let(T.unsafe(nil), String)
+ParsePackwerk::PUBLIC_PATH = T.let(T.unsafe(nil), String)
 
 class ParsePackwerk::Package < ::T::Struct
   const :dependencies, T::Array[::String]
@@ -88,6 +90,7 @@ class ParsePackwerk::Package < ::T::Struct
   const :enforce_privacy, T::Boolean
   const :metadata, T::Hash[T.untyped, T.untyped]
   const :name, ::String
+  const :public_path, ::String, default: T.unsafe(nil)
 
   sig { returns(::Pathname) }
   def directory; end
@@ -97,6 +100,12 @@ class ParsePackwerk::Package < ::T::Struct
 
   sig { returns(T::Boolean) }
   def enforces_privacy?; end
+
+  sig { returns(::Pathname) }
+  def public_directory; end
+
+  sig { returns(T::Array[::ParsePackwerk::Violation]) }
+  def violations; end
 
   sig { returns(::Pathname) }
   def yml; end

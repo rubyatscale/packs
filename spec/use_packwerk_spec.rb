@@ -34,24 +34,22 @@ RSpec.describe UsePackwerk do
 
     it 'creates a package.yml correctly' do
       UsePackwerk.create_pack!(pack_name: 'packs/my_pack')
-
+      ParsePackwerk.bust_cache!
       package = ParsePackwerk.find('packs/my_pack')
       expect(package.name).to eq('packs/my_pack')
       expect(package.enforce_privacy).to eq(true)
       expect(package.enforce_dependencies).to eq(true)
       expect(package.dependencies).to eq([])
-      expect(package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => { 'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new', 'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new', 'prevent_this_package_from_exposing_an_untyped_api' => 'fail_on_new', 'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new' } })
+      expect(package.metadata).to eq({ 'owner' => 'MyTeam' })
+      expect(package.directory.join('.rubocop.yml').read).to eq(<<~YML)
+        inherit_from: "../../.base_rubocop.yml"
+      YML
 
       expected = <<~EXPECTED
         enforce_dependencies: true
         enforce_privacy: true
         metadata:
           owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
-          protections:
-            prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
-            prevent_other_packages_from_using_this_packages_internals: fail_on_new
-            prevent_this_package_from_exposing_an_untyped_api: fail_on_new
-            prevent_this_package_from_creating_other_namespaces: fail_on_new
       EXPECTED
 
       expect(package.yml.read).to eq expected
@@ -66,7 +64,7 @@ RSpec.describe UsePackwerk do
           enforce_privacy: true,
           enforce_dependencies: false,
           dependencies: [],
-          metadata: { 'owner' => 'MyTeam', 'protections' => { 'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new', 'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new', 'prevent_this_package_from_exposing_an_untyped_api' => 'fail_on_new', 'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new' } }
+          metadata: { 'owner' => 'MyTeam' }
         )
 
         ParsePackwerk.bust_cache!
@@ -98,6 +96,7 @@ RSpec.describe UsePackwerk do
 
     it 'automatically adds the owner metadata key' do
       UsePackwerk.create_pack!(pack_name: 'packs/my_pack')
+      ParsePackwerk.bust_cache!
       package = ParsePackwerk.find('packs/my_pack')
       expect(package.metadata['owner']).to eq 'MyTeam'
       package_yml_contents = package.yml.read
@@ -108,6 +107,7 @@ RSpec.describe UsePackwerk do
       it 'automatically adds the owner metadata key' do
         write_file('config/teams/artists.yml', 'name: Artists')
         UsePackwerk.create_pack!(pack_name: 'packs/my_pack', team: CodeTeams.find('Artists'))
+        ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/my_pack')
         expect(package.metadata['owner']).to eq 'Artists'
         package_yml_contents = package.yml.read
@@ -120,6 +120,7 @@ RSpec.describe UsePackwerk do
 
       it 'creates the pack' do
         UsePackwerk.create_pack!(pack_name: 'gems/my_pack')
+        ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('gems/my_pack').name).to eq('gems/my_pack')
       end
     end
@@ -129,24 +130,22 @@ RSpec.describe UsePackwerk do
 
       it 'creates a package.yml correctly' do
         UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
-
+        ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/fruits/apples')
         expect(package.name).to eq('packs/fruits/apples')
         expect(package.enforce_privacy).to eq(true)
         expect(package.enforce_dependencies).to eq(true)
         expect(package.dependencies).to eq([])
-        expect(package.metadata).to eq({ 'owner' => 'MyTeam', 'protections' => { 'prevent_other_packages_from_using_this_packages_internals' => 'fail_on_new', 'prevent_this_package_from_creating_other_namespaces' => 'fail_on_new', 'prevent_this_package_from_exposing_an_untyped_api' => 'fail_on_new', 'prevent_this_package_from_violating_its_stated_dependencies' => 'fail_on_new' } })
+        expect(package.metadata).to eq({ 'owner' => 'MyTeam' })
+        expect(package.directory.join('.rubocop.yml').read).to eq(<<~YML)
+          inherit_from: "../../.base_rubocop.yml"
+        YML
 
         expected = <<~EXPECTED
           enforce_dependencies: true
           enforce_privacy: true
           metadata:
             owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
-            protections:
-              prevent_this_package_from_violating_its_stated_dependencies: fail_on_new
-              prevent_other_packages_from_using_this_packages_internals: fail_on_new
-              prevent_this_package_from_exposing_an_untyped_api: fail_on_new
-              prevent_this_package_from_creating_other_namespaces: fail_on_new
         EXPECTED
 
         expect(package.yml.read).to eq expected
@@ -162,7 +161,7 @@ RSpec.describe UsePackwerk do
           Anything that is considered private should go in other folders.
 
           If another pack uses classes, constants, or modules that are not in your public folder, it will be considered a "privacy violation" by packwerk.
-          You can prevent other packs from using private API by using package_protections.
+          You can prevent other packs from using private API by using packwerk.
 
           Want to find how your private API is being used today?
           Try running: `bin/use_packwerk list_top_privacy_violations packs/organisms`
@@ -217,7 +216,7 @@ RSpec.describe UsePackwerk do
 
       it 'adds a README_TODO.md file as a placeholder' do
         UsePackwerk.create_pack!(pack_name: 'packs/organisms')
-
+        ParsePackwerk.bust_cache!
         actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
         expect(actual_readme_todo.read).to eq expected_readme_todo
       end
@@ -469,6 +468,7 @@ RSpec.describe UsePackwerk do
             write_file('packs/foo/app/services/foo.rb')
             UsePackwerk.create_pack!(pack_name: 'packs/bar')
             UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            ParsePackwerk.bust_cache!
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
@@ -496,6 +496,7 @@ RSpec.describe UsePackwerk do
             write_file('packs/foo/app/services/foo.rb')
             UsePackwerk.create_pack!(pack_name: 'packs/bar')
             UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            ParsePackwerk.bust_cache!
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
@@ -533,6 +534,7 @@ RSpec.describe UsePackwerk do
             write_file('packs/foo/app/services/foo.rb')
             UsePackwerk.create_pack!(pack_name: 'packs/bar')
             UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            ParsePackwerk.bust_cache!
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
@@ -570,6 +572,7 @@ RSpec.describe UsePackwerk do
             write_file('packs/foo/app/services/foo.rb')
             UsePackwerk.create_pack!(pack_name: 'packs/bar')
             UsePackwerk.create_pack!(pack_name: 'packs/foo')
+            ParsePackwerk.bust_cache!
             UsePackwerk.move_to_pack!(
               pack_name: 'packs/bar',
               paths_relative_to_root: ['packs/foo/app/services/foo.rb'],
@@ -735,7 +738,7 @@ RSpec.describe UsePackwerk do
           Anything that is considered private should go in other folders.
 
           If another pack uses classes, constants, or modules that are not in your public folder, it will be considered a "privacy violation" by packwerk.
-          You can prevent other packs from using private API by using package_protections.
+          You can prevent other packs from using private API by using packwerk.
 
           Want to find how your private API is being used today?
           Try running: `bin/use_packwerk list_top_privacy_violations packs/organisms`
@@ -890,6 +893,7 @@ RSpec.describe UsePackwerk do
 
     it 'can make files in a nested pack public' do
       UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
+      ParsePackwerk.bust_cache!
       write_file('packs/fruits/apples/app/services/apple.rb')
       write_file('packs/fruits/apples/spec/services/apple_spec.rb')
 

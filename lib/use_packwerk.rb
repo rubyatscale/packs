@@ -10,7 +10,7 @@ require 'colorized_string'
 require 'parse_packwerk'
 require 'code_teams'
 require 'code_ownership'
-require 'package_protections'
+require 'rubocop-packs'
 
 # Private implementation requires
 require 'use_packwerk/private'

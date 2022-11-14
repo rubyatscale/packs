@@ -35,7 +35,7 @@ module UsePackwerk
 
         # TODO: This is a copy of the implementation below. We may want to refactor out this implementation detail before making changes that apply to both.
         all_packages.each do |client_package|
-          PackageProtections::ProtectedPackage.from(client_package).violations.select(&:privacy?).each do |violation|
+          client_package.violations.select(&:privacy?).each do |violation|
             next unless to_package_names.include?(violation.to_package_name)
 
             if pack_name.nil?
@@ -99,7 +99,7 @@ module UsePackwerk
 
         # TODO: This is a copy of the implementation above. We may want to refactor out this implementation detail before making changes that apply to both.
         all_packages.each do |client_package|
-          PackageProtections::ProtectedPackage.from(client_package).violations.select(&:dependency?).each do |violation|
+          client_package.violations.select(&:dependency?).each do |violation|
             next unless to_package_names.include?(violation.to_package_name)
 
             if pack_name.nil?

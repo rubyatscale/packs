@@ -122,7 +122,7 @@ module UsePackwerk
         Anything that is considered private should go in other folders.
 
         If another pack uses classes, constants, or modules that are not in your public folder, it will be considered a "privacy violation" by packwerk.
-        You can prevent other packs from using private API by using package_protections.
+        You can prevent other packs from using private API by using packwerk.
 
         Want to find how your private API is being used today?
         Try running: `bin/use_packwerk list_top_privacy_violations #{pack_name}`

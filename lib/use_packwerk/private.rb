@@ -228,7 +228,7 @@ module UsePackwerk
           end
 
           file_move_operations = file_paths.map do |path|
-            package = T.must(ParsePackwerk.package_from_path(path))
+            package = ParsePackwerk.package_from_path(path)
             origin_pathname = Pathname.new(path).cleanpath
 
             FileMoveOperation.new(
@@ -361,8 +361,7 @@ module UsePackwerk
         )
 
         ParsePackwerk.write_package_yml!(package)
-        PackageProtections.set_defaults!([package], verbose: false)
-        package = rewrite_package_with_original_packwerk_values(package)
+        RuboCop::Packs.set_default_rubocop_yml(packs: [package])
 
         current_contents = package.yml.read
         new_contents = current_contents.gsub('MyTeam', 'MyTeam # specify your team here, or delete this key if this package is not owned by one team')
@@ -371,23 +370,6 @@ module UsePackwerk
       end
 
       existing_package
-    end
-
-    sig { params(original_package: ParsePackwerk::Package).returns(ParsePackwerk::Package) }
-    def self.rewrite_package_with_original_packwerk_values(original_package)
-      ParsePackwerk.bust_cache!
-      package_with_protection_defaults = T.must(ParsePackwerk.all.find { |p| p.name == original_package.name })
-      # PackageProtections also sets `enforce_privacy` and `enforce_dependency` to be true, so we set these back down to their original values
-      package = ParsePackwerk::Package.new(
-        enforce_dependencies: original_package.enforce_dependencies,
-        enforce_privacy: original_package.enforce_privacy,
-        dependencies: original_package.dependencies,
-        metadata: package_with_protection_defaults.metadata,
-        name: original_package.name
-      )
-
-      ParsePackwerk.write_package_yml!(package)
-      package
     end
 
     sig { void }

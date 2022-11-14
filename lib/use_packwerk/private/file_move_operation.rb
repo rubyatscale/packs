@@ -11,12 +11,12 @@ module UsePackwerk
 
       sig { returns(ParsePackwerk::Package) }
       def origin_pack
-        T.must(ParsePackwerk.package_from_path(origin_pathname))
+        ParsePackwerk.package_from_path(origin_pathname)
       end
 
       sig { params(origin_pathname: Pathname, new_package_root: Pathname).returns(Pathname) }
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
-        origin_pack = T.must(ParsePackwerk.package_from_path(origin_pathname))
+        origin_pack = ParsePackwerk.package_from_path(origin_pathname)
 
         if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
           new_package_root.join(origin_pathname).cleanpath
@@ -27,7 +27,7 @@ module UsePackwerk
 
       sig { params(origin_pathname: Pathname).returns(Pathname) }
       def self.destination_pathname_for_new_public_api(origin_pathname)
-        origin_pack = T.must(ParsePackwerk.package_from_path(origin_pathname))
+        origin_pack = ParsePackwerk.package_from_path(origin_pathname)
         if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
           filepath_without_pack_name = origin_pathname.to_s
         else
