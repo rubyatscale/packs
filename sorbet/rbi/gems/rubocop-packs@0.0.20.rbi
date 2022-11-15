@@ -161,7 +161,7 @@ module RuboCop::Packs
     def exclude_for_rule(rule); end
 
     sig { params(root_pathname: ::String).returns(::String) }
-    def pack_based_rubocop_todos(root_pathname: T.unsafe(nil)); end
+    def pack_based_rubocop_config(root_pathname: T.unsafe(nil)); end
 
     sig { params(packs: T::Array[::ParsePackwerk::Package]).void }
     def set_default_rubocop_yml(packs:); end
@@ -182,6 +182,8 @@ module RuboCop::Packs::Inject
   end
 end
 
+RuboCop::Packs::PACK_LEVEL_RUBOCOP_TODO_YML = T.let(T.unsafe(nil), String)
+RuboCop::Packs::PACK_LEVEL_RUBOCOP_YML = T.let(T.unsafe(nil), String)
 RuboCop::Packs::PROJECT_ROOT = T.let(T.unsafe(nil), Pathname)
 
 module RuboCop::Packs::Private
