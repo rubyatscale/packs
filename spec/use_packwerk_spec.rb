@@ -33,6 +33,10 @@ RSpec.describe UsePackwerk do
     end
 
     it 'creates a package.yml correctly' do
+      RuboCop::Packs.configure do |config|
+        config.required_pack_level_cops = ['Department/SomeCop']
+      end
+
       UsePackwerk.create_pack!(pack_name: 'packs/my_pack')
       ParsePackwerk.bust_cache!
       package = ParsePackwerk.find('packs/my_pack')
@@ -41,8 +45,9 @@ RSpec.describe UsePackwerk do
       expect(package.enforce_dependencies).to eq(true)
       expect(package.dependencies).to eq([])
       expect(package.metadata).to eq({ 'owner' => 'MyTeam' })
-      expect(package.directory.join('.rubocop.yml').read).to eq(<<~YML)
-        inherit_from: "../../.base_rubocop.yml"
+      expect(package.directory.join(RuboCop::Packs::PACK_LEVEL_RUBOCOP_YML).read).to eq(<<~YML)
+        Department/SomeCop:
+          Enabled: true
       YML
 
       expected = <<~EXPECTED
@@ -129,6 +134,10 @@ RSpec.describe UsePackwerk do
       let(:pack_name) { 'packs/fruits/apples' }
 
       it 'creates a package.yml correctly' do
+        RuboCop::Packs.configure do |config|
+          config.required_pack_level_cops = ['Department/SomeCop']
+        end
+
         UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
         ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/fruits/apples')
@@ -137,8 +146,9 @@ RSpec.describe UsePackwerk do
         expect(package.enforce_dependencies).to eq(true)
         expect(package.dependencies).to eq([])
         expect(package.metadata).to eq({ 'owner' => 'MyTeam' })
-        expect(package.directory.join('.rubocop.yml').read).to eq(<<~YML)
-          inherit_from: "../../.base_rubocop.yml"
+        expect(package.directory.join(RuboCop::Packs::PACK_LEVEL_RUBOCOP_YML).read).to eq(<<~YML)
+          Department/SomeCop:
+            Enabled: true
         YML
 
         expected = <<~EXPECTED
