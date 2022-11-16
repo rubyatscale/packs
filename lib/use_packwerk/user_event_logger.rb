@@ -19,13 +19,13 @@ module UsePackwerk
       <<~MSG
         Your next steps might be:
 
-        1) Move files into your pack with `bin/use_packwerk move #{pack_name} path/to/file.rb`
+        1) Move files into your pack with `bin/packs move #{pack_name} path/to/file.rb`
 
         2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
         3) Update TODO lists for rubocop implemented protections. See #{documentation_link} for more info
 
-        4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
+        4) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
 
         5) Update your readme at #{pack_name}/README.md
       MSG
@@ -49,7 +49,7 @@ module UsePackwerk
 
         3) Touch base with each team who owns files involved in this move
 
-        4) Expose public API in #{pack_name}/app/public. Try `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
+        4) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
 
         5) Update your readme at #{pack_name}/README.md
       MSG
@@ -125,10 +125,10 @@ module UsePackwerk
         You can prevent other packs from using private API by using packwerk.
 
         Want to find how your private API is being used today?
-        Try running: `bin/use_packwerk list_top_privacy_violations #{pack_name}`
+        Try running: `bin/packs list_top_privacy_violations #{pack_name}`
 
         Want to move something into this folder?
-        Try running: `bin/use_packwerk make_public #{pack_name}/path/to/file.rb`
+        Try running: `bin/packs make_public #{pack_name}/path/to/file.rb`
 
         One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
@@ -170,7 +170,7 @@ module UsePackwerk
       else
         pack_specific_content = <<~PACK_CONTENT
           You are listing top #{limit} dependency violations for #{pack_name}. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_dependency_violations #{pack_name} -l 1000`
+          Pass in a limit to display more or less, e.g. `bin/packs list_top_dependency_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
           Anything not in #{pack_name}/app/public is considered private API.
@@ -211,7 +211,7 @@ module UsePackwerk
       if pack_name.nil?
         pack_specific_content = <<~PACK_CONTENT
           You are listing top #{limit} privacy violations for all packs. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
+          Pass in a limit to display more or less, e.g. `bin/packs list_top_privacy_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
           Anything not in pack_name/app/public is considered private API.
@@ -219,7 +219,7 @@ module UsePackwerk
       else
         pack_specific_content = <<~PACK_CONTENT
           You are listing top #{limit} privacy violations for #{pack_name}. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `bin/use_packwerk list_top_privacy_violations #{pack_name} -l 1000`
+          Pass in a limit to display more or less, e.g. `bin/packs list_top_privacy_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
           Anything not in #{pack_name}/app/public is considered private API.
@@ -253,7 +253,7 @@ module UsePackwerk
             - packs/other_pack_a: 1
             - packs/other_pack_b: 1
 
-        Lastly, remember you can use `bin/use_packwerk make_public #{pack_name}/path/to/file.rb` to make your class, constant, or module public API.
+        Lastly, remember you can use `bin/packs make_public #{pack_name}/path/to/file.rb` to make your class, constant, or module public API.
       MSG
     end
 
