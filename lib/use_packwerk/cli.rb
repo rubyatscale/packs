@@ -16,7 +16,7 @@ module UsePackwerk
     long_desc <<~LONG_DESC
       Use this to add a dependency between packs.
 
-      When you use bin/use_packwerk add_dependency packs/from_pack packs/to_pack, this command will
+      When you use bin/packs add_dependency packs/from_pack packs/to_pack, this command will
       modify packs/from_pack/package.yml's list of dependencies and add packs/to_pack.
 
       This command will also sort the list and make it unique.

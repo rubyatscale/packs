@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'use_packwerk'
-  spec.version       = '0.64.0'
+  spec.version       = '0.65.0'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 
@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   # https://guides.rubygems.org/make-your-own-gem/#adding-an-executable
   # and
   # https://bundler.io/blog/2015/03/20/moving-bins-to-exe.html
-  spec.executables = %w[use_packwerk packs]
+  spec.executables = %w[packs]
 
   spec.add_dependency 'code_ownership'
   spec.add_dependency 'colorize'
