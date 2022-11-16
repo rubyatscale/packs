@@ -620,6 +620,11 @@ class TTY::Prompt::Statement
   def newline; end
 end
 
+module TTY::Prompt::StringIOExtensions
+  def ioctl(*_arg0); end
+  def wait_readable(*_arg0); end
+end
+
 class TTY::Prompt::Suggestion
   def initialize(**options); end
 
@@ -654,6 +659,10 @@ end
 
 TTY::Prompt::Symbols::KEYS = T.let(T.unsafe(nil), Hash)
 TTY::Prompt::Symbols::WIN_KEYS = T.let(T.unsafe(nil), Hash)
+
+class TTY::Prompt::Test < ::TTY::Prompt
+  def initialize(**options); end
+end
 
 class TTY::Prompt::Timer
   def initialize(duration, interval); end
