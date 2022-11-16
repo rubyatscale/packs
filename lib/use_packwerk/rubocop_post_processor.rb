@@ -20,7 +20,7 @@ module UsePackwerk
       end
 
       if file_move_operation.origin_pack.name != ParsePackwerk::ROOT_PACKAGE_NAME && file_move_operation.destination_pack.name != ParsePackwerk::ROOT_PACKAGE_NAME
-        origin_rubocop_todo = file_move_operation.origin_pack.directory.join('.rubocop_todo.yml')
+        origin_rubocop_todo = file_move_operation.origin_pack.directory.join(RuboCop::Packs::PACK_LEVEL_RUBOCOP_TODO_YML)
         if origin_rubocop_todo.exist?
           loaded_origin_rubocop_todo = YAML.load_file(origin_rubocop_todo)
           new_origin_rubocop_todo = loaded_origin_rubocop_todo.dup
@@ -31,7 +31,7 @@ module UsePackwerk
             new_origin_rubocop_todo[cop_name]['Exclude'] = cop_config['Exclude'] - [relative_path_to_origin.to_s]
             origin_rubocop_todo.write(YAML.dump(new_origin_rubocop_todo))
 
-            destination_rubocop_todo = file_move_operation.destination_pack.directory.join('.rubocop_todo.yml')
+            destination_rubocop_todo = file_move_operation.destination_pack.directory.join(RuboCop::Packs::PACK_LEVEL_RUBOCOP_TODO_YML)
             if destination_rubocop_todo.exist?
               new_destination_rubocop_todo = YAML.load_file(destination_rubocop_todo).dup
             else
