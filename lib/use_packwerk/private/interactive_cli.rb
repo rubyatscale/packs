@@ -25,9 +25,9 @@ module UsePackwerk
     module InteractiveCli
       extend T::Sig
 
-      sig { void }
-      def self.start!
-        prompt = TTY::Prompt.new(interrupt: lambda {
+      sig { params(prompt: T.nilable(TTY::Prompt)).void }
+      def self.start!(prompt: nil)
+        prompt ||= TTY::Prompt.new(interrupt: lambda {
                                               puts "\n\nGoodbye! I hope you have a good day."
                                               exit 1 })
         help_text = '(Press ↑/↓ arrow to move, Enter to select and letters to filter)'
