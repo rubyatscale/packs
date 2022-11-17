@@ -1364,7 +1364,7 @@ RSpec.describe UsePackwerk do
       it 'exits in a failure' do
         callback_invocation = false
         UsePackwerk.configure do |config|
-          config.on_deprecated_references_lint_failure = -> (output) { callback_invocation = output }
+          config.on_deprecated_references_lint_failure = ->(output) { callback_invocation = output }
         end
         write_file('packs/my_pack/package.yml', <<~CONTENTS)
           enforce_privacy: true

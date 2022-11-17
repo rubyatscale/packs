@@ -24,7 +24,7 @@ module UsePackwerk
     def initialize
       @enforce_dependencies = T.let(default_enforce_dependencies, T::Boolean)
       @user_event_logger = T.let(DefaultUserEventLogger.new, UserEventLogger)
-      @on_deprecated_references_lint_failure = T.let(-> (output) {}, OnDeprecatedReferencesLintFailure)
+      @on_deprecated_references_lint_failure = T.let(->(output) {}, OnDeprecatedReferencesLintFailure)
     end
 
     sig { returns(T::Boolean) }
