@@ -276,6 +276,7 @@ module UsePackwerk
       OUTPUT
 
       puts output
+      UsePackwerk.config.on_deprecated_references_lint_failure.call(output)
 
       exit 1
     end
