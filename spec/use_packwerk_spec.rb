@@ -1335,7 +1335,7 @@ RSpec.describe UsePackwerk do
         end
 
         expect(UsePackwerk).to receive(:puts).with(<<~EXPECTED)
-          We require that all `deprecated_references.yml` files be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
+          All `deprecated_references.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
           There are three main reasons there may be a diff:
@@ -1344,8 +1344,6 @@ RSpec.describe UsePackwerk do
           3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-deprecations` command to make changes to `deprecated_references.yml` files.
 
           In all cases, you can run `bin/packwerk update-deprecations` to update these files.
-
-          Please come to #ruby-modularity with questions or feedback!
 
           Here is the diff generated after running `update-deprecations`:
           ```
@@ -1394,7 +1392,7 @@ RSpec.describe UsePackwerk do
         end
 
         expect(UsePackwerk).to receive(:puts).with(<<~EXPECTED)
-          We require that all `deprecated_references.yml` files be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
+          All `deprecated_references.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
           There are three main reasons there may be a diff:
@@ -1403,8 +1401,6 @@ RSpec.describe UsePackwerk do
           3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-deprecations` command to make changes to `deprecated_references.yml` files.
 
           In all cases, you can run `bin/packwerk update-deprecations` to update these files.
-
-          Please come to #ruby-modularity with questions or feedback!
 
           Here is the diff generated after running `update-deprecations`:
           ```
