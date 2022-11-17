@@ -77,5 +77,11 @@ module UsePackwerk
         per_file_processors: [UsePackwerk::RubocopPostProcessor.new, UsePackwerk::CodeOwnershipPostProcessor.new]
       )
     end
+
+    desc 'lint_deprecated_references', 'Ensures `deprecated_references.yml` files are up to date'
+    sig { void }
+    def lint_deprecated_references
+      UsePackwerk.lint_deprecated_references!
+    end
   end
 end

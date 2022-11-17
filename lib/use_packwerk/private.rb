@@ -389,6 +389,52 @@ module UsePackwerk
       # otherwise `PackageProtections.config` will attempt to reload the client configuratoin.
       @loaded_client_configuration = false
     end
+
+    sig { returns(T::Hash[String, String]) }
+    def self.get_deprecated_references_contents
+      deprecated_references = {}
+      ParsePackwerk.all.each do |package|
+        deprecated_references_yml = ParsePackwerk::DeprecatedReferences.for(package).pathname
+        if deprecated_references_yml.exist?
+          deprecated_references[deprecated_references_yml.to_s] = deprecated_references_yml.read
+        end
+      end
+
+      deprecated_references
+    end
+
+    DeprecatedReferencesFiles = T.type_alias do
+      T::Hash[String, T.nilable(String)]
+    end
+
+    sig { params(before: DeprecatedReferencesFiles, after: DeprecatedReferencesFiles).returns(String) }
+    def self.diff_deprecated_references_yml(before, after)
+      dir_containing_contents_before = Dir.mktmpdir
+      dir_containing_contents_after = Dir.mktmpdir
+      begin
+        write_deprecated_references_to_tmp_folder(before, dir_containing_contents_before)
+        write_deprecated_references_to_tmp_folder(after, dir_containing_contents_after)
+
+        diff = `diff -r #{dir_containing_contents_before}/ #{dir_containing_contents_after}/`
+        # For ease of reading, sub out the tmp directory from the diff
+        diff.gsub(dir_containing_contents_before, '').gsub(dir_containing_contents_after, '')
+      ensure
+        FileUtils.remove_entry dir_containing_contents_before
+        FileUtils.remove_entry dir_containing_contents_after
+      end
+    end
+
+    sig { params(deprecated_references_files: DeprecatedReferencesFiles, tmp_folder: String).void }
+    def self.write_deprecated_references_to_tmp_folder(deprecated_references_files, tmp_folder)
+      deprecated_references_files.each do |filename, contents|
+        next if contents.nil?
+
+        tmp_folder_pathname = Pathname.new(tmp_folder)
+        temp_deprecated_references_yml = tmp_folder_pathname.join(filename)
+        FileUtils.mkdir_p(temp_deprecated_references_yml.dirname)
+        temp_deprecated_references_yml.write(contents)
+      end
+    end
   end
 
   private_constant :Private

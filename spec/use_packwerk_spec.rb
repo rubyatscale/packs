@@ -1292,6 +1292,138 @@ RSpec.describe UsePackwerk do
     end
   end
 
+  describe 'lint_deprecated_references' do
+    let(:args) { ['lint_deprecated_references'] }
+
+    context 'no diff after running update-deprecations' do
+      it 'exits successfully' do
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-deprecations'])
+        expect(UsePackwerk).to receive(:exit).with(0)
+        expect(UsePackwerk).to_not receive(:puts)
+        UsePackwerk.lint_deprecated_references!
+      end
+    end
+
+    context 'some stale violations removed after running update-deprecations' do
+      it 'exits in a failure' do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_privacy: true
+          enforce_dependnecy: true
+        CONTENTS
+
+        write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+          ---
+          packs/my_other_pack:
+            "::SomeConstant":
+              violations:
+              - privacy
+              files:
+              - packs/my_pack/app/services/my_pack.rb
+              - packs/my_pack/app/services/my_pack_2.rb
+        CONTENTS
+
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-deprecations']) do
+          write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+            ---
+            packs/my_other_pack:
+              "::SomeConstant":
+                violations:
+                - privacy
+                files:
+                - packs/my_pack/app/services/my_pack.rb
+          CONTENTS
+        end
+
+        expect(UsePackwerk).to receive(:puts).with(<<~EXPECTED)
+          We require that all `deprecated_references.yml` files be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
+          This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
+
+          There are three main reasons there may be a diff:
+          1) Most likely, you may have stale violations, meaning there are old violations that no longer apply.
+          2) You may have some sort of auto-formatter set up somewhere (e.g. something that reformats YML files) that is, for example, changing double quotes to single quotes. Ensure this is turned off for these auto-generated files.
+          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-deprecations` command to make changes to `deprecated_references.yml` files.
+
+          In all cases, you can run `bin/packwerk update-deprecations` to update these files.
+
+          Please come to #ruby-modularity with questions or feedback!
+
+          Here is the diff generated after running `update-deprecations`:
+          ```
+          diff -r /packs/my_pack/deprecated_references.yml /packs/my_pack/deprecated_references.yml
+          8d7
+          <     - packs/my_pack/app/services/my_pack_2.rb
+
+          ```
+
+        EXPECTED
+
+        expect(UsePackwerk).to receive(:exit).with(1)
+        UsePackwerk.lint_deprecated_references!
+      end
+    end
+
+    context 'some formatting changes after running update-deprecations' do
+      it 'exits in a failure' do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_privacy: true
+          enforce_dependnecy: true
+        CONTENTS
+
+        write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+          ---
+          packs/my_other_pack:
+            '::SomeConstant':
+              violations:
+              - privacy
+              files:
+              - packs/my_pack/app/services/my_pack.rb
+              - packs/my_pack/app/services/my_pack_2.rb
+        CONTENTS
+
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-deprecations']) do
+          write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+            ---
+            packs/my_other_pack:
+              "::SomeConstant":
+                violations:
+                - privacy
+                files:
+                - packs/my_pack/app/services/my_pack.rb
+                - packs/my_pack/app/services/my_pack_2.rb
+          CONTENTS
+        end
+
+        expect(UsePackwerk).to receive(:puts).with(<<~EXPECTED)
+          We require that all `deprecated_references.yml` files be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
+          This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
+
+          There are three main reasons there may be a diff:
+          1) Most likely, you may have stale violations, meaning there are old violations that no longer apply.
+          2) You may have some sort of auto-formatter set up somewhere (e.g. something that reformats YML files) that is, for example, changing double quotes to single quotes. Ensure this is turned off for these auto-generated files.
+          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-deprecations` command to make changes to `deprecated_references.yml` files.
+
+          In all cases, you can run `bin/packwerk update-deprecations` to update these files.
+
+          Please come to #ruby-modularity with questions or feedback!
+
+          Here is the diff generated after running `update-deprecations`:
+          ```
+          diff -r /packs/my_pack/deprecated_references.yml /packs/my_pack/deprecated_references.yml
+          3c3
+          <   '::SomeConstant':
+          ---
+          >   "::SomeConstant":
+
+          ```
+
+        EXPECTED
+
+        expect(UsePackwerk).to receive(:exit).with(1)
+        UsePackwerk.lint_deprecated_references!
+      end
+    end
+  end
+
   # This will soon be moved into `query_packwerk`
   describe 'query_packwerk' do
     before do
