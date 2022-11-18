@@ -78,10 +78,17 @@ module UsePackwerk
       )
     end
 
-    desc 'lint_deprecated_references', 'Ensures `deprecated_references.yml` files are up to date'
+    desc 'lint_deprecated_references_yml_files', 'Ensures `deprecated_references.yml` files are up to date'
     sig { void }
-    def lint_deprecated_references
-      UsePackwerk.lint_deprecated_references!
+    def lint_deprecated_references_yml_files
+      UsePackwerk.lint_deprecated_references_yml_files!
+    end
+
+    desc 'lint_package_yml_files [ packs/my_pack packs/my_other_pack ]', 'Lint `package.yml` files'
+    sig { params(pack_names: String).void }
+    def lint_package_yml_files(*pack_names)
+      packages = pack_names.empty? ? ParsePackwerk.all : pack_names.map { |p| ParsePackwerk.find(p.gsub(%r{/$}, '')) }.compact
+      UsePackwerk.lint_package_yml_files!(packages)
     end
   end
 end

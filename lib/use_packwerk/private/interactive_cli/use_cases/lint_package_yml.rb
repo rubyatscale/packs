@@ -12,16 +12,7 @@ module UsePackwerk
           sig { override.params(prompt: TTY::Prompt).void }
           def perform!(prompt)
             packs = PackSelector.single_or_all_pack_multi_select(prompt, question_text: 'Please select the packs you want to lint package.yml files for')
-            packs.each do |p|
-              new_package = ParsePackwerk::Package.new(
-                name: p.name,
-                enforce_privacy: p.enforce_privacy,
-                enforce_dependencies: p.enforce_dependencies,
-                dependencies: p.dependencies.uniq.sort,
-                metadata: p.metadata
-              )
-              ParsePackwerk.write_package_yml!(new_package)
-            end
+            UsePackwerk.lint_package_yml_files!(packs)
           end
 
           sig { override.returns(String) }

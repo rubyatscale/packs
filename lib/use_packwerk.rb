@@ -247,7 +247,7 @@ module UsePackwerk
   end
 
   sig { void }
-  def self.lint_deprecated_references!
+  def self.lint_deprecated_references_yml_files!
     contents_before = Private.get_deprecated_references_contents
     UsePackwerk.execute(['update-deprecations'])
     contents_after = Private.get_deprecated_references_contents
@@ -279,6 +279,20 @@ module UsePackwerk
       UsePackwerk.config.on_deprecated_references_lint_failure.call(output)
 
       exit 1
+    end
+  end
+
+  sig { params(packs: T::Array[ParsePackwerk::Package]).void }
+  def self.lint_package_yml_files!(packs)
+    packs.each do |p|
+      new_package = ParsePackwerk::Package.new(
+        name: p.name,
+        enforce_privacy: p.enforce_privacy,
+        enforce_dependencies: p.enforce_dependencies,
+        dependencies: p.dependencies.uniq.sort,
+        metadata: p.metadata
+      )
+      ParsePackwerk.write_package_yml!(new_package)
     end
   end
 end
