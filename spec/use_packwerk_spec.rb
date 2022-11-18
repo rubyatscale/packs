@@ -1292,15 +1292,15 @@ RSpec.describe UsePackwerk do
     end
   end
 
-  describe 'lint_deprecated_references' do
-    let(:args) { ['lint_deprecated_references'] }
+  describe 'lint_deprecated_references_yml_files' do
+    let(:args) { ['lint_deprecated_references_yml_files'] }
 
     context 'no diff after running update-deprecations' do
       it 'exits successfully' do
         expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-deprecations'])
         expect(UsePackwerk).to receive(:exit).with(0)
         expect(UsePackwerk).to_not receive(:puts)
-        UsePackwerk.lint_deprecated_references!
+        UsePackwerk.lint_deprecated_references_yml_files!
       end
     end
 
@@ -1356,7 +1356,7 @@ RSpec.describe UsePackwerk do
         EXPECTED
 
         expect(UsePackwerk).to receive(:exit).with(1)
-        UsePackwerk.lint_deprecated_references!
+        UsePackwerk.lint_deprecated_references_yml_files!
       end
     end
 
@@ -1419,7 +1419,7 @@ RSpec.describe UsePackwerk do
         EXPECTED
 
         expect(UsePackwerk).to receive(:exit).with(1)
-        UsePackwerk.lint_deprecated_references!
+        UsePackwerk.lint_deprecated_references_yml_files!
         expect(callback_invocation).to include('All `deprecated_references.yml` files must be up-to-date')
       end
     end
