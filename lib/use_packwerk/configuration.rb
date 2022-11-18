@@ -13,10 +13,18 @@ module UsePackwerk
     sig { returns(UserEventLogger) }
     attr_accessor :user_event_logger
 
+    OnDeprecatedReferencesLintFailure = T.type_alias do
+      T.proc.params(output: String).void
+    end
+
+    sig { returns(OnDeprecatedReferencesLintFailure) }
+    attr_accessor :on_deprecated_references_lint_failure
+
     sig { void }
     def initialize
       @enforce_dependencies = T.let(default_enforce_dependencies, T::Boolean)
       @user_event_logger = T.let(DefaultUserEventLogger.new, UserEventLogger)
+      @on_deprecated_references_lint_failure = T.let(->(output) {}, OnDeprecatedReferencesLintFailure)
     end
 
     sig { returns(T::Boolean) }
