@@ -87,8 +87,20 @@ module UsePackwerk
     desc 'lint_package_yml_files [ packs/my_pack packs/my_other_pack ]', 'Lint `package.yml` files'
     sig { params(pack_names: String).void }
     def lint_package_yml_files(*pack_names)
-      packages = pack_names.empty? ? ParsePackwerk.all : pack_names.map { |p| ParsePackwerk.find(p.gsub(%r{/$}, '')) }.compact
-      UsePackwerk.lint_package_yml_files!(packages)
+      UsePackwerk.lint_package_yml_files!(parse_pack_names(pack_names))
+    end
+
+    desc 'regenerate_rubocop_todo [ packs/my_pack packs/my_other_pack ]', "Regenerate packs/*/#{RuboCop::Packs::PACK_LEVEL_RUBOCOP_TODO_YML} for one or more packs"
+    sig { params(pack_names: String).void }
+    def regenerate_rubocop_todo(*pack_names)
+      RuboCop::Packs.auto_generate_rubocop_todo(packs: parse_pack_names(pack_names))
+    end
+
+    private
+
+    sig { params(pack_names: T::Array[String]).returns(T::Array[ParsePackwerk::Package]) }
+    def parse_pack_names(pack_names)
+      pack_names.empty? ? ParsePackwerk.all : pack_names.map { |p| ParsePackwerk.find(p.gsub(%r{/$}, '')) }.compact
     end
   end
 end
