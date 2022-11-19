@@ -4,7 +4,7 @@ module UsePackwerk
   module Private
     module PackwerkWrapper
       #
-      # This formatter simply collects offenses so we can feed them into PackageProtections
+      # This formatter simply collects offenses so we can feed them into other systems
       #
       class OffensesAggregatorFormatter
         extend T::Sig

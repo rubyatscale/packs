@@ -387,8 +387,8 @@ module UsePackwerk
     sig { void }
     def self.bust_cache!
       UsePackwerk.config.bust_cache!
-      # This comes explicitly after `PackageProtections.config.bust_cache!` because
-      # otherwise `PackageProtections.config` will attempt to reload the client configuratoin.
+      # This comes explicitly after `UsePackwerk.config.bust_cache!` because
+      # otherwise `UsePackwerk.config` will attempt to reload the client configuratoin.
       @loaded_client_configuration = false
     end
 
