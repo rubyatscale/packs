@@ -23,11 +23,9 @@ module UsePackwerk
 
         2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
-        3) Update TODO lists for rubocop implemented protections. See #{documentation_link} for more info
+        3) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
 
-        4) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
-
-        5) Update your readme at #{pack_name}/README.md
+        4) Update your readme at #{pack_name}/README.md
       MSG
     end
 
@@ -45,13 +43,11 @@ module UsePackwerk
 
         1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
-        2) Update TODO lists for rubocop implemented protections. See #{documentation_link} for more info
+        2) Touch base with each team who owns files involved in this move
 
-        3) Touch base with each team who owns files involved in this move
+        3) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
 
-        4) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
-
-        5) Update your readme at #{pack_name}/README.md
+        4) Update your readme at #{pack_name}/README.md
       MSG
     end
 
@@ -69,11 +65,9 @@ module UsePackwerk
 
         1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
-        2) Update TODO lists for rubocop implemented protections. See #{documentation_link} for more info
+        2) Work to migrate clients of private API to your new public API
 
-        3) Work to migrate clients of private API to your new public API
-
-        4) Update your README at packs/your_package_name/README.md
+        3) Update your README at packs/your_package_name/README.md
       MSG
     end
 

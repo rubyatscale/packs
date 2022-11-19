@@ -47,5 +47,21 @@ module UsePackwerk
         end
       end
     end
+
+    sig { params(file_move_operations: T::Array[Private::FileMoveOperation]).void }
+    def after_move_files!(file_move_operations)
+      # There could also be no TODOs for this file, but moving it produced TODOs. This could happen if:
+      # 1) The origin pack did not enforce a rubocop, such as typed public APIs
+      # 2) The file satisfied the cop in the origin pack, such as the Packs/RootNamespaceIsPackName, but the desired
+      # namespace changed once the file was moved to a different pack.
+      files = []
+      file_move_operations.each do |file_move_operation|
+        if file_move_operation.destination_pathname.exist?
+          files << file_move_operation.destination_pathname.to_s
+        end
+      end
+
+      RuboCop::Packs.regenerate_todo(files: files)
+    end
   end
 end

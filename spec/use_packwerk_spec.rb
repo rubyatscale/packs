@@ -598,6 +598,19 @@ RSpec.describe UsePackwerk do
                                                  })
           end
         end
+
+        it 'runs rubocop on the changed files' do
+          UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
+          ParsePackwerk.bust_cache!
+          write_file('packs/fruits/apples/app/services/apple.rb')
+
+          expect(RuboCop::Packs).to receive(:regenerate_todo).with(files: ['packs/fruits/apples/app/public/apple.rb'])
+
+          UsePackwerk.make_public!(
+            paths_relative_to_root: ['packs/fruits/apples/app/services/apple.rb'],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
+          )
+        end
       end
 
       describe 'CodeOwnershipPostProcessor' do
