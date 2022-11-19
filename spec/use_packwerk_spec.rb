@@ -19,6 +19,8 @@ RSpec.describe UsePackwerk do
     # Always add the root package for every spec
     write_package_yml('.')
     allow(RuboCop::Packs).to receive(:regenerate_todo)
+    allow(UsePackwerk::Logging).to receive(:out)
+    allow(UsePackwerk::Logging).to receive(:print)
   end
 
   describe '.create_pack!' do
@@ -1211,6 +1213,11 @@ RSpec.describe UsePackwerk do
         logged_output += "\n"
       end
 
+      expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+        logged_output += ColorizedString.new(string).uncolorize
+        logged_output += "\n"
+      end
+
       write_package_yml('packs/fruits')
       write_package_yml('packs/apples')
       write_file('packs/apples/app/services/apples/foo.rb')
@@ -1553,7 +1560,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1578,7 +1584,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 3
@@ -1603,7 +1608,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1634,7 +1638,6 @@ RSpec.describe UsePackwerk do
             end
 
             list_top_privacy_violations
-            puts logged_output
 
             expected_logged_output = <<~OUTPUT
               Total Count: 4
@@ -1663,7 +1666,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 3
@@ -1689,8 +1691,6 @@ RSpec.describe UsePackwerk do
             pack_name: nil,
             limit: limit
           )
-
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 11
@@ -1743,7 +1743,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1768,7 +1767,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1796,7 +1794,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1827,7 +1824,6 @@ RSpec.describe UsePackwerk do
             end
 
             list_top_dependency_violations
-            puts logged_output
 
             expected_logged_output = <<~OUTPUT
               Total Count: 4
@@ -1856,7 +1852,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1885,8 +1880,6 @@ RSpec.describe UsePackwerk do
             pack_name: nil,
             limit: limit
           )
-
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 12
