@@ -11,7 +11,7 @@ module UsePackwerk
     def before_move_file!(file_move_operation); end
 
     sig { void }
-    def print_final_message!
+    def after_move_files!
       nil
     end
   end

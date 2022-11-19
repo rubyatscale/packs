@@ -113,21 +113,24 @@ module UsePackwerk
               origin_pathname
             end
           end
-          file_move_operations = file_paths.map do |origin_pathname|
-            FileMoveOperation.new(
+          file_move_operations = file_paths.flat_map do |origin_pathname|
+            file_move_operation = FileMoveOperation.new(
               origin_pathname: origin_pathname,
               destination_pathname: FileMoveOperation.destination_pathname_for_package_move(origin_pathname, package_location),
               destination_pack: package
             )
+            [
+              file_move_operation,
+              file_move_operation.spec_file_move_operation,
+            ]
           end
           file_move_operations.each do |file_move_operation|
             Private.package_filepath(file_move_operation, per_file_processors)
-            Private.package_filepath_spec(file_move_operation, per_file_processors)
           end
         end
       end
 
-      per_file_processors.each(&:print_final_message!)
+      per_file_processors.each(&:after_move_files!)
     end
 
     sig do
@@ -227,20 +230,24 @@ module UsePackwerk
             end
           end
 
-          file_move_operations = file_paths.map do |path|
+          file_move_operations = file_paths.flat_map do |path|
             package = ParsePackwerk.package_from_path(path)
             origin_pathname = Pathname.new(path).cleanpath
 
-            FileMoveOperation.new(
+            file_move_operation = FileMoveOperation.new(
               origin_pathname: origin_pathname,
               destination_pathname: FileMoveOperation.destination_pathname_for_new_public_api(origin_pathname),
               destination_pack: package
             )
+
+            [
+              file_move_operation,
+              file_move_operation.spec_file_move_operation
+            ]
           end
 
           file_move_operations.each do |file_move_operation|
             Private.package_filepath(file_move_operation, per_file_processors)
-            Private.package_filepath_spec(file_move_operation, per_file_processors)
           end
         end
       end
@@ -288,11 +295,6 @@ module UsePackwerk
       origin = file_move_operation.origin_pathname
       destination = file_move_operation.destination_pathname
       idempotent_mv(origin, destination)
-    end
-
-    sig { params(file_move_operation: FileMoveOperation, per_file_processors: T::Array[UsePackwerk::PerFileProcessorInterface]).void }
-    def self.package_filepath_spec(file_move_operation, per_file_processors)
-      package_filepath(file_move_operation.spec_file_move_operation, per_file_processors)
     end
 
     sig { params(origin: Pathname, destination: Pathname).void }
