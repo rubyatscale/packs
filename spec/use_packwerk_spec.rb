@@ -18,6 +18,7 @@ RSpec.describe UsePackwerk do
     CodeTeams.bust_caches!
     # Always add the root package for every spec
     write_package_yml('.')
+    allow(RuboCop::Packs).to receive(:regenerate_todo)
   end
 
   describe '.create_pack!' do
