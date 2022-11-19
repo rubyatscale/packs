@@ -145,9 +145,6 @@ RuboCop::NodePattern = RuboCop::AST::NodePattern
 
 module RuboCop::Packs
   class << self
-    sig { params(packs: T::Array[::ParsePackwerk::Package]).void }
-    def auto_generate_rubocop_todo(packs:); end
-
     sig { void }
     def bust_cache!; end
 
@@ -163,6 +160,9 @@ module RuboCop::Packs
     sig { params(root_pathname: ::String).returns(::String) }
     def pack_based_rubocop_config(root_pathname: T.unsafe(nil)); end
 
+    sig { params(packs: T::Array[::ParsePackwerk::Package], files: T::Array[::String]).void }
+    def regenerate_todo(packs: T.unsafe(nil), files: T.unsafe(nil)); end
+
     sig { params(packs: T::Array[::ParsePackwerk::Package]).void }
     def set_default_rubocop_yml(packs:); end
 
@@ -173,7 +173,6 @@ end
 
 RuboCop::Packs::CONFIG = T.let(T.unsafe(nil), Hash)
 RuboCop::Packs::CONFIG_DEFAULT = T.let(T.unsafe(nil), Pathname)
-class RuboCop::Packs::Error < ::StandardError; end
 
 module RuboCop::Packs::Inject
   class << self
@@ -194,8 +193,19 @@ module RuboCop::Packs::Private
     sig { params(rule: ::String).returns(T::Set[::String]) }
     def exclude_for_rule(rule); end
 
+    sig { params(args: T.untyped).void }
+    def execute_rubocop(args); end
+
     sig { void }
     def load_client_configuration; end
+
+    sig do
+      params(
+        paths: T::Array[::String],
+        cop_names: T::Array[::String]
+      ).returns(T::Array[::RuboCop::Packs::Private::Offense])
+    end
+    def offenses_for(paths:, cop_names:); end
 
     sig { returns(T::Array[T::Hash[T.untyped, T.untyped]]) }
     def rubocop_todo_ymls; end
@@ -232,6 +242,18 @@ class RuboCop::Packs::Private::Configuration
   def required_pack_level_cops; end
 
   def required_pack_level_cops=(_arg0); end
+end
+
+class RuboCop::Packs::Private::Offense < ::T::Struct
+  const :cop_name, ::String
+  const :filepath, ::String
+
+  sig { returns(::ParsePackwerk::Package) }
+  def pack; end
+
+  class << self
+    def inherited(s); end
+  end
 end
 
 module RuboCop::PackwerkLite; end
