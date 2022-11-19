@@ -98,9 +98,12 @@ module UsePackwerk
 
     private
 
-    sig { params(pack_names: T::Array[String]).returns(T::Array[ParsePackwerk::Package]) }
-    def parse_pack_names(pack_names)
-      pack_names.empty? ? ParsePackwerk.all : pack_names.map { |p| ParsePackwerk.find(p.gsub(%r{/$}, '')) }.compact
+    # This is used by thor to know that these private methods are not intended to be CLI commands
+    no_commands do
+      sig { params(pack_names: T::Array[String]).returns(T::Array[ParsePackwerk::Package]) }
+      def parse_pack_names(pack_names)
+        pack_names.empty? ? ParsePackwerk.all : pack_names.map { |p| ParsePackwerk.find(p.gsub(%r{/$}, '')) }.compact
+      end
     end
   end
 end
