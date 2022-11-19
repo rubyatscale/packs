@@ -87,6 +87,8 @@ module UsePackwerk
       add_readme_todo(package)
       package_location = package.directory
 
+      file_move_operations = T.let([], T::Array[Private::FileMoveOperation])
+
       if paths_relative_to_root.any?
         Logging.section('File Operations') do
           file_paths = paths_relative_to_root.flat_map do |path|
@@ -130,7 +132,9 @@ module UsePackwerk
         end
       end
 
-      per_file_processors.each(&:after_move_files!)
+      per_file_processors.each do |processor|
+        processor.after_move_files!(file_move_operations)
+      end
     end
 
     sig do
@@ -220,6 +224,8 @@ module UsePackwerk
     end
     def self.make_public!(paths_relative_to_root:, per_file_processors:)
       if paths_relative_to_root.any?
+        file_move_operations = T.let([], T::Array[Private::FileMoveOperation])
+
         Logging.section('File Operations') do
           file_paths = paths_relative_to_root.flat_map do |path|
             origin_pathname = Pathname.new(path).cleanpath
@@ -249,6 +255,10 @@ module UsePackwerk
           file_move_operations.each do |file_move_operation|
             Private.package_filepath(file_move_operation, per_file_processors)
           end
+        end
+
+        per_file_processors.each do |processor|
+          processor.after_move_files!(file_move_operations)
         end
       end
     end
