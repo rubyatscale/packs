@@ -90,6 +90,24 @@ module UsePackwerk
       UsePackwerk.lint_package_yml_files!(parse_pack_names(pack_names))
     end
 
+    desc 'validate', 'Run bin/packwerk validate (detects cycles)'
+    sig { void }
+    def validate
+      system('bin/packwerk validate')
+    end
+
+    desc 'check [ packs/my_pack ]', 'Run bin/packwerk check'
+    sig { params(paths: String).void }
+    def check(*paths)
+      system("bin/packwerk check #{paths.join(' ')}")
+    end
+
+    desc 'update [ packs/my_pack ]', 'Run bin/packwerk update-deprecations'
+    sig { params(paths: String).void }
+    def update(*paths)
+      system("bin/packwerk update-deprecations #{paths.join(' ')}")
+    end
+
     desc 'regenerate_rubocop_todo [ packs/my_pack packs/my_other_pack ]', "Regenerate packs/*/#{RuboCop::Packs::PACK_LEVEL_RUBOCOP_TODO_YML} for one or more packs"
     sig { params(pack_names: String).void }
     def regenerate_rubocop_todo(*pack_names)

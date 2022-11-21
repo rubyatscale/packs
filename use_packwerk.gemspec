@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'use_packwerk'
-  spec.version       = '0.68.0'
+  spec.version       = '0.69.0'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 

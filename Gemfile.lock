@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.68.0)
+    use_packwerk (0.69.0)
       code_ownership
       colorize
       packwerk (>= 2.2.1)
@@ -36,7 +36,7 @@ GEM
       smart_properties
     builder (3.2.4)
     byebug (11.1.3)
-    code_ownership (1.28.2)
+    code_ownership (1.29.0)
       code_teams (~> 1.0)
       parse_packwerk
       sorbet-runtime
