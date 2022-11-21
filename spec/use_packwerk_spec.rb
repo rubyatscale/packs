@@ -18,6 +18,9 @@ RSpec.describe UsePackwerk do
     CodeTeams.bust_caches!
     # Always add the root package for every spec
     write_package_yml('.')
+    allow(RuboCop::Packs).to receive(:regenerate_todo)
+    allow(UsePackwerk::Logging).to receive(:out)
+    allow(UsePackwerk::Logging).to receive(:print)
   end
 
   describe '.create_pack!' do
@@ -597,6 +600,19 @@ RSpec.describe UsePackwerk do
                                                    'Layout/OtherCop' => { 'Exclude' => ['packs/bar/app/services/bar.rb'] }
                                                  })
           end
+        end
+
+        it 'runs rubocop on the changed files' do
+          UsePackwerk.create_pack!(pack_name: 'packs/fruits/apples')
+          ParsePackwerk.bust_cache!
+          write_file('packs/fruits/apples/app/services/apple.rb')
+
+          expect(RuboCop::Packs).to receive(:regenerate_todo).with(files: ['packs/fruits/apples/app/public/apple.rb'])
+
+          UsePackwerk.make_public!(
+            paths_relative_to_root: ['packs/fruits/apples/app/services/apple.rb'],
+            per_file_processors: [UsePackwerk::RubocopPostProcessor.new]
+          )
         end
       end
 
@@ -1197,6 +1213,11 @@ RSpec.describe UsePackwerk do
         logged_output += "\n"
       end
 
+      expect(UsePackwerk::Logging).to receive(:print).at_least(:once) do |string|
+        logged_output += ColorizedString.new(string).uncolorize
+        logged_output += "\n"
+      end
+
       write_package_yml('packs/fruits')
       write_package_yml('packs/apples')
       write_file('packs/apples/app/services/apples/foo.rb')
@@ -1539,7 +1560,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1564,7 +1584,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 3
@@ -1589,7 +1608,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1620,7 +1638,6 @@ RSpec.describe UsePackwerk do
             end
 
             list_top_privacy_violations
-            puts logged_output
 
             expected_logged_output = <<~OUTPUT
               Total Count: 4
@@ -1649,7 +1666,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_privacy_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 3
@@ -1675,8 +1691,6 @@ RSpec.describe UsePackwerk do
             pack_name: nil,
             limit: limit
           )
-
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 11
@@ -1729,7 +1743,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1754,7 +1767,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1782,7 +1794,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1813,7 +1824,6 @@ RSpec.describe UsePackwerk do
             end
 
             list_top_dependency_violations
-            puts logged_output
 
             expected_logged_output = <<~OUTPUT
               Total Count: 4
@@ -1842,7 +1852,6 @@ RSpec.describe UsePackwerk do
           end
 
           list_top_dependency_violations
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 4
@@ -1871,8 +1880,6 @@ RSpec.describe UsePackwerk do
             pack_name: nil,
             limit: limit
           )
-
-          puts logged_output
 
           expected_logged_output = <<~OUTPUT
             Total Count: 12

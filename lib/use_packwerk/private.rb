@@ -87,6 +87,8 @@ module UsePackwerk
       add_readme_todo(package)
       package_location = package.directory
 
+      file_move_operations = T.let([], T::Array[Private::FileMoveOperation])
+
       if paths_relative_to_root.any?
         Logging.section('File Operations') do
           file_paths = paths_relative_to_root.flat_map do |path|
@@ -113,21 +115,26 @@ module UsePackwerk
               origin_pathname
             end
           end
-          file_move_operations = file_paths.map do |origin_pathname|
-            FileMoveOperation.new(
+          file_move_operations = file_paths.flat_map do |origin_pathname|
+            file_move_operation = FileMoveOperation.new(
               origin_pathname: origin_pathname,
               destination_pathname: FileMoveOperation.destination_pathname_for_package_move(origin_pathname, package_location),
               destination_pack: package
             )
+            [
+              file_move_operation,
+              file_move_operation.spec_file_move_operation
+            ]
           end
           file_move_operations.each do |file_move_operation|
             Private.package_filepath(file_move_operation, per_file_processors)
-            Private.package_filepath_spec(file_move_operation, per_file_processors)
           end
         end
       end
 
-      per_file_processors.each(&:print_final_message!)
+      per_file_processors.each do |processor|
+        processor.after_move_files!(file_move_operations)
+      end
     end
 
     sig do
@@ -217,6 +224,8 @@ module UsePackwerk
     end
     def self.make_public!(paths_relative_to_root:, per_file_processors:)
       if paths_relative_to_root.any?
+        file_move_operations = T.let([], T::Array[Private::FileMoveOperation])
+
         Logging.section('File Operations') do
           file_paths = paths_relative_to_root.flat_map do |path|
             origin_pathname = Pathname.new(path).cleanpath
@@ -227,21 +236,29 @@ module UsePackwerk
             end
           end
 
-          file_move_operations = file_paths.map do |path|
+          file_move_operations = file_paths.flat_map do |path|
             package = ParsePackwerk.package_from_path(path)
             origin_pathname = Pathname.new(path).cleanpath
 
-            FileMoveOperation.new(
+            file_move_operation = FileMoveOperation.new(
               origin_pathname: origin_pathname,
               destination_pathname: FileMoveOperation.destination_pathname_for_new_public_api(origin_pathname),
               destination_pack: package
             )
+
+            [
+              file_move_operation,
+              file_move_operation.spec_file_move_operation
+            ]
           end
 
           file_move_operations.each do |file_move_operation|
             Private.package_filepath(file_move_operation, per_file_processors)
-            Private.package_filepath_spec(file_move_operation, per_file_processors)
           end
+        end
+
+        per_file_processors.each do |processor|
+          processor.after_move_files!(file_move_operations)
         end
       end
     end
@@ -288,11 +305,6 @@ module UsePackwerk
       origin = file_move_operation.origin_pathname
       destination = file_move_operation.destination_pathname
       idempotent_mv(origin, destination)
-    end
-
-    sig { params(file_move_operation: FileMoveOperation, per_file_processors: T::Array[UsePackwerk::PerFileProcessorInterface]).void }
-    def self.package_filepath_spec(file_move_operation, per_file_processors)
-      package_filepath(file_move_operation.spec_file_move_operation, per_file_processors)
     end
 
     sig { params(origin: Pathname, destination: Pathname).void }
@@ -385,8 +397,8 @@ module UsePackwerk
     sig { void }
     def self.bust_cache!
       UsePackwerk.config.bust_cache!
-      # This comes explicitly after `PackageProtections.config.bust_cache!` because
-      # otherwise `PackageProtections.config` will attempt to reload the client configuratoin.
+      # This comes explicitly after `UsePackwerk.config.bust_cache!` because
+      # otherwise `UsePackwerk.config` will attempt to reload the client configuratoin.
       @loaded_client_configuration = false
     end
 

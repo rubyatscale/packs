@@ -40,8 +40,8 @@ module UsePackwerk
       end
     end
 
-    sig { void }
-    def print_final_message!
+    sig { params(file_move_operations: T::Array[Private::FileMoveOperation]).void }
+    def after_move_files!(file_move_operations)
       if @teams.any?
         Logging.section('Code Ownership') do
           Logging.print('This section contains info about the current ownership distribution of the moved files.')
