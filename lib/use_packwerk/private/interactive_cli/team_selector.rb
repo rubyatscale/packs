@@ -8,7 +8,7 @@ module UsePackwerk
 
         sig { params(prompt: TTY::Prompt, question_text: String).returns(CodeTeams::Team) }
         def self.single_select(prompt, question_text: 'Please select a team owner')
-          teams = CodeTeams.all.to_h { |t| [t.name, t] }
+          teams = CodeTeams.all.sort_by(&:name).to_h { |t| [t.name, t] }
           prompt.select(
             question_text,
             teams,

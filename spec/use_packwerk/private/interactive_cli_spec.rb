@@ -9,12 +9,29 @@ module UsePackwerk
       Private::InteractiveCli.start!(prompt: prompt)
     end
 
+    before { CodeTeams.bust_caches! }
+
     it 'allows creating a new pack interactively' do
       write_file('config/teams/artists.yml', 'name: Artists')
       expect(UsePackwerk).to receive(:create_pack!).with(pack_name: 'packs/my_new_pack', team: CodeTeams.find('Artists'))
       prompt.input << "Create\r"
       prompt.input << "my_new_pack\r"
       prompt.input << "Artists\r"
+      prompt.input.rewind
+      subject
+    end
+
+    it 'shows teams listed alphabetically and you can pick one with arrow keys' do
+      write_file('config/teams/zebras.yml', 'name: Zebras')
+      write_file('config/teams/artists.yml', 'name: Artists')
+      write_file('config/teams/bbs.yml', 'name: BBs')
+
+      expect(UsePackwerk).to receive(:create_pack!).with(pack_name: 'packs/my_new_pack', team: CodeTeams.find('Zebras'))
+      prompt.input << "Create\r"
+      prompt.input << "my_new_pack\r"
+      prompt.input << "\e[B" # down arrow
+      prompt.input << "\e[B" # down arrow
+      prompt.input << "\r"
       prompt.input.rewind
       subject
     end
