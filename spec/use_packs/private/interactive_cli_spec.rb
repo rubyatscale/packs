@@ -141,12 +141,19 @@ module UsePacks
 
       prompt.input << "Artists" # Please select team owners
       # prompt.input << INPUTS::SPACE # We "forgot" to use space here! (simulate failure case)
+      prompt.input << INPUTS::RETURN # (submit invalid)
+
+      # ...please select an owner using the space key before pressing enter.
+
+      prompt.input << "Artists" # Please select team owners
+      prompt.input << INPUTS::SPACE # Rememebered the space this time
       prompt.input << INPUTS::RETURN # (Confirm selection)
+
       prompt.input << INPUTS::EOF
 
       prompt.input.rewind
 
-      expect(VisualizePackwerk).to receive(:package_graph!).with([])
+      expect(VisualizePackwerk).to receive(:package_graph!).with([ParsePackwerk.all.first])
 
       subject
     end
