@@ -7,7 +7,7 @@ module UsePacks
         extend T::Sig
 
         sig { params(prompt: TTY::Prompt, question_text: String).returns(ParsePackwerk::Package) }
-        def self.single_pack_select(prompt, question_text: 'Please select a pack')
+        def self.single_pack_select(prompt, question_text: 'Please use space to select a pack')
           packs = ParsePackwerk.all.to_h { |t| [t.name, t] }
           prompt.select(
             question_text,
@@ -19,7 +19,7 @@ module UsePacks
         end
 
         sig { params(prompt: TTY::Prompt, question_text: String).returns(T::Array[ParsePackwerk::Package]) }
-        def self.single_or_all_pack_multi_select(prompt, question_text: 'Please select one or more packs')
+        def self.single_or_all_pack_multi_select(prompt, question_text: 'Please use space to select one or more packs')
           prompt.multi_select(
             question_text,
             ParsePackwerk.all.to_h { |t| [t.name, t] },
