@@ -21,6 +21,7 @@ module UsePacks
         sig { params(prompt: TTY::Prompt, question_text: String).returns(T::Array[CodeTeams::Team]) }
         def self.multi_select(prompt, question_text: 'Please use space to select team owners')
           teams = CodeTeams.all.to_h { |t| [t.name, t] }
+          # require 'pry'; binding.pry
           prompt.multi_select(
             question_text,
             teams,

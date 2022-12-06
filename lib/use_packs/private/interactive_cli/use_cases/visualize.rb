@@ -20,6 +20,7 @@ module UsePacks
               VisualizePackwerk.team_graph!(teams)
             else
               by_name_or_by_owner = prompt.select('Do you select packs by name or by owner?', ['By name', 'By owner'])
+
               if by_name_or_by_owner == 'By owner'
                 teams = TeamSelector.multi_select(prompt)
                 selected_packs = ParsePackwerk.all.select do |p|

@@ -3,6 +3,16 @@
 require 'tty/prompt/test'
 
 module UsePacks
+  module INPUTS
+    UP = "\e[A\r"
+    DOWN = "\e[B\r"
+    LEFT = "\e[D\r"
+    RIGHT = "\e[C\r"
+
+    RETURN = "\r"
+    SPACE = " "
+  end
+
   RSpec.describe Private::InteractiveCli do
     let(:prompt) { TTY::Prompt::Test.new }
     subject do
@@ -89,6 +99,42 @@ module UsePacks
         paths_relative_to_root: ['packs/my_pack/path/to/file.rb', 'packs/my_pack/path/to/other_file.rb'],
         per_file_processors: anything
       )
+      subject
+    end
+
+    it 'allows visualizing packs interactively' do
+      write_package_yml('packs/my_destination_pack', owner: 'Artists')
+      write_file('config/teams/artists.yml', 'name: Artists')
+
+      prompt.input << "Visualize\r" # Hello! What would you like to do?
+      prompt.input << INPUTS::DOWN # Do you want the graph nodes to be teams or packs?
+      prompt.input << INPUTS::DOWN # Do you select packs by name or by owner?
+
+      prompt.input << "Artists" # Please select team owners
+      prompt.input << INPUTS::SPACE
+      prompt.input << INPUTS::RETURN
+      prompt.input.rewind
+
+      expect(VisualizePackwerk).to receive(:package_graph!).with([ParsePackwerk.all.first])
+
+      subject
+    end
+
+    it 'fails to visualize if no packs are selected' do
+      write_package_yml('packs/my_destination_pack', owner: 'Artists')
+      write_file('config/teams/artists.yml', 'name: Artists')
+
+      prompt.input << "Visualize\r" # Hello! What would you like to do?
+      prompt.input << INPUTS::DOWN # Do you want the graph nodes to be teams or packs?
+      prompt.input << INPUTS::DOWN # Do you select packs by name or by owner?
+
+      prompt.input << "Artists" # Please select team owners
+      # prompt.input << INPUTS::SPACE # Forgot to use space here!
+      prompt.input << INPUTS::RETURN
+      prompt.input.rewind
+
+      expect(VisualizePackwerk).to receive(:package_graph!).with([])
+
       subject
     end
   end
