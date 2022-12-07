@@ -10,7 +10,7 @@ module UsePacks
     RIGHT = "\e[C"
 
     RETURN = "\r"
-    SPACE = " " # For multi-select to make this explicit
+    SPACE = ' ' # For multi-select to make this explicit
     EOF = "\C-d" # Ctrl-D - End of File
   end
 
@@ -115,7 +115,7 @@ module UsePacks
       prompt.input << INPUTS::DOWN # Do you select packs by name or by owner?
       prompt.input << INPUTS::RETURN # (Confirms 'owner')
 
-      prompt.input << "Artists" # Please select team owners
+      prompt.input << 'Artists' # Please select team owners
       prompt.input << INPUTS::SPACE # (Select it)
       prompt.input << INPUTS::RETURN # (Confirm selection)
       prompt.input << INPUTS::EOF
@@ -139,13 +139,13 @@ module UsePacks
       prompt.input << INPUTS::DOWN # Do you select packs by name or by owner?
       prompt.input << INPUTS::RETURN # (Confirms 'owner')
 
-      prompt.input << "Artists" # Please select team owners
+      prompt.input << 'Artists' # Please select team owners
       # prompt.input << INPUTS::SPACE # We "forgot" to use space here! (simulate failure case)
       prompt.input << INPUTS::RETURN # (submit invalid)
 
       # ...please select an owner using the space key before pressing enter.
 
-      prompt.input << "Artists" # Please select team owners
+      prompt.input << 'Artists' # Please select team owners
       prompt.input << INPUTS::SPACE # Rememebered the space this time
       prompt.input << INPUTS::RETURN # (Confirm selection)
 
