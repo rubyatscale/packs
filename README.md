@@ -43,12 +43,6 @@ If no pack name is passed in, this will list out violations across all packs.
 
 This can be used to quickly modify a `package.yml` file and add a dependency. It also cleans up the list of dependencies to sort the list and remove redundant entries.
 
-### Setting up Spring
-
-[Spring](https://github.com/rails/spring) is a preloader for Rails. Although `use_packs` itself does not use `Rails`, this can help speed up running commands like `bin/packs` by caching the bundle.
-Firstly, spring needs to know about the `bin/packs` command when spring is loading. To do that, add `require 'use_packs/spring_command'` to `config/spring.rb` in your application.
-Secondly, to enable Spring, first run `bin/spring binstub packs` which will "springify" the generated binstub.
-
 ### Releasing
 Releases happen automatically through github actions once a version update is committed to `main`.
 
