@@ -1,7 +1,7 @@
 # typed: strict
 # frozen_string_literal: true
 
-require 'use_packwerk'
+require 'use_packs'
 require 'tmpdir'
 
 RSpec.configure do |config|

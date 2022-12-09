@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.70.0)
+    use_packs (0.0.1)
       code_ownership
       colorize
       packwerk (>= 2.2.1)
@@ -36,7 +36,7 @@ GEM
       smart_properties
     builder (3.2.4)
     byebug (11.1.3)
-    code_ownership (1.29.0)
+    code_ownership (1.29.1)
       code_teams (~> 1.0)
       parse_packwerk
       sorbet-runtime
@@ -58,7 +58,7 @@ GEM
     method_source (1.0.0)
     mini_portile2 (2.8.0)
     minitest (5.16.3)
-    nokogiri (1.13.9)
+    nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     packwerk (2.2.2)
@@ -84,7 +84,7 @@ GEM
     pry-byebug (3.9.0)
       byebug (~> 11.0)
       pry (~> 0.13.0)
-    racc (1.6.0)
+    racc (1.6.1)
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
@@ -124,7 +124,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
-    rubocop-packs (0.0.29)
+    rubocop-packs (0.0.30)
       activesupport
       parse_packwerk
       rubocop
@@ -209,7 +209,7 @@ DEPENDENCIES
   sorbet
   sorbet-static
   tapioca
-  use_packwerk!
+  use_packs!
 
 BUNDLED WITH
    2.2.29
