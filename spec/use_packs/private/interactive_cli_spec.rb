@@ -26,7 +26,7 @@ module UsePacks
       write_file('config/teams/artists.yml', 'name: Artists')
       write_file('config/teams/bbs.yml', 'name: BBs')
 
-      expect(UsePackwerk).to receive(:create_pack!).with(pack_name: 'packs/my_new_pack', team: CodeTeams.find('Zebras'))
+      expect(UsePacks).to receive(:create_pack!).with(pack_name: 'packs/my_new_pack', team: CodeTeams.find('Zebras'))
       prompt.input << "Create\r"
       prompt.input << "my_new_pack\r"
       prompt.input << "\e[B" # down arrow
