@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # typed: strict
 
-require_relative '../lib/use_packwerk'
+require_relative '../lib/use_packs'
 
 if ARGV.empty?
-  UsePackwerk.start_interactive_mode!
+  UsePacks.start_interactive_mode!
 else
-  UsePackwerk::CLI.start(ARGV)
+  UsePacks::CLI.start(ARGV)
 end

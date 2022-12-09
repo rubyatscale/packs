@@ -2,7 +2,7 @@
 ## Pack Maintenance
 ### Setting Privacy
 ```ruby
-UsePackwerk.create_pack!(
+UsePacks.create_pack!(
     # This determines whether your package.yml in your new package will enforce privacy. See packwerk documentation for more details on this attribute.
     # This is an optional parameter (default is true). See https://github.com/Gusto/packs/discussions/19
     enforce_privacy: false,
@@ -11,7 +11,7 @@ UsePackwerk.create_pack!(
 ```
 
 ### Per-file Processors
-Your application may have specific needs when moving files. `UsePackwerk` gives a way to inject application-specific behavior into the file move process.
+Your application may have specific needs when moving files. `UsePacks` gives a way to inject application-specific behavior into the file move process.
 
 You can pass in an array of application specific behavior into the `per_file_processors` parameter of the main method.
 

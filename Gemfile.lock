@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    use_packwerk (0.70.0)
+    use_packs (0.69.0)
       code_ownership
       colorize
       packwerk (>= 2.2.1)
@@ -209,7 +209,7 @@ DEPENDENCIES
   sorbet
   sorbet-static
   tapioca
-  use_packwerk!
+  use_packs!
 
 BUNDLED WITH
    2.2.29
