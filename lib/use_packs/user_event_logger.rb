@@ -156,7 +156,7 @@ module UsePacks
       if pack_name.nil?
         pack_specific_content = <<~PACK_CONTENT
           You are listing top #{limit} dependency violations for all packs. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `use_packs list_top_dependency_violations #{pack_name} -l 1000`
+          Pass in a limit to display more or less, e.g. `bin/packs list_top_dependency_violations #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
           Anything not in pack_name/app/public is considered private API.
