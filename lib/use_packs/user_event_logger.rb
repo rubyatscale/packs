@@ -154,7 +154,7 @@ module UsePacks
     sig { params(pack_name: T.nilable(String), limit: Integer).returns(String) }
     def before_list_top_dependency_violations(pack_name, limit)
       if pack_name.nil?
-        pack_specific_content = <<~PACK_CONTENT
+        <<~PACK_CONTENT
           You are listing top #{limit} dependency violations for all packs. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `bin/packs list_top_dependency_violations #{pack_name} -l 1000`
 
@@ -162,7 +162,7 @@ module UsePacks
           Anything not in pack_name/app/public is considered private API.
         PACK_CONTENT
       else
-        pack_specific_content = <<~PACK_CONTENT
+        <<~PACK_CONTENT
           You are listing top #{limit} dependency violations for #{pack_name}. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `bin/packs list_top_dependency_violations #{pack_name} -l 1000`
 
@@ -170,40 +170,12 @@ module UsePacks
           Anything not in #{pack_name}/app/public is considered private API.
         PACK_CONTENT
       end
-
-      <<~MSG
-        #{pack_specific_content}
-
-        When using this script, ask yourself some questions like:
-        - What do I want to support?
-        - What do I *not* want to support?
-        - Which direction should a dependency go?
-        - What packs should depend on you, and what packs should not depend on you?
-        - Would it be simpler if other packs only depended on interfaces to your pack rather than implementation?
-
-        Looking at dependency violations can help guide the development of your public API, but it is just the beginning!
-
-        The script will output in the following format:
-
-        SomeConstant # This is the name of a class, constant, or module defined in your pack, outside of app/public
-          - Total Count: 5 # This is the total number of unstated uses of this outside your pack
-          - By package: # This is a breakdown of the use of this constant by other packages
-            # This is the number of files in this pack that this constant is used.
-            # Check `packs/other_pack_a/deprecated_references.yml` under the '#{pack_name}'.'SomeConstant' key to see where this constant is used
-            - packs/other_pack_a: 3
-            - packs/other_pack_b: 2
-        SomeClass # This is the second most violated class, constant, or module defined in your pack
-          - Total Count: 2
-          - By package:
-            - packs/other_pack_a: 1
-            - packs/other_pack_b: 1
-      MSG
     end
 
     sig { params(pack_name: T.nilable(String), limit: Integer).returns(String) }
     def before_list_top_privacy_violations(pack_name, limit)
       if pack_name.nil?
-        pack_specific_content = <<~PACK_CONTENT
+        <<~PACK_CONTENT
           You are listing top #{limit} privacy violations for all packs. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `bin/packs list_top_privacy_violations #{pack_name} -l 1000`
 
@@ -211,7 +183,7 @@ module UsePacks
           Anything not in pack_name/app/public is considered private API.
         PACK_CONTENT
       else
-        pack_specific_content = <<~PACK_CONTENT
+        <<~PACK_CONTENT
           You are listing top #{limit} privacy violations for #{pack_name}. See #{documentation_link} for other utilities!
           Pass in a limit to display more or less, e.g. `bin/packs list_top_privacy_violations #{pack_name} -l 1000`
 
@@ -219,36 +191,6 @@ module UsePacks
           Anything not in #{pack_name}/app/public is considered private API.
         PACK_CONTENT
       end
-
-      <<~MSG
-        #{pack_specific_content}
-
-        When using this script, ask yourself some questions like:
-        - What do I want to support?
-        - What do I *not* want to support?
-        - What is considered simply an implementation detail, and what is essential to the behavior of my pack?
-        - What is a simple, minimialistic API for clients to engage with the behavior of your pack?
-        - How do I ensure my public API is not coupled to specific client's use cases?
-
-        Looking at privacy violations can help guide the development of your public API, but it is just the beginning!
-
-        The script will output in the following format:
-
-        SomeConstant # This is the name of a class, constant, or module defined in your pack, outside of app/public
-          - Total Count: 5 # This is the total number of uses of this outside your pack
-          - By package: # This is a breakdown of the use of this constant by other packages
-            # This is the number of files in this pack that this constant is used.
-            # Check `packs/other_pack_a/deprecated_references.yml` under the '#{pack_name}'.'SomeConstant' key to see where this constant is used
-            - packs/other_pack_a: 3
-            - packs/other_pack_b: 2
-        SomeClass # This is the second most violated class, constant, or module defined in your pack
-          - Total Count: 2
-          - By package:
-            - packs/other_pack_a: 1
-            - packs/other_pack_b: 1
-
-        Lastly, remember you can use `bin/packs make_public #{pack_name}/path/to/file.rb` to make your class, constant, or module public API.
-      MSG
     end
 
     sig { returns(String) }
