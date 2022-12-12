@@ -19,35 +19,17 @@ module UsePacks
               teams = TeamSelector.multi_select(prompt)
               VisualizePackwerk.team_graph!(teams)
             else
-              by_name_or_by_owner = prompt.select(
-                'Do you select packs by name or by owner?',
-                ['By name', 'By owner']
-              )
-
-              selected_packs = get_selected_packs(prompt, select_by: by_name_or_by_owner)
-
-              while selected_packs.empty?
-                prompt.error(
-                  'No owners were selected, please select an owner using the space key before pressing enter.'
-                )
-
-                selected_packs = get_selected_packs(prompt, select_by: by_name_or_by_owner)
+              by_name_or_by_owner = prompt.select('Do you select packs by name or by owner?', ['By name', 'By owner'])
+              if by_name_or_by_owner == 'By owner'
+                teams = TeamSelector.multi_select(prompt)
+                selected_packs = ParsePackwerk.all.select do |p|
+                  teams.map(&:name).include?(CodeOwnership.for_package(p)&.name)
+                end
+              else
+                selected_packs = PackSelector.single_or_all_pack_multi_select(prompt)
               end
 
               VisualizePackwerk.package_graph!(selected_packs)
-            end
-          end
-
-          sig { params(prompt: TTY::Prompt, select_by: String).returns(T::Array[ParsePackwerk::Package]) }
-          def get_selected_packs(prompt, select_by:)
-            if select_by == 'By owner'
-              teams = TeamSelector.multi_select(prompt)
-
-              ParsePackwerk.all.select do |p|
-                teams.map(&:name).include?(CodeOwnership.for_package(p)&.name)
-              end
-            else
-              PackSelector.single_or_all_pack_multi_select(prompt)
             end
           end
 
