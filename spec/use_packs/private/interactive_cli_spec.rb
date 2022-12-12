@@ -3,6 +3,17 @@
 require 'tty/prompt/test'
 
 module UsePacks
+  module INPUTS
+    UP = "\e[A"
+    DOWN = "\e[B"
+    LEFT = "\e[D"
+    RIGHT = "\e[C"
+
+    RETURN = "\r"
+    SPACE = ' ' # For multi-select to make this explicit
+    EOF = "\C-d" # Ctrl-D - End of File
+  end
+
   RSpec.describe Private::InteractiveCli do
     let(:prompt) { TTY::Prompt::Test.new }
     subject do
@@ -29,9 +40,9 @@ module UsePacks
       expect(UsePacks).to receive(:create_pack!).with(pack_name: 'packs/my_new_pack', team: CodeTeams.find('Zebras'))
       prompt.input << "Create\r"
       prompt.input << "my_new_pack\r"
-      prompt.input << "\e[B" # down arrow
-      prompt.input << "\e[B" # down arrow
-      prompt.input << "\r"
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::RETURN
       prompt.input.rewind
       subject
     end
@@ -51,7 +62,7 @@ module UsePacks
       prompt.input << "public\r"
       prompt.input << "packs/my_pack/path/to/file.rb\r"
       prompt.input << "packs/my_pack/path/to/other_file.rb\r"
-      prompt.input << "\C-d"
+      prompt.input << INPUTS::EOF
       prompt.input.rewind
       expect(UsePacks).to receive(:make_public!).with(
         paths_relative_to_root: ['packs/my_pack/path/to/file.rb', 'packs/my_pack/path/to/other_file.rb'],
@@ -66,7 +77,7 @@ module UsePacks
       prompt.input << "my_destination_pack\r"
       prompt.input << "packs/my_pack/path/to/file.rb\r"
       prompt.input << "packs/my_pack/path/to/other_file.rb\r"
-      prompt.input << "\C-d"
+      prompt.input << INPUTS::EOF
       prompt.input.rewind
       expect(UsePacks).to receive(:move_to_pack!).with(
         pack_name: 'packs/my_destination_pack',
@@ -82,13 +93,68 @@ module UsePacks
       prompt.input << "my_destination_pack\r"
       prompt.input << "packs/my_pack/path/to/file.rb\r"
       prompt.input << "packs/my_pack/path/to/other_file.rb\r"
-      prompt.input << "\C-d"
+      prompt.input << INPUTS::EOF
       prompt.input.rewind
       expect(UsePacks).to receive(:move_to_pack!).with(
         pack_name: 'packs/my_destination_pack',
         paths_relative_to_root: ['packs/my_pack/path/to/file.rb', 'packs/my_pack/path/to/other_file.rb'],
         per_file_processors: anything
       )
+      subject
+    end
+
+    it 'allows visualizing packs interactively' do
+      write_package_yml('packs/my_destination_pack', owner: 'Artists')
+      write_file('config/teams/artists.yml', 'name: Artists')
+
+      prompt.input << "Visualize\r" # Hello! What would you like to do?
+
+      prompt.input << INPUTS::DOWN # Do you want the graph nodes to be teams or packs?
+      prompt.input << INPUTS::RETURN # (Confirms 'Packs')
+
+      prompt.input << INPUTS::DOWN # Do you select packs by name or by owner?
+      prompt.input << INPUTS::RETURN # (Confirms 'owner')
+
+      prompt.input << 'Artists' # Please select team owners
+      prompt.input << INPUTS::SPACE # (Select it)
+      prompt.input << INPUTS::RETURN # (Confirm selection)
+      prompt.input << INPUTS::EOF
+
+      prompt.input.rewind
+
+      expect(VisualizePackwerk).to receive(:package_graph!).with([ParsePackwerk.all.first])
+
+      subject
+    end
+
+    it 'fails to visualize if no packs are selected' do
+      write_package_yml('packs/my_destination_pack', owner: 'Artists')
+      write_file('config/teams/artists.yml', 'name: Artists')
+
+      prompt.input << "Visualize\r" # Hello! What would you like to do?
+
+      prompt.input << INPUTS::DOWN # Do you want the graph nodes to be teams or packs?
+      prompt.input << INPUTS::RETURN # (Confirms 'Packs')
+
+      prompt.input << INPUTS::DOWN # Do you select packs by name or by owner?
+      prompt.input << INPUTS::RETURN # (Confirms 'owner')
+
+      prompt.input << 'Artists' # Please select team owners
+      # prompt.input << INPUTS::SPACE # We "forgot" to use space here! (simulate failure case)
+      prompt.input << INPUTS::RETURN # (submit invalid)
+
+      # ...please select an owner using the space key before pressing enter.
+
+      prompt.input << 'Artists' # Please select team owners
+      prompt.input << INPUTS::SPACE # Rememebered the space this time
+      prompt.input << INPUTS::RETURN # (Confirm selection)
+
+      prompt.input << INPUTS::EOF
+
+      prompt.input.rewind
+
+      expect(VisualizePackwerk).to receive(:package_graph!).with([ParsePackwerk.all.first])
+
       subject
     end
   end
