@@ -9,15 +9,14 @@ module UsePacks
         sig { params(prompt: TTY::Prompt, question_text: String).returns(CodeTeams::Team) }
         def self.single_select(prompt, question_text: 'Please use space to select a team owner')
           teams = CodeTeams.all.sort_by(&:name).to_h { |t| [t.name, t] }
-          team_selection = T.let(nil, T.nilable(CodeTeams::Team))
 
-          team_selection = prompt.select(
+          team_selection = T.let(prompt.select(
             question_text,
             teams,
             filter: true,
             per_page: 10,
             show_help: :always
-          )
+          ), T.nilable(CodeTeams::Team))
 
           while team_selection.nil?
             prompt.error(
@@ -33,15 +32,14 @@ module UsePacks
         sig { params(prompt: TTY::Prompt, question_text: String).returns(T::Array[CodeTeams::Team]) }
         def self.multi_select(prompt, question_text: 'Please use space to select team owners')
           teams = CodeTeams.all.to_h { |t| [t.name, t] }
-          team_selection = T.let([], T::Array[CodeTeams::Team])
 
-          team_selection = prompt.multi_select(
+          team_selection = T.let(prompt.multi_select(
             question_text,
             teams,
             filter: true,
             per_page: 10,
             show_help: :always
-          )
+          ), T::Array[CodeTeams::Team])
 
           while team_selection.empty?
             prompt.error(
