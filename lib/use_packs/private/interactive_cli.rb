@@ -5,6 +5,7 @@ require 'tty-prompt'
 
 require 'use_packs/private/interactive_cli/team_selector'
 require 'use_packs/private/interactive_cli/pack_selector'
+require 'use_packs/private/interactive_cli/file_selector'
 require 'use_packs/private/interactive_cli/use_cases/interface'
 require 'use_packs/private/interactive_cli/use_cases/create'
 require 'use_packs/private/interactive_cli/use_cases/move'

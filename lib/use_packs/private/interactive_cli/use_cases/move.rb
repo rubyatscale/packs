@@ -12,11 +12,7 @@ module UsePacks
           sig { override.params(prompt: TTY::Prompt).void }
           def perform!(prompt)
             pack = PackSelector.single_pack_select(prompt, question_text: 'Please select a destination pack')
-            raw_paths_relative_to_root = prompt.multiline('Please copy in a space or new line separated list of files or directories')
-            paths_relative_to_root = T.let([], T::Array[String])
-            raw_paths_relative_to_root.each do |path|
-              paths_relative_to_root += path.chomp.split
-            end
+            paths_relative_to_root = FileSelector.select(prompt)
 
             UsePacks.move_to_pack!(
               pack_name: pack.name,
