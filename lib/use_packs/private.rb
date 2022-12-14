@@ -109,7 +109,7 @@ module UsePacks
             if origin_pathname.directory?
               origin_pathname.glob('**/*.*').reject do |origin_path|
                 origin_path.to_s.include?(ParsePackwerk::PACKAGE_YML_NAME) ||
-                  origin_path.to_s.include?(ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME)
+                  origin_path.to_s.include?(ParsePackwerk::PACKAGE_TODO_YML_NAME)
               end
             else
               origin_pathname
@@ -184,7 +184,7 @@ module UsePacks
 
       # Then delete the old package.yml and deprecated_references.yml files
       package.yml.delete
-      deprecated_references_file = ParsePackwerk::DeprecatedReferences.for(package).pathname
+      deprecated_references_file = ParsePackwerk::PackageTodo.for(package).pathname
       deprecated_references_file.delete if deprecated_references_file.exist?
 
       ParsePackwerk.bust_cache!
@@ -406,7 +406,7 @@ module UsePacks
     def self.get_deprecated_references_contents
       deprecated_references = {}
       ParsePackwerk.all.each do |package|
-        deprecated_references_yml = ParsePackwerk::DeprecatedReferences.for(package).pathname
+        deprecated_references_yml = ParsePackwerk::PackageTodo.for(package).pathname
         if deprecated_references_yml.exist?
           deprecated_references[deprecated_references_yml.to_s] = deprecated_references_yml.read
         end

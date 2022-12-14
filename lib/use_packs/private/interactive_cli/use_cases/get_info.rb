@@ -30,8 +30,7 @@ module UsePacks
             inbound_violations = {}
             outbound_violations = {}
             ParsePackwerk.all.each do |p|
-              violations_for_pack = ParsePackwerk::DeprecatedReferences.for(p).violations
-              violations_for_pack.each do |violation|
+              p.violations.each do |violation|
                 outbound_violations[p.name] ||= []
                 outbound_violations[p.name] << violation
                 inbound_violations[violation.to_package_name] ||= []
