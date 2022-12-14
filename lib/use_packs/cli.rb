@@ -78,10 +78,10 @@ module UsePacks
       )
     end
 
-    desc 'lint_deprecated_references_yml_files', 'Ensures `deprecated_references.yml` files are up to date'
+    desc 'lint_package_todo_yml_files', 'Ensures `package_todo.yml` files are up to date'
     sig { void }
-    def lint_deprecated_references_yml_files
-      UsePacks.lint_deprecated_references_yml_files!
+    def lint_package_todo_yml_files
+      UsePacks.lint_package_todo_yml_files!
     end
 
     desc 'lint_package_yml_files [ packs/my_pack packs/my_other_pack ]', 'Lint `package.yml` files'
@@ -102,10 +102,10 @@ module UsePacks
       system("bin/packwerk check #{paths.join(' ')}")
     end
 
-    desc 'update [ packs/my_pack ]', 'Run bin/packwerk update-deprecations'
+    desc 'update [ packs/my_pack ]', 'Run bin/packwerk update-todo'
     sig { params(paths: String).void }
     def update(*paths)
-      system("bin/packwerk update-deprecations #{paths.join(' ')}")
+      system("bin/packwerk update-todo #{paths.join(' ')}")
     end
 
     desc 'regenerate_rubocop_todo [ packs/my_pack packs/my_other_pack ]', "Regenerate packs/*/#{RuboCop::Packs::PACK_LEVEL_RUBOCOP_TODO_YML} for one or more packs"

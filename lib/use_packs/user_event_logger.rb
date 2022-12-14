@@ -21,7 +21,7 @@ module UsePacks
 
         1) Move files into your pack with `bin/packs move #{pack_name} path/to/file.rb`
 
-        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
+        2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
         3) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
 
@@ -41,7 +41,7 @@ module UsePacks
       <<~MSG
         Your next steps might be:
 
-        1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
+        1) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
         2) Touch base with each team who owns files involved in this move
 
@@ -63,7 +63,7 @@ module UsePacks
       <<~MSG
         Your next steps might be:
 
-        1) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
+        1) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
         2) Work to migrate clients of private API to your new public API
 
@@ -85,7 +85,7 @@ module UsePacks
 
         1) Run `bin/packwerk validate` to ensure you haven't introduced a cyclic dependency
 
-        2) Run `bin/packwerk update-deprecations` to update the violations.
+        2) Run `bin/packwerk update-todo` to update the violations.
       MSG
     end
 
@@ -103,7 +103,7 @@ module UsePacks
 
         1) Delete the old pack when things look good: `rm -rf #{pack_name}`
 
-        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` first.
+        2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` first.
       MSG
     end
 

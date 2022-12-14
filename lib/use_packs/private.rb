@@ -182,10 +182,10 @@ module UsePacks
         per_file_processors: per_file_processors
       )
 
-      # Then delete the old package.yml and deprecated_references.yml files
+      # Then delete the old package.yml and package_todo.yml files
       package.yml.delete
-      deprecated_references_file = ParsePackwerk::PackageTodo.for(package).pathname
-      deprecated_references_file.delete if deprecated_references_file.exist?
+      package_todo_file = ParsePackwerk::PackageTodo.for(package).pathname
+      package_todo_file.delete if package_todo_file.exist?
 
       ParsePackwerk.bust_cache!
 
@@ -403,29 +403,29 @@ module UsePacks
     end
 
     sig { returns(T::Hash[String, String]) }
-    def self.get_deprecated_references_contents
-      deprecated_references = {}
+    def self.get_package_todo_contents
+      package_todo = {}
       ParsePackwerk.all.each do |package|
-        deprecated_references_yml = ParsePackwerk::PackageTodo.for(package).pathname
-        if deprecated_references_yml.exist?
-          deprecated_references[deprecated_references_yml.to_s] = deprecated_references_yml.read
+        package_todo_yml = ParsePackwerk::PackageTodo.for(package).pathname
+        if package_todo_yml.exist?
+          package_todo[package_todo_yml.to_s] = package_todo_yml.read
         end
       end
 
-      deprecated_references
+      package_todo
     end
 
-    DeprecatedReferencesFiles = T.type_alias do
+    PackageTodoFiles = T.type_alias do
       T::Hash[String, T.nilable(String)]
     end
 
-    sig { params(before: DeprecatedReferencesFiles, after: DeprecatedReferencesFiles).returns(String) }
-    def self.diff_deprecated_references_yml(before, after)
+    sig { params(before: PackageTodoFiles, after: PackageTodoFiles).returns(String) }
+    def self.diff_package_todo_yml(before, after)
       dir_containing_contents_before = Dir.mktmpdir
       dir_containing_contents_after = Dir.mktmpdir
       begin
-        write_deprecated_references_to_tmp_folder(before, dir_containing_contents_before)
-        write_deprecated_references_to_tmp_folder(after, dir_containing_contents_after)
+        write_package_todo_to_tmp_folder(before, dir_containing_contents_before)
+        write_package_todo_to_tmp_folder(after, dir_containing_contents_after)
 
         diff = `diff -r #{dir_containing_contents_before}/ #{dir_containing_contents_after}/`
         # For ease of reading, sub out the tmp directory from the diff
@@ -436,15 +436,15 @@ module UsePacks
       end
     end
 
-    sig { params(deprecated_references_files: DeprecatedReferencesFiles, tmp_folder: String).void }
-    def self.write_deprecated_references_to_tmp_folder(deprecated_references_files, tmp_folder)
-      deprecated_references_files.each do |filename, contents|
+    sig { params(package_todo_files: PackageTodoFiles, tmp_folder: String).void }
+    def self.write_package_todo_to_tmp_folder(package_todo_files, tmp_folder)
+      package_todo_files.each do |filename, contents|
         next if contents.nil?
 
         tmp_folder_pathname = Pathname.new(tmp_folder)
-        temp_deprecated_references_yml = tmp_folder_pathname.join(filename)
-        FileUtils.mkdir_p(temp_deprecated_references_yml.dirname)
-        temp_deprecated_references_yml.write(contents)
+        temp_package_todo_yml = tmp_folder_pathname.join(filename)
+        FileUtils.mkdir_p(temp_package_todo_yml.dirname)
+        temp_package_todo_yml.write(contents)
       end
     end
   end
