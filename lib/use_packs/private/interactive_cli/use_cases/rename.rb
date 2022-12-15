@@ -22,7 +22,7 @@ module UsePacks
               Follow these steps:
               1. Rename the `packs/your_pack` directory to the name of the new pack, `packs/new_pack_name
               2. Replace references to `- packs/your_pack` in `package.yml` files with `- packs/new_pack_name`
-              3. Rerun `bin/packwerk update-deprecations` to update violations
+              3. Rerun `bin/packwerk update-todo` to update violations
               4. Run `bin/codeownership validate` to update ownership information
               5. Please let us know if anything is missing.
             WARNING

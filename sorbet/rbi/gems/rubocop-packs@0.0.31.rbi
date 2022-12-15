@@ -16,6 +16,11 @@ class RuboCop::Cop::Packs::ClassMethodsAsPublicApis < ::RuboCop::Cop::Base
 
   sig { returns(T::Boolean) }
   def support_autocorrect?; end
+
+  private
+
+  sig { params(node: T.untyped).returns(T::Boolean) }
+  def node_includes_acceptable_mixin?(node); end
 end
 
 class RuboCop::Cop::Packs::DocumentedPublicApis < ::RuboCop::Cop::Style::DocumentationMethod
@@ -137,7 +142,7 @@ module RuboCop::Cop::PackwerkLite::Private
         type: ::String
       ).returns(T::Boolean)
     end
-    def violation_in_deprecated_references_yml?(constant_reference, type: T.unsafe(nil)); end
+    def violation_in_package_todo_yml?(constant_reference, type: T.unsafe(nil)); end
   end
 end
 

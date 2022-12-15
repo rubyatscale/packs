@@ -1156,7 +1156,7 @@ RSpec.describe UsePacks do
       write_package_yml('packs/fruits')
       write_package_yml('packs/apples', dependencies: ['packs/other_pack'], metadata: { 'custom_field' => 'custom value' })
 
-      write_file('packs/apples/deprecated_references.yml', <<~CONTENTS)
+      write_file('packs/apples/package_todo.yml', <<~CONTENTS)
         ---
         ".":
           "SomeConstant":
@@ -1196,7 +1196,7 @@ RSpec.describe UsePacks do
                                   'packs/apples/app/services/apples.rb',
                                   'packs/apples/app/services/apples/foo.rb',
                                   'packs/apples/package.yml',
-                                  'packs/apples/deprecated_references.yml',
+                                  'packs/apples/package_todo.yml',
                                   'packs/apples/README.md'
                                 ])
 
@@ -1248,7 +1248,7 @@ RSpec.describe UsePacks do
 
         1) Delete the old pack when things look good: `rm -rf packs/apples`
 
-        2) Run `bin/packwerk update-deprecations` to update the violations. Make sure to run `spring stop` first.
+        2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` first.
 
       OUTPUT
     end
@@ -1313,26 +1313,26 @@ RSpec.describe UsePacks do
     end
   end
 
-  describe 'lint_deprecated_references_yml_files' do
-    let(:args) { ['lint_deprecated_references_yml_files'] }
+  describe 'package_todo_yml_files' do
+    let(:args) { ['package_todo_yml_files'] }
 
-    context 'no diff after running update-deprecations' do
+    context 'no diff after running update-todo' do
       it 'exits successfully' do
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-deprecations'])
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo'])
         expect(UsePacks).to receive(:exit).with(0)
         expect(UsePacks).to_not receive(:puts)
-        UsePacks.lint_deprecated_references_yml_files!
+        UsePacks.lint_package_todo_yml_files!
       end
     end
 
-    context 'some stale violations removed after running update-deprecations' do
+    context 'some stale violations removed after running update-todo' do
       it 'exits in a failure' do
         write_file('packs/my_pack/package.yml', <<~CONTENTS)
           enforce_privacy: true
           enforce_dependnecy: true
         CONTENTS
 
-        write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+        write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
           ---
           packs/my_other_pack:
             "::SomeConstant":
@@ -1343,8 +1343,8 @@ RSpec.describe UsePacks do
               - packs/my_pack/app/services/my_pack_2.rb
         CONTENTS
 
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-deprecations']) do
-          write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo']) do
+          write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
             ---
             packs/my_other_pack:
               "::SomeConstant":
@@ -1356,19 +1356,19 @@ RSpec.describe UsePacks do
         end
 
         expect(UsePacks).to receive(:puts).with(<<~EXPECTED)
-          All `deprecated_references.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
+          All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-todo`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
           There are three main reasons there may be a diff:
           1) Most likely, you may have stale violations, meaning there are old violations that no longer apply.
           2) You may have some sort of auto-formatter set up somewhere (e.g. something that reformats YML files) that is, for example, changing double quotes to single quotes. Ensure this is turned off for these auto-generated files.
-          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-deprecations` command to make changes to `deprecated_references.yml` files.
+          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-todo` command to make changes to `package_todo.yml` files.
 
-          In all cases, you can run `bin/packwerk update-deprecations` to update these files.
+          In all cases, you can run `bin/packwerk update-todo` to update these files.
 
-          Here is the diff generated after running `update-deprecations`:
+          Here is the diff generated after running `update-todo`:
           ```
-          diff -r /packs/my_pack/deprecated_references.yml /packs/my_pack/deprecated_references.yml
+          diff -r /packs/my_pack/package_todo.yml /packs/my_pack/package_todo.yml
           8d7
           <     - packs/my_pack/app/services/my_pack_2.rb
 
@@ -1377,22 +1377,22 @@ RSpec.describe UsePacks do
         EXPECTED
 
         expect(UsePacks).to receive(:exit).with(1)
-        UsePacks.lint_deprecated_references_yml_files!
+        UsePacks.lint_package_todo_yml_files!
       end
     end
 
-    context 'some formatting changes after running update-deprecations' do
+    context 'some formatting changes after running update-todo' do
       it 'exits in a failure' do
         callback_invocation = false
         UsePacks.configure do |config|
-          config.on_deprecated_references_lint_failure = ->(output) { callback_invocation = output }
+          config.on_package_todo_lint_failure = ->(output) { callback_invocation = output }
         end
         write_file('packs/my_pack/package.yml', <<~CONTENTS)
           enforce_privacy: true
           enforce_dependnecy: true
         CONTENTS
 
-        write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+        write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
           ---
           packs/my_other_pack:
             '::SomeConstant':
@@ -1403,8 +1403,8 @@ RSpec.describe UsePacks do
               - packs/my_pack/app/services/my_pack_2.rb
         CONTENTS
 
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-deprecations']) do
-          write_file('packs/my_pack/deprecated_references.yml', <<~CONTENTS)
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo']) do
+          write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
             ---
             packs/my_other_pack:
               "::SomeConstant":
@@ -1417,19 +1417,19 @@ RSpec.describe UsePacks do
         end
 
         expect(UsePacks).to receive(:puts).with(<<~EXPECTED)
-          All `deprecated_references.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-deprecations`.
+          All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-todo`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
           There are three main reasons there may be a diff:
           1) Most likely, you may have stale violations, meaning there are old violations that no longer apply.
           2) You may have some sort of auto-formatter set up somewhere (e.g. something that reformats YML files) that is, for example, changing double quotes to single quotes. Ensure this is turned off for these auto-generated files.
-          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-deprecations` command to make changes to `deprecated_references.yml` files.
+          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-todo` command to make changes to `package_todo.yml` files.
 
-          In all cases, you can run `bin/packwerk update-deprecations` to update these files.
+          In all cases, you can run `bin/packwerk update-todo` to update these files.
 
-          Here is the diff generated after running `update-deprecations`:
+          Here is the diff generated after running `update-todo`:
           ```
-          diff -r /packs/my_pack/deprecated_references.yml /packs/my_pack/deprecated_references.yml
+          diff -r /packs/my_pack/package_todo.yml /packs/my_pack/package_todo.yml
           3c3
           <   '::SomeConstant':
           ---
@@ -1440,8 +1440,8 @@ RSpec.describe UsePacks do
         EXPECTED
 
         expect(UsePacks).to receive(:exit).with(1)
-        UsePacks.lint_deprecated_references_yml_files!
-        expect(callback_invocation).to include('All `deprecated_references.yml` files must be up-to-date')
+        UsePacks.lint_package_todo_yml_files!
+        expect(callback_invocation).to include('All `package_todo.yml` files must be up-to-date')
       end
     end
   end
@@ -1452,13 +1452,13 @@ RSpec.describe UsePacks do
       write_package_yml('packs/food')
       write_package_yml('packs/organisms')
 
-      write_file('deprecated_references.yml', <<~CONTENTS)
+      write_file('package_todo.yml', <<~CONTENTS)
         # This file contains a list of dependencies that are not part of the long term plan for ..
         # We should generally work to reduce this list, but not at the expense of actually getting work done.
         #
         # You can regenerate this file using the following command:
         #
-        # bundle exec packwerk update-deprecations .
+        # bundle exec packwerk update-todo .
         ---
         "packs/food":
           "Salad":
@@ -1468,13 +1468,13 @@ RSpec.describe UsePacks do
             - random_monolith_file.rb
       CONTENTS
 
-      write_file('packs/food/deprecated_references.yml', <<~CONTENTS)
+      write_file('packs/food/package_todo.yml', <<~CONTENTS)
         # This file contains a list of dependencies that are not part of the long term plan for ..
         # We should generally work to reduce this list, but not at the expense of actually getting work done.
         #
         # You can regenerate this file using the following command:
         #
-        # bundle exec packwerk update-deprecations .
+        # bundle exec packwerk update-todo .
         ---
         ".":
           "RandomMonolithFile":
@@ -1506,13 +1506,13 @@ RSpec.describe UsePacks do
             - packs/food/app/services/salad.rb
       CONTENTS
 
-      write_file('packs/organisms/deprecated_references.yml', <<~CONTENTS)
+      write_file('packs/organisms/package_todo.yml', <<~CONTENTS)
         # This file contains a list of dependencies that are not part of the long term plan for ..
         # We should generally work to reduce this list, but not at the expense of actually getting work done.
         #
         # You can regenerate this file using the following command:
         #
-        # bundle exec packwerk update-deprecations .
+        # bundle exec packwerk update-todo .
         ---
         ".":
           "RandomMonolithFile":

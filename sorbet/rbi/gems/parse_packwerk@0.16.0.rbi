@@ -53,23 +53,7 @@ ParsePackwerk::DEFAULT_EXCLUDE_GLOBS = T.let(T.unsafe(nil), Array)
 ParsePackwerk::DEFAULT_PACKAGE_PATHS = T.let(T.unsafe(nil), Array)
 ParsePackwerk::DEFAULT_PUBLIC_PATH = T.let(T.unsafe(nil), String)
 ParsePackwerk::DEPENDENCIES = T.let(T.unsafe(nil), String)
-ParsePackwerk::DEPRECATED_REFERENCES_YML_NAME = T.let(T.unsafe(nil), String)
-
-class ParsePackwerk::DeprecatedReferences < ::T::Struct
-  const :pathname, ::Pathname
-  const :violations, T::Array[::ParsePackwerk::Violation]
-
-  class << self
-    sig { params(package: ::ParsePackwerk::Package).returns(::ParsePackwerk::DeprecatedReferences) }
-    def for(package); end
-
-    sig { params(pathname: ::Pathname).returns(::ParsePackwerk::DeprecatedReferences) }
-    def from(pathname); end
-
-    def inherited(s); end
-  end
-end
-
+ParsePackwerk::DEPENDENCY_VIOLATION_TYPE = T.let(T.unsafe(nil), String)
 ParsePackwerk::ENFORCE_DEPENDENCIES = T.let(T.unsafe(nil), String)
 ParsePackwerk::ENFORCE_PRIVACY = T.let(T.unsafe(nil), String)
 ParsePackwerk::METADATA = T.let(T.unsafe(nil), String)
@@ -80,8 +64,10 @@ class ParsePackwerk::MissingConfiguration < ::StandardError
   def initialize(packwerk_file_name); end
 end
 
+ParsePackwerk::PACKAGE_TODO_YML_NAME = T.let(T.unsafe(nil), String)
 ParsePackwerk::PACKAGE_YML_NAME = T.let(T.unsafe(nil), String)
 ParsePackwerk::PACKWERK_YML_NAME = T.let(T.unsafe(nil), String)
+ParsePackwerk::PRIVACY_VIOLATION_TYPE = T.let(T.unsafe(nil), String)
 ParsePackwerk::PUBLIC_PATH = T.let(T.unsafe(nil), String)
 
 class ParsePackwerk::Package < ::T::Struct
@@ -132,6 +118,21 @@ class ParsePackwerk::PackageSet
 
     sig { params(globs: T::Array[::String], path: ::Pathname).returns(T::Boolean) }
     def exclude_path?(globs, path); end
+  end
+end
+
+class ParsePackwerk::PackageTodo < ::T::Struct
+  const :pathname, ::Pathname
+  const :violations, T::Array[::ParsePackwerk::Violation]
+
+  class << self
+    sig { params(package: ::ParsePackwerk::Package).returns(::ParsePackwerk::PackageTodo) }
+    def for(package); end
+
+    sig { params(pathname: ::Pathname).returns(::ParsePackwerk::PackageTodo) }
+    def from(pathname); end
+
+    def inherited(s); end
   end
 end
 
