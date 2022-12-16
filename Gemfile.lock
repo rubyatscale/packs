@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/Shopify/packwerk.git
-  revision: 8476bb3cd5452765ad452d36aa45ae724f1d44f5
+  revision: 7428f23e243a4a172ddb4e28021a732e2c9abc1a
   branch: main
   specs:
     packwerk (2.2.1)
