@@ -1,6 +1,6 @@
 GIT
-  remote: https://github.com/Shopify/packwerk
-  revision: af7b0aa2a2aa3920b398b50fd8beac902a92ed26
+  remote: https://github.com/Shopify/packwerk.git
+  revision: 8476bb3cd5452765ad452d36aa45ae724f1d44f5
   branch: main
   specs:
     packwerk (2.2.1)
@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    use_packs (0.0.5)
+    use_packs (0.0.6)
       code_ownership
       colorize
       packwerk
@@ -78,7 +78,7 @@ GEM
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     parallel (1.22.1)
-    parse_packwerk (0.16.0)
+    parse_packwerk (0.17.0)
       sorbet-runtime
     parser (3.1.2.0)
       ast (~> 2.4.1)
