@@ -24,9 +24,7 @@ module UsePacks
           ''
         end
 
-        # T.untyped should be Packwerk::OffenseCollection, but is currently private until
-        # https://github.com/Shopify/packwerk/pull/289 merges
-        sig { override.params(offense_collection: T.untyped, for_files: T::Set[String]).returns(String) }
+        sig { override.params(offense_collection: Packwerk::OffenseCollection, for_files: T::Set[String]).returns(String) }
         def show_stale_violations(offense_collection, for_files)
           ''
         end
