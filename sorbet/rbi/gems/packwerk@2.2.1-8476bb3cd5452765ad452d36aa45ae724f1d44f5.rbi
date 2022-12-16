@@ -317,23 +317,7 @@ class Packwerk::ConstNodeInspector
   def root_constant?(parent); end
 end
 
-class Packwerk::ConstantDiscovery
-  sig { params(constant_resolver: ::ConstantResolver, packages: Packwerk::PackageSet).void }
-  def initialize(constant_resolver:, packages:); end
-
-  sig do
-    params(
-      const_name: ::String,
-      current_namespace_path: T.nilable(T::Array[::String])
-    ).returns(T.nilable(::Packwerk::ConstantDiscovery::ConstantContext))
-  end
-  def context_for(const_name, current_namespace_path: T.unsafe(nil)); end
-
-  sig { params(path: ::String).returns(::Packwerk::Package) }
-  def package_from_path(path); end
-end
-
-class Packwerk::ConstantDiscovery::ConstantContext < ::Struct
+class Packwerk::ConstantContext < ::Struct
   def location; end
   def location=(_); end
   def name; end
@@ -347,6 +331,22 @@ class Packwerk::ConstantDiscovery::ConstantContext < ::Struct
     def members; end
     def new(*_arg0); end
   end
+end
+
+class Packwerk::ConstantDiscovery
+  sig { params(constant_resolver: ::ConstantResolver, packages: Packwerk::PackageSet).void }
+  def initialize(constant_resolver:, packages:); end
+
+  sig do
+    params(
+      const_name: ::String,
+      current_namespace_path: T.nilable(T::Array[::String])
+    ).returns(T.nilable(::Packwerk::ConstantContext))
+  end
+  def context_for(const_name, current_namespace_path: T.unsafe(nil)); end
+
+  sig { params(path: ::String).returns(::Packwerk::Package) }
+  def package_from_path(path); end
 end
 
 module Packwerk::ConstantNameInspector
@@ -588,7 +588,7 @@ class Packwerk::Graph
   def visit(node, visited_nodes: T.unsafe(nil), path: T.unsafe(nil)); end
 end
 
-class Packwerk::Node; end
+module Packwerk::Node; end
 
 class Packwerk::Node::Location < ::Struct
   def column; end
@@ -1080,7 +1080,7 @@ class Packwerk::Parsers::Erb
   sig { override.params(io: T.any(::IO, ::StringIO), file_path: ::String).returns(T.untyped) }
   def call(io:, file_path: T.unsafe(nil)); end
 
-  sig { params(buffer: ::Parser::Source::Buffer, file_path: ::String).returns(T.untyped) }
+  sig { params(buffer: ::Parser::Source::Buffer, file_path: ::String).returns(T.nilable(::AST::Node)) }
   def parse_buffer(buffer, file_path:); end
 
   private
@@ -1093,7 +1093,7 @@ class Packwerk::Parsers::Erb
   end
   def code_nodes(node, &block); end
 
-  sig { params(erb_ast: T.all(::AST::Node, ::Object), file_path: ::String).returns(::AST::Node) }
+  sig { params(erb_ast: T.all(::AST::Node, ::Object), file_path: ::String).returns(T.nilable(::AST::Node)) }
   def to_ruby_ast(erb_ast, file_path); end
 end
 
@@ -1140,7 +1140,7 @@ class Packwerk::Parsers::Ruby
   sig { params(parser_class: T.untyped).void }
   def initialize(parser_class: T.unsafe(nil)); end
 
-  sig { override.params(io: T.any(::IO, ::StringIO), file_path: ::String).returns(T.untyped) }
+  sig { override.params(io: T.any(::IO, ::StringIO), file_path: ::String).returns(T.nilable(::Parser::AST::Node)) }
   def call(io:, file_path: T.unsafe(nil)); end
 end
 
