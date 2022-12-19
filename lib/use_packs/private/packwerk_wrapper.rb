@@ -46,6 +46,12 @@ module UsePacks
         formatter.aggregated_offenses.compact
       end
 
+      sig { void }
+      def self.validate!
+        formatter = OffensesAggregatorFormatter.new
+        packwerk_cli_execute_safely(['validate'], formatter)
+      end
+
       sig { params(files: T::Array[String]).returns(T::Array[Packwerk::ReferenceOffense]) }
       def self.get_offenses_for_files_by_package(files)
         packages = package_names_for_files(files)
