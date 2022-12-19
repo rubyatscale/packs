@@ -8,13 +8,6 @@ module UsePacks
     module PackwerkWrapper
       extend T::Sig
 
-      sig { params(argv: T.untyped, formatter: Packwerk::OffensesFormatter).void }
-      def self.packwerk_cli_run_safely(argv, formatter)
-        with_safe_exit_if_no_files_found do
-          packwerk_cli(formatter).run(argv)
-        end
-      end
-
       #
       # execute_command is like `run` except it does not `exit`
       #
