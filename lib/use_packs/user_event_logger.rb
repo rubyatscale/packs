@@ -83,9 +83,7 @@ module UsePacks
       <<~MSG
         Your next steps might be:
 
-        1) Run `bin/packwerk validate` to ensure you haven't introduced a cyclic dependency
-
-        2) Run `bin/packwerk update-todo` to update the violations.
+        1) Run `bin/packwerk update-todo` to update the violations.
       MSG
     end
 
