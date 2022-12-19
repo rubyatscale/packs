@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    use_packs (0.0.8)
+    use_packs (0.0.9)
       code_ownership
       colorize
       packwerk

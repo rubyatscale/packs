@@ -292,6 +292,7 @@ module UsePacks
         metadata: package.metadata
       )
       ParsePackwerk.write_package_yml!(new_package)
+      PackwerkWrapper.validate!
     end
 
     sig { params(file_move_operation: FileMoveOperation, per_file_processors: T::Array[UsePacks::PerFileProcessorInterface]).void }

@@ -8,13 +8,6 @@ module UsePacks
     module PackwerkWrapper
       extend T::Sig
 
-      sig { params(argv: T.untyped, formatter: Packwerk::OffensesFormatter).void }
-      def self.packwerk_cli_run_safely(argv, formatter)
-        with_safe_exit_if_no_files_found do
-          packwerk_cli(formatter).run(argv)
-        end
-      end
-
       #
       # execute_command is like `run` except it does not `exit`
       #
@@ -51,6 +44,12 @@ module UsePacks
         formatter = OffensesAggregatorFormatter.new
         packwerk_cli_execute_safely(['check', *files], formatter)
         formatter.aggregated_offenses.compact
+      end
+
+      sig { void }
+      def self.validate!
+        formatter = OffensesAggregatorFormatter.new
+        packwerk_cli_execute_safely(['validate'], formatter)
       end
 
       sig { params(files: T::Array[String]).returns(T::Array[Packwerk::ReferenceOffense]) }
