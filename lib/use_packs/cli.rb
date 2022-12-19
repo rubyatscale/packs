@@ -99,7 +99,7 @@ module UsePacks
     desc 'check [ packs/my_pack ]', 'Run bin/packwerk check'
     sig { params(paths: String).void }
     def check(*paths)
-      system("bin/packwerk check #{paths.join(' ')}")
+      UsePacks.execute(['check', *paths])
     end
 
     desc 'update [ packs/my_pack ]', 'Run bin/packwerk update-todo'
