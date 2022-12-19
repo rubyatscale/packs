@@ -1089,10 +1089,11 @@ RSpec.describe UsePacks do
 
   describe '.add_dependency!' do
     context 'pack has no dependencies' do
-      it 'adds the dependency' do
+      it 'adds the dependency and runs validate' do
         write_package_yml('packs/other_pack')
 
         expect(ParsePackwerk.find('.').dependencies).to eq([])
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
         UsePacks.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/other_pack'])
@@ -1100,10 +1101,11 @@ RSpec.describe UsePacks do
     end
 
     context 'pack has one dependency' do
-      it 'adds the dependency' do
+      it 'adds the dependency and runs validate' do
         write_package_yml('.', dependencies: ['packs/foo'])
         write_package_yml('packs/other_pack')
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo'])
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
         UsePacks.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/other_pack'])
@@ -1111,10 +1113,11 @@ RSpec.describe UsePacks do
     end
 
     context 'pack has redundant dependency' do
-      it 'adds the dependency and removes the redundant one' do
+      it 'adds the dependency, removes the redundant one, and adds validate' do
         write_package_yml('.', dependencies: ['packs/foo', 'packs/foo', 'packs/foo'])
         write_package_yml('packs/other_pack')
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/foo', 'packs/foo'])
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
         UsePacks.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/other_pack'])
@@ -1122,11 +1125,12 @@ RSpec.describe UsePacks do
     end
 
     context 'pack has unsorted dependencies' do
-      it 'adds the dependency and sorts the other dependencies' do
+      it 'adds the dependency, sorts the other dependencies, and runs validate' do
         write_package_yml('.', dependencies: ['packs/foo', 'packs/zoo', 'packs/boo'])
         write_package_yml('packs/other_pack')
 
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/zoo', 'packs/boo'])
+        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
         UsePacks.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/boo', 'packs/foo', 'packs/other_pack', 'packs/zoo'])
@@ -1134,8 +1138,9 @@ RSpec.describe UsePacks do
     end
 
     context 'new dependency does not exist' do
-      it 'raises an error' do
+      it 'raises an error and does not run validate' do
         expect(ParsePackwerk.find('.').dependencies).to eq([])
+        expect_any_instance_of(Packwerk::Cli).to_not receive(:execute_command)
         expect { UsePacks.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack') }.to raise_error do |e|
           expect(e.message).to eq 'Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`'
         end
@@ -1143,7 +1148,8 @@ RSpec.describe UsePacks do
     end
 
     context 'pack does not exist' do
-      it 'raises an error' do
+      it 'raises an error and does not run validate' do
+        expect_any_instance_of(Packwerk::Cli).to_not receive(:execute_command)
         expect { UsePacks.add_dependency!(pack_name: 'packs/other_pack', dependency_name: '.') }.to raise_error do |e|
           expect(e.message).to eq 'Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`'
         end
