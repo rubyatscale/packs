@@ -10,6 +10,7 @@
 # See https://docs.rubocop.org/rubocop/configuration
 AllCops:
   NewCops: enable
+  SuggestExtensions: false
   Exclude:
     - vendor/bundle/**/**
 

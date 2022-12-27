@@ -290,7 +290,8 @@ module UsePacks
         enforce_privacy: p.enforce_privacy,
         enforce_dependencies: p.enforce_dependencies,
         dependencies: p.dependencies.uniq.sort,
-        metadata: p.metadata
+        metadata: p.metadata,
+        config: p.config
       )
       ParsePackwerk.write_package_yml!(new_package)
     end
