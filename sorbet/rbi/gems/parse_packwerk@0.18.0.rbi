@@ -71,9 +71,10 @@ ParsePackwerk::PRIVACY_VIOLATION_TYPE = T.let(T.unsafe(nil), String)
 ParsePackwerk::PUBLIC_PATH = T.let(T.unsafe(nil), String)
 
 class ParsePackwerk::Package < ::T::Struct
+  const :config, T::Hash[T.untyped, T.untyped]
   const :dependencies, T::Array[::String]
-  const :enforce_dependencies, T::Boolean
-  const :enforce_privacy, T::Boolean
+  const :enforce_dependencies, T.any(::String, T::Boolean)
+  const :enforce_privacy, T.any(::String, T::Boolean)
   const :metadata, T::Hash[T.untyped, T.untyped]
   const :name, ::String
   const :public_path, ::String, default: T.unsafe(nil)
@@ -81,10 +82,10 @@ class ParsePackwerk::Package < ::T::Struct
   sig { returns(::Pathname) }
   def directory; end
 
-  sig { returns(T::Boolean) }
+  sig { returns(T.any(::String, T::Boolean)) }
   def enforces_dependencies?; end
 
-  sig { returns(T::Boolean) }
+  sig { returns(T.any(::String, T::Boolean)) }
   def enforces_privacy?; end
 
   sig { returns(::Pathname) }

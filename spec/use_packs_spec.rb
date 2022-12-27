@@ -72,7 +72,8 @@ RSpec.describe UsePacks do
           enforce_privacy: true,
           enforce_dependencies: false,
           dependencies: [],
-          metadata: { 'owner' => 'MyTeam' }
+          metadata: { 'owner' => 'MyTeam' },
+          config: {}
         )
 
         ParsePackwerk.bust_cache!
@@ -1335,7 +1336,7 @@ RSpec.describe UsePacks do
       it 'exits in a failure' do
         write_file('packs/my_pack/package.yml', <<~CONTENTS)
           enforce_privacy: true
-          enforce_dependnecy: true
+          enforce_dependencies: true
         CONTENTS
 
         write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
@@ -1395,7 +1396,7 @@ RSpec.describe UsePacks do
         end
         write_file('packs/my_pack/package.yml', <<~CONTENTS)
           enforce_privacy: true
-          enforce_dependnecy: true
+          enforce_dependencies: true
         CONTENTS
 
         write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)

@@ -170,7 +170,8 @@ module UsePacks
         enforce_privacy: package.enforce_dependencies,
         enforce_dependencies: package.enforce_dependencies,
         dependencies: package.dependencies,
-        metadata: package.metadata
+        metadata: package.metadata,
+        config: package.config
       )
       ParsePackwerk.write_package_yml!(new_package)
       ParsePackwerk.bust_cache!
@@ -200,7 +201,8 @@ module UsePacks
           enforce_privacy: other_package.enforce_privacy,
           enforce_dependencies: other_package.enforce_dependencies,
           dependencies: new_dependencies.uniq.sort,
-          metadata: other_package.metadata
+          metadata: other_package.metadata,
+          config: other_package.config
         )
 
         ParsePackwerk.write_package_yml!(new_other_package)
@@ -289,7 +291,8 @@ module UsePacks
         dependencies: (package.dependencies + [dependency_name]).uniq.sort,
         enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
-        metadata: package.metadata
+        metadata: package.metadata,
+        config: package.config
       )
       ParsePackwerk.write_package_yml!(new_package)
       PackwerkWrapper.validate!
@@ -370,7 +373,8 @@ module UsePacks
           metadata: {
             'owner' => team.nil? ? 'MyTeam' : team.name
           },
-          name: pack_name
+          name: pack_name,
+          config: {}
         )
 
         ParsePackwerk.write_package_yml!(package)

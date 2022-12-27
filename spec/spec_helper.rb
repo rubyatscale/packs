@@ -69,7 +69,8 @@ def write_package_yml(
     dependencies: dependencies,
     enforce_dependencies: enforce_dependencies,
     enforce_privacy: enforce_privacy,
-    metadata: metadata
+    metadata: metadata,
+    config: {}
   )
 
   ParsePackwerk.write_package_yml!(package)
