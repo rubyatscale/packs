@@ -102,10 +102,10 @@ module UsePacks
       UsePacks.execute(['check', *paths])
     end
 
-    desc 'update [ packs/my_pack ]', 'Run bin/packwerk update-todo'
-    sig { params(paths: String).void }
-    def update(*paths)
-      system("bin/packwerk update-todo #{paths.join(' ')}")
+    desc 'update', 'Run bin/packwerk update-todo'
+    sig { void }
+    def update
+      system('bin/packwerk update-todo')
     end
 
     desc 'regenerate_rubocop_todo [ packs/my_pack packs/my_other_pack ]', "Regenerate packs/*/#{RuboCop::Packs::PACK_LEVEL_RUBOCOP_TODO_YML} for one or more packs"
