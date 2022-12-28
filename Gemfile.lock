@@ -20,6 +20,7 @@ PATH
     use_packs (0.0.12)
       code_ownership
       colorize
+      packs
       packwerk
       parse_packwerk
       rubocop-packs
@@ -77,6 +78,8 @@ GEM
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
+    packs (0.0.5)
+      sorbet-runtime
     parallel (1.22.1)
     parse_packwerk (0.18.0)
       sorbet-runtime

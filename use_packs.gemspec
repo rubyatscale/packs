@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'colorize'
   spec.add_dependency 'packwerk'
   spec.add_dependency 'parse_packwerk'
+  spec.add_dependency 'packs'
   spec.add_dependency 'rubocop-packs'
   spec.add_dependency 'sorbet-runtime'
   spec.add_dependency 'thor'

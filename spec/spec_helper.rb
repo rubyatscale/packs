@@ -2,7 +2,8 @@
 # frozen_string_literal: true
 
 require 'use_packs'
-require 'tmpdir'
+require 'packs'
+require 'packs/rspec/support'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -19,26 +20,9 @@ RSpec.configure do |config|
     ParsePackwerk.bust_cache!
     example.run
   end
-
-  config.around do |example|
-    prefix = [File.basename($0), Process.pid].join('-') # rubocop:disable Style/SpecialGlobalVars
-    tmpdir = Dir.mktmpdir(prefix)
-    Dir.chdir(tmpdir) do
-      example.run
-    end
-  ensure
-    FileUtils.rm_rf(T.must(tmpdir))
-  end
 end
 
 extend T::Sig # rubocop:disable Style/MixinUsage:
-
-sig { params(path: String, content: String).returns(Integer) }
-def write_file(path, content = '')
-  pathname = Pathname.new(path)
-  FileUtils.mkdir_p(pathname.dirname)
-  pathname.write(content)
-end
 
 sig do
   params(
