@@ -287,6 +287,7 @@ module UsePacks
     packs.each do |p|
       packwerk_package = ParsePackwerk.find(p.name)
       next if packwerk_package.nil?
+
       new_package = ParsePackwerk::Package.new(
         name: packwerk_package.name,
         enforce_privacy: packwerk_package.enforce_privacy,

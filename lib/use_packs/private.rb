@@ -454,7 +454,7 @@ module UsePacks
       end
     end
 
-    sig { params(packages: T::Array[ParsePackwerk::Package]).returns(T::Array[Packs::Pack])}
+    sig { params(packages: T::Array[ParsePackwerk::Package]).returns(T::Array[Packs::Pack]) }
     def self.packwerk_packages_to_packs(packages)
       packs = []
       packages.each do |package|
@@ -465,7 +465,7 @@ module UsePacks
       packs
     end
 
-    sig { params(package: ParsePackwerk::Package).returns(T.nilable(Packs::Pack))}
+    sig { params(package: ParsePackwerk::Package).returns(T.nilable(Packs::Pack)) }
     def self.packwerk_package_to_pack(package)
       Packs.find(package.name)
     end

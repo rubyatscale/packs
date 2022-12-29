@@ -53,7 +53,7 @@ module UsePacks
 
             selected_packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
               puts "\n=========== Info about: #{pack.name}"
-              
+
               owner = CodeOwnership.for_package(pack)
               puts "Owned by: #{owner.nil? ? 'No one' : owner.name}"
               puts "Size: #{pack.relative_path.glob('**/*.rb').count} ruby files"
