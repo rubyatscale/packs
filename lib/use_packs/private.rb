@@ -378,7 +378,8 @@ module UsePacks
         )
 
         ParsePackwerk.write_package_yml!(package)
-        RuboCop::Packs.set_default_rubocop_yml(packs: [package])
+        pack = Packs.find(package.name)
+        RuboCop::Packs.set_default_rubocop_yml(packs: [pack].compact)
 
         current_contents = package.yml.read
         new_contents = current_contents.gsub('MyTeam', 'MyTeam # specify your team here, or delete this key if this package is not owned by one team')
@@ -451,6 +452,22 @@ module UsePacks
         FileUtils.mkdir_p(temp_package_todo_yml.dirname)
         temp_package_todo_yml.write(contents)
       end
+    end
+
+    sig { params(packages: T::Array[ParsePackwerk::Package]).returns(T::Array[Packs::Pack]) }
+    def self.packwerk_packages_to_packs(packages)
+      packs = []
+      packages.each do |package|
+        pack = Packs.find(package.name)
+        packs << pack if !pack.nil?
+      end
+
+      packs
+    end
+
+    sig { params(package: ParsePackwerk::Package).returns(T.nilable(Packs::Pack)) }
+    def self.packwerk_package_to_pack(package)
+      Packs.find(package.name)
     end
   end
 

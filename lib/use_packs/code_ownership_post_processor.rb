@@ -34,7 +34,8 @@ module UsePacks
         @teams << 'Unknown'
       end
 
-      if !CodeOwnership.for_package(file_move_operation.destination_pack).nil?
+      pack = Packs.find(file_move_operation.destination_pack.name)
+      if pack && !CodeOwnership.for_package(pack).nil?
         CodeOwnership.remove_file_annotation!(relative_path_to_origin.to_s)
         @did_move_files = true
       end

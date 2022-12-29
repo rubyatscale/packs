@@ -20,7 +20,7 @@ module UsePacks
 
             if team_or_pack == 'By team'
               teams = TeamSelector.multi_select(prompt)
-              selected_packs = ParsePackwerk.all.select do |p|
+              selected_packs = Packs.all.select do |p|
                 teams.map(&:name).include?(CodeOwnership.for_package(p)&.name)
               end
             else
@@ -51,12 +51,13 @@ module UsePacks
             puts "There are #{all_outbound.select(&:privacy?).sum { |v| v.files.count }} total outbound privacy violations"
             puts "There are #{all_outbound.select(&:dependency?).sum { |v| v.files.count }} total outbound dependency violations"
 
-            selected_packs.sort_by { |p| -p.directory.glob('**/*.rb').count }.each do |pack|
+            selected_packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
               puts "\n=========== Info about: #{pack.name}"
+
               owner = CodeOwnership.for_package(pack)
               puts "Owned by: #{owner.nil? ? 'No one' : owner.name}"
-              puts "Size: #{pack.directory.glob('**/*.rb').count} ruby files"
-              puts "Public API: #{pack.directory.join('app/public')}"
+              puts "Size: #{pack.relative_path.glob('**/*.rb').count} ruby files"
+              puts "Public API: #{pack.relative_path.join('app/public')}"
 
               inbound_for_pack = inbound_violations[pack.name] || []
               outbound_for_pack = outbound_violations[pack.name] || []

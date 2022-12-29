@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'use_packs'
-  spec.version       = '0.0.12'
+  spec.version       = '0.0.13'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 
@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'code_ownership'
   spec.add_dependency 'colorize'
+  spec.add_dependency 'packs'
   spec.add_dependency 'packwerk'
   spec.add_dependency 'parse_packwerk'
   spec.add_dependency 'rubocop-packs'

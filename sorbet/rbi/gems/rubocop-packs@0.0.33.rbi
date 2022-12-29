@@ -50,21 +50,18 @@ class RuboCop::Cop::Packs::RootNamespaceIsPackName::DesiredZeitwerkApi
   sig do
     params(
       relative_filename: ::String,
-      package_for_path: ::ParsePackwerk::Package
+      package_for_path: ::Packs::Pack
     ).returns(T.nilable(::RuboCop::Cop::Packs::RootNamespaceIsPackName::DesiredZeitwerkApi::NamespaceContext))
   end
   def for_file(relative_filename, package_for_path); end
 
-  sig { params(pack: ::ParsePackwerk::Package).returns(::String) }
+  sig { params(pack: ::Packs::Pack).returns(::String) }
   def get_pack_based_namespace(pack); end
 
   private
 
   sig { params(remaining_file_path: ::String, package_name: ::String).returns(::String) }
   def get_actual_namespace(remaining_file_path, package_name); end
-
-  sig { params(pack: ::ParsePackwerk::Package).returns(::String) }
-  def get_package_last_name(pack); end
 
   sig { returns(::Pathname) }
   def root_pathname; end
@@ -165,10 +162,10 @@ module RuboCop::Packs
     sig { params(root_pathname: ::String).returns(::String) }
     def pack_based_rubocop_config(root_pathname: T.unsafe(nil)); end
 
-    sig { params(packs: T::Array[::ParsePackwerk::Package], files: T::Array[::String]).void }
+    sig { params(packs: T::Array[::Packs::Pack], files: T::Array[::String]).void }
     def regenerate_todo(packs: T.unsafe(nil), files: T.unsafe(nil)); end
 
-    sig { params(packs: T::Array[::ParsePackwerk::Package]).void }
+    sig { params(packs: T::Array[::Packs::Pack]).void }
     def set_default_rubocop_yml(packs:); end
 
     sig { returns(T::Array[::String]) }
@@ -215,13 +212,13 @@ module RuboCop::Packs::Private
     sig { returns(T::Array[T::Hash[T.untyped, T.untyped]]) }
     def rubocop_todo_ymls; end
 
-    sig { params(package: ::ParsePackwerk::Package).returns(T::Array[::String]) }
+    sig { params(package: ::Packs::Pack).returns(T::Array[::String]) }
     def validate_failure_mode_strict(package); end
 
-    sig { params(package: ::ParsePackwerk::Package).returns(T::Array[::String]) }
+    sig { params(package: ::Packs::Pack).returns(T::Array[::String]) }
     def validate_rubocop_todo_yml(package); end
 
-    sig { params(package: ::ParsePackwerk::Package).returns(T::Array[::String]) }
+    sig { params(package: ::Packs::Pack).returns(T::Array[::String]) }
     def validate_rubocop_yml(package); end
   end
 end
@@ -253,7 +250,7 @@ class RuboCop::Packs::Private::Offense < ::T::Struct
   const :cop_name, ::String
   const :filepath, ::String
 
-  sig { returns(::ParsePackwerk::Package) }
+  sig { returns(T.nilable(::Packs::Pack)) }
   def pack; end
 
   class << self

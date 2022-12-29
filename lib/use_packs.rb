@@ -282,16 +282,19 @@ module UsePacks
     end
   end
 
-  sig { params(packs: T::Array[ParsePackwerk::Package]).void }
+  sig { params(packs: T::Array[Packs::Pack]).void }
   def self.lint_package_yml_files!(packs)
     packs.each do |p|
+      packwerk_package = ParsePackwerk.find(p.name)
+      next if packwerk_package.nil?
+
       new_package = ParsePackwerk::Package.new(
-        name: p.name,
-        enforce_privacy: p.enforce_privacy,
-        enforce_dependencies: p.enforce_dependencies,
-        dependencies: p.dependencies.uniq.sort,
-        metadata: p.metadata,
-        config: p.config
+        name: packwerk_package.name,
+        enforce_privacy: packwerk_package.enforce_privacy,
+        enforce_dependencies: packwerk_package.enforce_dependencies,
+        dependencies: packwerk_package.dependencies.uniq.sort,
+        metadata: packwerk_package.metadata,
+        config: packwerk_package.config
       )
       ParsePackwerk.write_package_yml!(new_package)
     end

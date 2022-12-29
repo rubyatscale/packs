@@ -118,9 +118,9 @@ module UsePacks
 
     # This is used by thor to know that these private methods are not intended to be CLI commands
     no_commands do
-      sig { params(pack_names: T::Array[String]).returns(T::Array[ParsePackwerk::Package]) }
+      sig { params(pack_names: T::Array[String]).returns(T::Array[Packs::Pack]) }
       def parse_pack_names(pack_names)
-        pack_names.empty? ? ParsePackwerk.all : pack_names.map { |p| ParsePackwerk.find(p.gsub(%r{/$}, '')) }.compact
+        pack_names.empty? ? Packs.all : pack_names.map { |p| Packs.find(p.gsub(%r{/$}, '')) }.compact
       end
     end
   end

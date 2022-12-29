@@ -23,8 +23,11 @@ module CodeOwnership
   sig { params(file: ::String).returns(T.nilable(::CodeTeams::Team)) }
   def for_file(file); end
 
-  sig { params(package: ::ParsePackwerk::Package).returns(T.nilable(::CodeTeams::Team)) }
+  sig { params(package: ::Packs::Pack).returns(T.nilable(::CodeTeams::Team)) }
   def for_package(package); end
+
+  sig { params(team: T.any(::CodeTeams::Team, ::String)).returns(::String) }
+  def for_team(team); end
 
   sig { params(files: T::Array[::String], autocorrect: T::Boolean, stage_changes: T::Boolean).void }
   def validate!(files: T.unsafe(nil), autocorrect: T.unsafe(nil), stage_changes: T.unsafe(nil)); end
@@ -41,6 +44,7 @@ end
 class CodeOwnership::Cli
   class << self
     def for_file(argv); end
+    def for_team(argv); end
     def run!(argv); end
 
     private
@@ -193,13 +197,8 @@ class CodeOwnership::Private::OwnershipMappers::PackageOwnership
   sig { override.params(files: T::Array[::String]).returns(T::Hash[::String, T.nilable(::CodeTeams::Team)]) }
   def map_files_to_owners(files); end
 
-  sig { params(package: ::ParsePackwerk::Package).returns(T.nilable(::CodeTeams::Team)) }
+  sig { params(package: ::Packs::Pack).returns(T.nilable(::CodeTeams::Team)) }
   def owner_for_package(package); end
-
-  private
-
-  sig { params(file: ::String).returns(T.nilable(::ParsePackwerk::Package)) }
-  def map_file_to_relevant_package(file); end
 end
 
 class CodeOwnership::Private::OwnershipMappers::TeamGlobs
