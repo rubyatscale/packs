@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    use_packs (0.0.12)
+    use_packs (0.0.13)
       code_ownership
       colorize
       packs
@@ -53,9 +53,9 @@ GEM
       smart_properties
     builder (3.2.4)
     byebug (11.1.3)
-    code_ownership (1.29.1)
+    code_ownership (1.29.2)
       code_teams (~> 1.0)
-      parse_packwerk
+      packs
       sorbet-runtime
     code_teams (1.0.0)
       sorbet-runtime
@@ -133,8 +133,9 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
-    rubocop-packs (0.0.32)
+    rubocop-packs (0.0.33)
       activesupport
+      packs
       parse_packwerk
       rubocop
       rubocop-sorbet
