@@ -50,16 +50,16 @@ Releases happen automatically through github actions once a version update is co
 To keep things organized, here are some recommended homes:
 
 ### Issues:
-https://github.com/Gusto/use_packs/issues
+https://github.com/rubyatscale/use_packs/issues
 
 ### Questions:
-https://github.com/Gusto/use_packs/discussions/categories/q-a
+https://github.com/rubyatscale/use_packs/discussions/categories/q-a
 
 ### General discussions:
-https://github.com/Gusto/use_packs/discussions/categories/general
+https://github.com/rubyatscale/use_packs/discussions/categories/general
 
 ### Ideas, new features, requests for change:
-https://github.com/Gusto/use_packs/discussions/categories/ideas
+https://github.com/rubyatscale/use_packs/discussions/categories/ideas
 
 ### Showcasing your work:
-https://github.com/Gusto/use_packs/discussions/categories/show-and-tell
+https://github.com/rubyatscale/use_packs/discussions/categories/show-and-tell
