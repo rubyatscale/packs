@@ -26,7 +26,7 @@ module UsePacks
   extend T::Sig
 
   PERMITTED_PACK_LOCATIONS = T.let(
-    Packs.config.pack_paths.flat_map { |glob| glob.scan(/\w|\//).join.squeeze("/") }.uniq,
+    Packs.config.pack_paths,
     T::Array[String]
   )
 
