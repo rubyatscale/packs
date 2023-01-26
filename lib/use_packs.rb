@@ -20,15 +20,15 @@ require 'use_packs/code_ownership_post_processor'
 require 'use_packs/logging'
 require 'use_packs/configuration'
 require 'use_packs/cli'
+require 'packs'
 
 module UsePacks
   extend T::Sig
 
-  PERMITTED_PACK_LOCATIONS = T.let(%w[
-                                     gems
-                                     components
-                                     packs
-                                   ], T::Array[String])
+  PERMITTED_PACK_LOCATIONS = T.let(
+    Packs.config.pack_paths.flat_map { |glob| glob.scan(/\w|\//).join.squeeze("/") }.uniq,
+    T::Array[String]
+  )
 
   sig { void }
   def self.start_interactive_mode!
