@@ -358,7 +358,7 @@ module UsePacks
       ).returns(ParsePackwerk::Package)
     end
     def self.create_pack_if_not_exists!(pack_name:, enforce_privacy:, enforce_dependencies:, team: nil)
-      if PERMITTED_PACK_LOCATIONS.none? { |permitted_location| pack_name.start_with?(permitted_location) }
+      if PERMITTED_PACK_LOCATIONS.none? { |permitted_location| pack_name.match?(permitted_location) }
         raise StandardError, "UsePacks only supports packages in the the following directories: #{PERMITTED_PACK_LOCATIONS.inspect}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
       end
 
