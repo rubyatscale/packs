@@ -24,24 +24,45 @@ RSpec.describe UsePacks do
   end
 
   describe '.create_pack!' do
-    context 'when pack name does not include a valid pack prefix' do
-      let(:pack_name) { 'my_pack' }
-
-      it 'raises an errors' do
-        expect { UsePacks.create_pack!(pack_name: 'foo/my_pack') }
-          .to raise_error(UsePacks::InvalidPackNameError)
-      end
-    end
-
-    context 'when pack name does include a valid pack prefix' do
+    context 'when overriding the allow packs paths' do
       before do
         stub_const("UsePacks::PERMITTED_PACK_LOCATIONS", %w[foo/*])
       end
 
-      it 'creates the pack' do
+      it 'creates the pack if it conforms to the configured values' do
         UsePacks.create_pack!(pack_name: 'foo/my_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('foo/my_pack').name).to eq('foo/my_pack')
+      end
+
+      it 'raises an errors when it does not' do
+        expect { UsePacks.create_pack!(pack_name: 'packs/my_pack') }
+          .to raise_error(UsePacks::InvalidPackNameError)
+      end
+    end
+
+    context 'when not overriding the allow packs paths' do
+      it 'creates the pack if prefixed with `packs`' do
+        UsePacks.create_pack!(pack_name: 'packs/my_pack')
+        ParsePackwerk.bust_cache!
+        expect(ParsePackwerk.find('packs/my_pack').name).to eq('packs/my_pack')
+      end
+
+      it 'creates the pack if prefixed with `gems`' do
+        UsePacks.create_pack!(pack_name: 'gems/my_pack')
+        ParsePackwerk.bust_cache!
+        expect(ParsePackwerk.find('gems/my_pack').name).to eq('gems/my_pack')
+      end
+
+      it 'creates the pack if prefixed with `components`' do
+        UsePacks.create_pack!(pack_name: 'components/my_pack')
+        ParsePackwerk.bust_cache!
+        expect(ParsePackwerk.find('components/my_pack').name).to eq('components/my_pack')
+      end
+
+      it 'raises an errors when it does not conform to the default packs paths' do
+        expect { UsePacks.create_pack!(pack_name: 'foo/my_pack') }
+          .to raise_error(UsePacks::InvalidPackNameError)
       end
     end
 
@@ -131,26 +152,6 @@ RSpec.describe UsePacks do
         expect(package.metadata['owner']).to eq 'Artists'
         package_yml_contents = package.yml.read
         expect(package_yml_contents).to include('owner: Artists')
-      end
-    end
-
-    context 'pack is in gems' do
-      let(:pack_name) { 'gems/my_pack' }
-
-      it 'creates the pack' do
-        UsePacks.create_pack!(pack_name: 'gems/my_pack')
-        ParsePackwerk.bust_cache!
-        expect(ParsePackwerk.find('gems/my_pack').name).to eq('gems/my_pack')
-      end
-
-      context 'when pack locations configured' do
-        before do
-          stub_const("UsePacks::PERMITTED_PACK_LOCATIONS", %w[engines/* engines/*/*])
-        end
-
-        it 'raises an error' do
-          expect { UsePacks.create_pack!(pack_name: pack_name) }.to raise_error(StandardError)
-        end
       end
     end
 

@@ -203,7 +203,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.2)
   packwerk!
-  pry (> 0.13)
+  pry
   pry-byebug
   rake
   rspec (~> 3.0)
