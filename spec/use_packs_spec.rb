@@ -24,14 +24,24 @@ RSpec.describe UsePacks do
   end
 
   describe '.create_pack!' do
-    # Right now, `UsePacks` only supports `packs`, `gems`, or `components` as the home for packwerk packages
-    context 'pack name does not include `packs` prefix' do
+    context 'when pack name does not include a valid pack prefix' do
       let(:pack_name) { 'my_pack' }
 
-      it 'errors' do
-        expect { UsePacks.create_pack!(pack_name: 'foo/my_pack') }.to raise_error(
-          'UsePacks only supports packages in the the following directories: ["gems", "components", "packs"]. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`.'
-        )
+      it 'raises an errors' do
+        expect { UsePacks.create_pack!(pack_name: 'foo/my_pack') }
+          .to raise_error(UsePacks::InvalidPackNameError)
+      end
+    end
+
+    context 'when pack name does include a valid pack prefix' do
+      before do
+        stub_const("UsePacks::PERMITTED_PACK_LOCATIONS", %w[foo/*])
+      end
+
+      it 'creates the pack' do
+        UsePacks.create_pack!(pack_name: 'foo/my_pack')
+        ParsePackwerk.bust_cache!
+        expect(ParsePackwerk.find('foo/my_pack').name).to eq('foo/my_pack')
       end
     end
 
@@ -131,6 +141,16 @@ RSpec.describe UsePacks do
         UsePacks.create_pack!(pack_name: 'gems/my_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('gems/my_pack').name).to eq('gems/my_pack')
+      end
+
+      context 'when pack locations configured' do
+        before do
+          stub_const("UsePacks::PERMITTED_PACK_LOCATIONS", %w[engines/* engines/*/*])
+        end
+
+        it 'raises an error' do
+          expect { UsePacks.create_pack!(pack_name: pack_name) }.to raise_error(StandardError)
+        end
       end
     end
 

@@ -5,6 +5,7 @@ require 'fileutils'
 require 'colorized_string'
 require 'sorbet-runtime'
 
+require 'use_packs/invalid_pack_name_error'
 require 'use_packs/private/file_move_operation'
 require 'use_packs/private/pack_relationship_analyzer'
 require 'use_packs/private/interactive_cli'
@@ -359,7 +360,7 @@ module UsePacks
     end
     def self.create_pack_if_not_exists!(pack_name:, enforce_privacy:, enforce_dependencies:, team: nil)
       if PERMITTED_PACK_LOCATIONS.none? { |permitted_location| pack_name.match?(permitted_location) }
-        raise StandardError, "UsePacks only supports packages in the the following directories: #{PERMITTED_PACK_LOCATIONS.inspect}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
+        raise UsePacks::InvalidPackNameError
       end
 
       existing_package = ParsePackwerk.all.find { |p| p.name == pack_name }
