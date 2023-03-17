@@ -21,4 +21,4 @@ See `rubocop_post_processor.rb` as an example of renaming files in `.rubocop_tod
 If you install binstubs, it allows simpler commands: `bin/packs` rather than `bundle exec packs`.
 
 Install binstubs using:
-`bundle binstubs packs`
+`bundle binstubs use_packs`
