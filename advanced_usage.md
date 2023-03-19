@@ -18,7 +18,7 @@ You can pass in an array of application specific behavior into the `per_file_pro
 See `rubocop_post_processor.rb` as an example of renaming files in `.rubocop_todo.yml` automatically, which is something you may want to do (as you do not want to fix all style errors when you're just moving a file).
 
 # First-Time Configuration (per repo, not per developer)
-If you install binstubs, it allows simpler commands: `bin/packs` rather than `bundle exec packs`.
+If you install binstubs, it allows simpler commands: `bin/packs` rather than `bundle exec use_packs`.
 
 Install binstubs using:
 `bundle binstubs use_packs`
