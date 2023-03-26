@@ -672,6 +672,11 @@ RSpec.describe UsePacks do
         end
 
         it 'removes file annotations if the destination pack has file annotations' do
+          write_file('config/code_ownership.yml', <<~CONTENTS)
+            owned_globs:
+              - '{app,components,config,frontend,lib,packs,spec}/**/*.{rb,rake,js,jsx,ts,tsx}'
+          CONTENTS
+
           write_package_yml('packs/owned_by_artists', owner: 'Artists')
           write_file('app/services/foo.rb', '# @team Chefs')
           write_file('config/teams/artists.yml', 'name: Artists')
