@@ -618,7 +618,7 @@ RSpec.describe UsePacks do
       end
 
       describe 'CodeOwnershipPostProcessor' do
-        it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
+        before do
           write_file('config/code_ownership.yml', <<~CONTENTS)
             owned_globs:
               - '{app,components,config,frontend,lib,packs,spec}/**/*.{rb,rake,js,jsx,ts,tsx}'
@@ -626,7 +626,9 @@ RSpec.describe UsePacks do
               - app/services/horse_like/donkey.rb
               - spec/services/horse_like/donkey_spec.rb
           CONTENTS
+        end
 
+        it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
           write_file('app/services/horse_like/donkey.rb')
           write_file('spec/services/horse_like/donkey_spec.rb')
           write_package_yml('packs/animals')

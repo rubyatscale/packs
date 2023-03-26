@@ -17,14 +17,13 @@ module UsePacks
       relative_path_to_destination = file_move_operation.destination_pathname
 
       code_owners_allow_list_file = Pathname.new('config/code_ownership.yml')
+      return if !code_owners_allow_list_file.exist?
 
-      if code_owners_allow_list_file.exist?
-        UsePacks.replace_in_file(
-          file: code_owners_allow_list_file.to_s,
-          find: relative_path_to_origin,
-          replace_with: relative_path_to_destination
-        )
-      end
+      UsePacks.replace_in_file(
+        file: code_owners_allow_list_file.to_s,
+        find: relative_path_to_origin,
+        replace_with: relative_path_to_destination
+      )
 
       team = CodeOwnership.for_file(relative_path_to_origin.to_s)
 
