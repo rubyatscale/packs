@@ -3022,6 +3022,7 @@ class Date
 end
 
 Date::DATE_FORMATS = T.let(T.unsafe(nil), Hash)
+Date::VERSION = T.let(T.unsafe(nil), String)
 module DateAndTime; end
 
 module DateAndTime::Calculations
@@ -3590,11 +3591,8 @@ class Struct
   def as_json(options = T.unsafe(nil)); end
 end
 
-Struct::CompletionJourneyData = Struct
 Struct::Group = Etc::Group
 Struct::HTMLElementDescription = Struct
-Struct::Key = Struct
-Struct::MenuInfo = Struct
 Struct::Passwd = Etc::Passwd
 Struct::Tms = Process::Tms
 
