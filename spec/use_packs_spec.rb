@@ -63,6 +63,30 @@ RSpec.describe UsePacks do
       expect(package.yml.read).to eq expected
     end
 
+    context 'code ownership is not yet configured' do
+      it 'creates a package.yml correctly' do
+        UsePacks.create_pack!(pack_name: 'packs/my_pack')
+        ParsePackwerk.bust_cache!
+        package = ParsePackwerk.find('packs/my_pack')
+        expect(package.name).to eq('packs/my_pack')
+        expect(package.enforce_privacy).to eq(true)
+        expect(package.enforce_dependencies).to eq(true)
+        expect(package.dependencies).to eq([])
+        expect(package.metadata).to eq({})
+        expect(package.directory.join(RuboCop::Packs::PACK_LEVEL_RUBOCOP_YML).read).to eq(<<~YML)
+          Department/SomeCop:
+            Enabled: true
+        YML
+
+        expected = <<~EXPECTED
+          enforce_dependencies: true
+          enforce_privacy: true
+        EXPECTED
+
+        expect(package.yml.read).to eq expected
+      end
+    end
+
     context 'use packwerk is configured to not enforce dependencies by default' do
       it 'creates a package.yml correctly' do
         UsePacks.configure { |config| config.enforce_dependencies = false }
