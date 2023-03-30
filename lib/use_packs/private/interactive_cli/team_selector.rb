@@ -6,9 +6,10 @@ module UsePacks
       class TeamSelector
         extend T::Sig
 
-        sig { params(prompt: TTY::Prompt, question_text: String).returns(CodeTeams::Team) }
+        sig { params(prompt: TTY::Prompt, question_text: String).returns(T.nilable(CodeTeams::Team)) }
         def self.single_select(prompt, question_text: 'Please use space to select a team owner')
           teams = CodeTeams.all.sort_by(&:name).to_h { |t| [t.name, t] }
+          return nil if teams.count == 0
 
           team_selection = T.let(prompt.select(
             question_text,

@@ -33,6 +33,14 @@ module UsePacks
       subject
     end
 
+    it 'allows creating a pack even if no teams are setup' do
+      expect(UsePacks).to receive(:create_pack!).with(pack_name: 'packs/my_new_pack', team: nil)
+      prompt.input << "Create\r"
+      prompt.input << "my_new_pack\r"
+      prompt.input.rewind
+      subject
+    end
+
     it 'shows teams listed alphabetically and you can pick one with arrow keys' do
       write_file('config/teams/zebras.yml', 'name: Zebras')
       write_file('config/teams/artists.yml', 'name: Artists')
