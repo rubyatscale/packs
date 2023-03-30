@@ -536,7 +536,7 @@ RSpec.describe UsePacks do
         end
 
         context 'origin pack has a pack-level package_rubocop_todo.yml, destination pack does not' do
-          it 'modifies packs/*pack_package_rubocop_todo.yml, correctly' do
+          it 'modifies packs/*/package_rubocop_todo.yml, correctly' do
             write_file('packs/foo/package_rubocop_todo.yml', <<~CONTENTS)
               ---
               Layout/BeginEndAlignment:
