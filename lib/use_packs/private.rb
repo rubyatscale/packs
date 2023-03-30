@@ -366,13 +366,21 @@ module UsePacks
       if existing_package.nil?
         should_enforce_dependenceies = enforce_dependencies.nil? ? UsePacks.config.enforce_dependencies : enforce_dependencies
 
+        # TODO: This should probably be `if defined?(CodeOwnership) && CodeOwnership.configured?`
+        # but we'll need to add an API to CodeOwnership to do this
+        if Pathname.new('config/code_ownership.yml').exist?
+          metadata = {
+            'owner' => team.nil? ? 'MyTeam' : team.name
+          }
+        else
+          metadata = {}
+        end
+        
         package = ParsePackwerk::Package.new(
           enforce_dependencies: should_enforce_dependenceies,
           enforce_privacy: enforce_privacy,
           dependencies: [],
-          metadata: {
-            'owner' => team.nil? ? 'MyTeam' : team.name
-          },
+          metadata: metadata,
           name: pack_name,
           config: {}
         )
