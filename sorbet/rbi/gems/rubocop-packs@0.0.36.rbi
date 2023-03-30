@@ -27,6 +27,9 @@ class RuboCop::Cop::Packs::DocumentedPublicApis < ::RuboCop::Cop::Style::Documen
   sig { params(node: T.untyped).void }
   def check(node); end
 
+  sig { params(node: T.untyped).returns(T::Boolean) }
+  def node_is_sorbet_signature?(node); end
+
   sig { returns(T::Boolean) }
   def support_autocorrect?; end
 end
@@ -159,9 +162,6 @@ module RuboCop::Packs
     sig { params(rule: ::String).returns(T::Set[::String]) }
     def exclude_for_rule(rule); end
 
-    sig { params(root_pathname: ::String).returns(::String) }
-    def pack_based_rubocop_config(root_pathname: T.unsafe(nil)); end
-
     sig { params(packs: T::Array[::Packs::Pack], files: T::Array[::String]).void }
     def regenerate_todo(packs: T.unsafe(nil), files: T.unsafe(nil)); end
 
@@ -173,7 +173,6 @@ module RuboCop::Packs
   end
 end
 
-RuboCop::Packs::CONFIG = T.let(T.unsafe(nil), Hash)
 RuboCop::Packs::CONFIG_DEFAULT = T.let(T.unsafe(nil), Pathname)
 
 module RuboCop::Packs::Inject
