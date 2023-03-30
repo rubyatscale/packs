@@ -13,6 +13,16 @@ RSpec.describe UsePacks do
     end
   end
 
+  def write_codeownership_config
+    write_file('config/code_ownership.yml', <<~CONTENTS)
+      owned_globs:
+        - '{app,components,config,frontend,lib,packs,spec}/**/*.{rb,rake,js,jsx,ts,tsx}'
+      unowned_globs:
+        - app/services/horse_like/donkey.rb
+        - spec/services/horse_like/donkey_spec.rb
+    CONTENTS
+  end
+
   before do
     UsePacks.bust_cache!
     CodeTeams.bust_caches!
@@ -36,6 +46,8 @@ RSpec.describe UsePacks do
     end
 
     it 'creates a package.yml correctly' do
+      write_codeownership_config
+
       RuboCop::Packs.configure do |config|
         config.required_pack_level_cops = ['Department/SomeCop']
       end
@@ -89,6 +101,7 @@ RSpec.describe UsePacks do
 
     context 'use packwerk is configured to not enforce dependencies by default' do
       it 'creates a package.yml correctly' do
+        write_codeownership_config
         UsePacks.configure { |config| config.enforce_dependencies = false }
         UsePacks.create_pack!(pack_name: 'packs/my_pack')
         expected_package = ParsePackwerk::Package.new(
@@ -128,6 +141,7 @@ RSpec.describe UsePacks do
     end
 
     it 'automatically adds the owner metadata key' do
+      write_codeownership_config
       UsePacks.create_pack!(pack_name: 'packs/my_pack')
       ParsePackwerk.bust_cache!
       package = ParsePackwerk.find('packs/my_pack')
@@ -138,6 +152,7 @@ RSpec.describe UsePacks do
 
     context 'team owner is provided' do
       it 'automatically adds the owner metadata key' do
+        write_codeownership_config
         write_file('config/teams/artists.yml', 'name: Artists')
         UsePacks.create_pack!(pack_name: 'packs/my_pack', team: CodeTeams.find('Artists'))
         ParsePackwerk.bust_cache!
@@ -162,6 +177,8 @@ RSpec.describe UsePacks do
       let(:pack_name) { 'packs/fruits/apples' }
 
       it 'creates a package.yml correctly' do
+        write_codeownership_config
+
         RuboCop::Packs.configure do |config|
           config.required_pack_level_cops = ['Department/SomeCop']
         end
@@ -643,13 +660,7 @@ RSpec.describe UsePacks do
 
       describe 'CodeOwnershipPostProcessor' do
         before do
-          write_file('config/code_ownership.yml', <<~CONTENTS)
-            owned_globs:
-              - '{app,components,config,frontend,lib,packs,spec}/**/*.{rb,rake,js,jsx,ts,tsx}'
-            unowned_globs:
-              - app/services/horse_like/donkey.rb
-              - spec/services/horse_like/donkey_spec.rb
-          CONTENTS
+          write_codeownership_config
         end
 
         it 'modifies an application-specific file, config/code_ownership.yml, correctly' do
@@ -698,10 +709,7 @@ RSpec.describe UsePacks do
         end
 
         it 'removes file annotations if the destination pack has file annotations' do
-          write_file('config/code_ownership.yml', <<~CONTENTS)
-            owned_globs:
-              - '{app,components,config,frontend,lib,packs,spec}/**/*.{rb,rake,js,jsx,ts,tsx}'
-          CONTENTS
+          write_codeownership_config
 
           write_package_yml('packs/owned_by_artists', owner: 'Artists')
           write_file('app/services/foo.rb', '# @team Chefs')

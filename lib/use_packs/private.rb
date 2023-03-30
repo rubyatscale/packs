@@ -375,7 +375,7 @@ module UsePacks
         else
           metadata = {}
         end
-        
+
         package = ParsePackwerk::Package.new(
           enforce_dependencies: should_enforce_dependenceies,
           enforce_privacy: enforce_privacy,
