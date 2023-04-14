@@ -513,6 +513,31 @@ RSpec.describe UsePacks do
         end
       end
 
+      context 'files moved are regular files in lib' do
+        it 'can move files from lib from root to another pack' do
+          write_package_yml('packs/my_pack')
+          write_file('lib/my_file.rb')
+          write_file('spec/lib/my_file_spec.rb')
+
+          UsePacks.move_to_pack!(
+            pack_name: 'packs/my_pack',
+            paths_relative_to_root: [
+              'lib/my_file.rb',
+            ]
+          )
+
+          expect_files_to_not_exist([
+                                      'lib/my_file.rb',
+                                      'spec/lib/my_file_spec.rb',
+                                    ])
+
+          expect_files_to_exist([
+                                  'packs/my_pack/app/lib/my_file.rb',
+                                  'packs/my_pack/spec/lib/my_file_spec.rb',
+                                ])
+        end
+      end
+
       describe 'RubocopPostProcessor' do
         context 'moving file listed in top-level .rubocop_todo.yml' do
           it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do

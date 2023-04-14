@@ -18,6 +18,10 @@ module UsePacks
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
         origin_pack = ParsePackwerk.package_from_path(origin_pathname)
 
+        if origin_pathname.to_s.match?(/^lib/) && !origin_pathname.to_s.match?(/^lib\/tasks/)
+          origin_pathname = Pathname.new(origin_pathname.to_s.gsub('lib', 'app/lib'))
+        end
+
         if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
           new_package_root.join(origin_pathname).cleanpath
         else
@@ -54,6 +58,9 @@ module UsePacks
         if origin_pathname.extname == '.rake'
           new_origin_pathname = origin_pathname.sub('/lib/', '/spec/lib/').sub(%r{^lib/}, 'spec/lib/').sub('.rake', '_spec.rb')
           new_destination_pathname = destination_pathname.sub('/lib/', '/spec/lib/').sub(%r{^lib/}, 'spec/lib/').sub('.rake', '_spec.rb')
+        elsif origin_pathname.to_s.include?('lib/')
+          new_origin_pathname = origin_pathname.sub('/lib/', '/spec/lib/').sub(%r{^lib/}, 'spec/lib/').sub('.rb', '_spec.rb')
+          new_destination_pathname = destination_pathname.sub('/app/lib/', '/spec/lib/').sub(%r{^app/lib/}, 'spec/lib/').sub('.rb', '_spec.rb')
         else
           new_origin_pathname = origin_pathname.sub('/app/', '/spec/').sub(%r{^app/}, 'spec/').sub('.rb', '_spec.rb')
           new_destination_pathname = destination_pathname.sub('/app/', '/spec/').sub(%r{^app/}, 'spec/').sub('.rb', '_spec.rb')
