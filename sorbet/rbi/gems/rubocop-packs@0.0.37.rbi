@@ -27,6 +27,9 @@ class RuboCop::Cop::Packs::DocumentedPublicApis < ::RuboCop::Cop::Style::Documen
   sig { params(node: T.untyped).void }
   def check(node); end
 
+  sig { params(node: T.untyped).returns(T::Boolean) }
+  def node_is_sorbet_signature?(node); end
+
   sig { returns(T::Boolean) }
   def support_autocorrect?; end
 end
@@ -173,7 +176,6 @@ module RuboCop::Packs
   end
 end
 
-RuboCop::Packs::CONFIG = T.let(T.unsafe(nil), Hash)
 RuboCop::Packs::CONFIG_DEFAULT = T.let(T.unsafe(nil), Pathname)
 
 module RuboCop::Packs::Inject
