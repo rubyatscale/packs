@@ -133,7 +133,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
-    rubocop-packs (0.0.36)
+    rubocop-packs (0.0.34)
       activesupport
       packs
       parse_packwerk
