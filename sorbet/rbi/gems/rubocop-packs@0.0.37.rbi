@@ -162,6 +162,9 @@ module RuboCop::Packs
     sig { params(rule: ::String).returns(T::Set[::String]) }
     def exclude_for_rule(rule); end
 
+    sig { params(root_pathname: ::String).returns(::String) }
+    def pack_based_rubocop_config(root_pathname: T.unsafe(nil)); end
+
     sig { params(packs: T::Array[::Packs::Pack], files: T::Array[::String]).void }
     def regenerate_todo(packs: T.unsafe(nil), files: T.unsafe(nil)); end
 
