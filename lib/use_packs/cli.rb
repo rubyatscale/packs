@@ -68,16 +68,6 @@ module UsePacks
       )
     end
 
-    desc 'move_to_parent packs/parent_pack packs/child_pack', 'Pass in a parent pack and another pack to be made as a child to the parent pack!'
-    sig { params(parent_name: String, pack_name: String).void }
-    def move_to_parent(parent_name, pack_name)
-      UsePacks.move_to_parent!(
-        parent_name: parent_name,
-        pack_name: pack_name,
-        per_file_processors: [UsePacks::RubocopPostProcessor.new, UsePacks::CodeOwnershipPostProcessor.new]
-      )
-    end
-
     desc 'lint_package_todo_yml_files', 'Ensures `package_todo.yml` files are up to date'
     sig { void }
     def lint_package_todo_yml_files
@@ -142,6 +132,17 @@ module UsePacks
         per_file_processors: [UsePacks::RubocopPostProcessor.new, UsePacks::CodeOwnershipPostProcessor.new]
       )
     end
+
+    desc 'move_to_parent packs/child_pack packs/parent_pack ', 'Sets packs/child_pack as a child of packs/parent_pack'
+    sig { params(child_pack_name: String, parent_pack_name: String).void }
+    def move_to_parent(child_pack_name, parent_pack_name)
+      UsePacks.move_to_parent!(
+        parent_name: parent_pack_name,
+        pack_name: child_pack_name,
+        per_file_processors: [UsePacks::RubocopPostProcessor.new, UsePacks::CodeOwnershipPostProcessor.new]
+      )
+    end
+
 
     private
 
