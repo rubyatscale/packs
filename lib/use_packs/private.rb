@@ -555,6 +555,14 @@ module UsePacks
         exit 1
       end
     end
+
+    sig { params(packs: T::Array[Packs::Pack]).void }
+    def self.visualize(packs: Packs.all)
+      packwerk_packages = packs.map do |pack|
+        T.must(ParsePackwerk.find(pack.name))
+      end
+      VisualizePackwerk.package_graph!(packwerk_packages)
+    end
   end
 
   private_constant :Private

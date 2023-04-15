@@ -120,6 +120,13 @@ module UsePacks
       Private.get_info(packs: parse_pack_names(pack_names))
     end
 
+
+    desc 'visualize [ packs/my_pack packs/my_other_pack ]', "Visualize packs"
+    sig { params(pack_names: String).void }
+    def visualize(*pack_names)
+      Private.visualize(packs: parse_pack_names(pack_names))
+    end
+
     private
 
     # This is used by thor to know that these private methods are not intended to be CLI commands
