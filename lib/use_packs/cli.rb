@@ -114,6 +114,12 @@ module UsePacks
       RuboCop::Packs.regenerate_todo(packs: parse_pack_names(pack_names))
     end
 
+    desc 'get_info [ packs/my_pack packs/my_other_pack ]', "Get info about size and violations for packs"
+    sig { params(pack_names: String).void }
+    def get_info(*pack_names)
+      Private.get_info(packs: parse_pack_names(pack_names))
+    end
+
     private
 
     # This is used by thor to know that these private methods are not intended to be CLI commands

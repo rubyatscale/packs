@@ -477,6 +477,48 @@ module UsePacks
     def self.packwerk_package_to_pack(package)
       Packs.find(package.name)
     end
+
+    sig { params(packs: T::Array[Packs::Pack]).void }
+    def self.get_info(packs: Packs.all)
+      inbound_violations = {}
+      outbound_violations = {}
+      ParsePackwerk.all.each do |p|
+        p.violations.each do |violation|
+          outbound_violations[p.name] ||= []
+          outbound_violations[p.name] << violation
+          inbound_violations[violation.to_package_name] ||= []
+          inbound_violations[violation.to_package_name] << violation
+        end
+      end
+
+      all_inbound = T.let([], T::Array[ParsePackwerk::Violation])
+      all_outbound = T.let([], T::Array[ParsePackwerk::Violation])
+      packs.each do |pack|
+        all_inbound += inbound_violations[pack.name] || []
+        all_outbound += outbound_violations[pack.name] || []
+      end
+
+      puts "There are #{all_inbound.select(&:privacy?).sum { |v| v.files.count }} total inbound privacy violations"
+      puts "There are #{all_inbound.select(&:dependency?).sum { |v| v.files.count }} total inbound dependency violations"
+      puts "There are #{all_outbound.select(&:privacy?).sum { |v| v.files.count }} total outbound privacy violations"
+      puts "There are #{all_outbound.select(&:dependency?).sum { |v| v.files.count }} total outbound dependency violations"
+
+      packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
+        puts "\n=========== Info about: #{pack.name}"
+
+        owner = CodeOwnership.for_package(pack)
+        puts "Owned by: #{owner.nil? ? 'No one' : owner.name}"
+        puts "Size: #{pack.relative_path.glob('**/*.rb').count} ruby files"
+        puts "Public API: #{pack.relative_path.join('app/public')}"
+
+        inbound_for_pack = inbound_violations[pack.name] || []
+        outbound_for_pack = outbound_violations[pack.name] || []
+        puts "There are #{inbound_for_pack.select(&:privacy?).sum { |v| v.files.count }} inbound privacy violations"
+        puts "There are #{inbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }} inbound dependency violations"
+        puts "There are #{outbound_for_pack.select(&:privacy?).sum { |v| v.files.count }} outbound privacy violations"
+        puts "There are #{outbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }} outbound dependency violations"
+      end
+    end
   end
 
   private_constant :Private
