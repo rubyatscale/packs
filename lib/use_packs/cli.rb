@@ -127,6 +127,22 @@ module UsePacks
       Private.visualize(packs: parse_pack_names(pack_names))
     end
 
+    desc 'rename', "Rename a pack"
+    sig { void }
+    def rename
+      puts Private.rename_pack
+    end
+
+    desc 'move_to_parent packs/child_pack packs/parent_pack ', 'Sets packs/child_pack as a child of packs/parent_pack'
+    sig { params(child_pack_name: String, parent_pack_name: String).void }
+    def move_to_parent(child_pack_name, parent_pack_name)
+      UsePacks.move_to_parent!(
+        parent_name: parent_pack_name,
+        pack_name: child_pack_name,
+        per_file_processors: [UsePacks::RubocopPostProcessor.new, UsePacks::CodeOwnershipPostProcessor.new]
+      )
+    end
+
     private
 
     # This is used by thor to know that these private methods are not intended to be CLI commands
