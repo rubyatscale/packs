@@ -104,20 +104,19 @@ module UsePacks
       RuboCop::Packs.regenerate_todo(packs: parse_pack_names(pack_names))
     end
 
-    desc 'get_info [ packs/my_pack packs/my_other_pack ]', "Get info about size and violations for packs"
+    desc 'get_info [ packs/my_pack packs/my_other_pack ]', 'Get info about size and violations for packs'
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
       Private.get_info(packs: parse_pack_names(pack_names))
     end
 
-
-    desc 'visualize [ packs/my_pack packs/my_other_pack ]', "Visualize packs"
+    desc 'visualize [ packs/my_pack packs/my_other_pack ]', 'Visualize packs'
     sig { params(pack_names: String).void }
     def visualize(*pack_names)
       Private.visualize(packs: parse_pack_names(pack_names))
     end
 
-    desc 'rename', "Rename a pack"
+    desc 'rename', 'Rename a pack'
     sig { void }
     def rename
       puts Private.rename_pack
@@ -132,17 +131,6 @@ module UsePacks
         per_file_processors: [UsePacks::RubocopPostProcessor.new, UsePacks::CodeOwnershipPostProcessor.new]
       )
     end
-
-    desc 'move_to_parent packs/child_pack packs/parent_pack ', 'Sets packs/child_pack as a child of packs/parent_pack'
-    sig { params(child_pack_name: String, parent_pack_name: String).void }
-    def move_to_parent(child_pack_name, parent_pack_name)
-      UsePacks.move_to_parent!(
-        parent_name: parent_pack_name,
-        pack_name: child_pack_name,
-        per_file_processors: [UsePacks::RubocopPostProcessor.new, UsePacks::CodeOwnershipPostProcessor.new]
-      )
-    end
-
 
     private
 
