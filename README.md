@@ -5,7 +5,7 @@ UsePacks is a gem that helps in creating and maintaining packs. It exists to hel
 ## Usage
 Make sure to run `bundle binstub use_packs` to generate `bin/packs` within your application.
 
-### General Help
+## CLI Documentation
 `bin/packs --help` or just `bin/packs` to enter interactive mode.
 
 ### Pack Creation
@@ -20,14 +20,13 @@ Make sure to run `bundle binstub use_packs` to generate `bin/packs` within your 
 ### Listing top privacy violations
 `bin/packs list_top_privacy_violations packs/my_pack`
 
-
 ### Listing top dependency violations
 `bin/packs list_top_dependency_violations packs/my_pack`
 
 ### Adding a dependency
 `bin/packs add_dependency packs/my_pack packs/dependency_pack_name`
 
-### Releasing
+## Releasing
 Releases happen automatically through github actions once a version update is committed to `main`.
 
 ## Discussions, Issues, Questions, and More
