@@ -4,7 +4,7 @@ module UsePacks
   module Private
     module InteractiveCli
       module UseCases
-        class LintPackageYml
+        class LintPackageYmlFiles
           extend T::Sig
           extend T::Helpers
           include Interface

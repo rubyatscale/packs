@@ -4,19 +4,19 @@ module UsePacks
   module Private
     module InteractiveCli
       module UseCases
-        class Rename
+        class Update
           extend T::Sig
           extend T::Helpers
           include Interface
 
           sig { override.returns(String) }
           def user_facing_name
-            'Rename a pack'
+            'Run bin/packwerk update'
           end
 
           sig { override.params(prompt: TTY::Prompt).void }
           def perform!(prompt)
-            prompt.warn(Private.rename_pack)
+            system('bin/packwerk update')
           end
         end
       end

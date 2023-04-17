@@ -4,19 +4,19 @@ module UsePacks
   module Private
     module InteractiveCli
       module UseCases
-        class UpdateTodo
+        class LintPackageYmlTodoFiles
           extend T::Sig
           extend T::Helpers
           include Interface
 
-          sig { override.returns(String) }
-          def user_facing_name
-            'Run bin/packwerk update-todo'
-          end
-
           sig { override.params(prompt: TTY::Prompt).void }
           def perform!(prompt)
-            system('bin/packwerk update-todo')
+            Private.lint_package_todo_yml_files!
+          end
+
+          sig { override.returns(String) }
+          def user_facing_name
+            'Lint .package_todo.yml files'
           end
         end
       end

@@ -29,10 +29,7 @@ module UsePacks
                 selected_packs = PackSelector.single_or_all_pack_multi_select(prompt)
               end
 
-              packwerk_packages = selected_packs.map do |pack|
-                T.must(ParsePackwerk.find(pack.name))
-              end
-              VisualizePackwerk.package_graph!(packwerk_packages)
+              Private.visualize(packs: selected_packs)
             end
           end
 
