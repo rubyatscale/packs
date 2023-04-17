@@ -30,6 +30,13 @@ module UsePacks
     end
 
     desc 'list_top_dependency_violations packs/your_pack', 'List the top dependency violations of packs/your_pack'
+    long_desc <<~LONG_DESC
+      Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way
+
+      You can use this command to list the top dependency violations.
+
+      If no pack name is passed in, this will list out violations across all packs.
+    LONG_DESC
     option :limit, type: :numeric, default: 10, aliases: :l, banner: 'Specify the limit of constants to analyze'
     sig { params(pack_name: String).void }
     def list_top_dependency_violations(pack_name)
@@ -40,6 +47,13 @@ module UsePacks
     end
 
     desc 'list_top_privacy_violations packs/your_pack', 'List the top privacy violations of packs/your_pack'
+    long_desc <<~LONG_DESC
+      Want to create interfaces? Not sure how your pack's code is being used?
+
+      You can use this command to list the top privacy violations.
+
+      If no pack name is passed in, this will list out violations across all packs.
+    LONG_DESC
     option :limit, type: :numeric, default: 10, aliases: :l, banner: 'Specify the limit of constants to analyze'
     sig { params(pack_name: String).void }
     def list_top_privacy_violations(pack_name)
@@ -50,6 +64,11 @@ module UsePacks
     end
 
     desc 'make_public path/to/file.rb path/to/directory', 'Pass in a space-separated list of file or directory paths to make public'
+    long_desc <<~LONG_DESC
+      This moves a file or directory to public API (that is -- the `app/public` folder).
+
+      Make sure there are no spaces between the comma-separated list of paths of directories.
+    LONG_DESC
     sig { params(paths: String).void }
     def make_public(*paths)
       UsePacks.make_public!(
@@ -59,6 +78,12 @@ module UsePacks
     end
 
     desc 'move packs/destination_pack path/to/file.rb path/to/directory', 'Pass in a destination pack and a space-separated list of file or directory paths to move to the destination pack'
+    long_desc <<~LONG_DESC
+      This is used for moving files into a pack (the pack must already exist).
+      Note this works for moving files to packs from the monolith or from other packs
+
+      Make sure there are no spaces between the comma-separated list of paths of directories.
+    LONG_DESC
     sig { params(pack_name: String, paths: String).void }
     def move(pack_name, *paths)
       UsePacks.move_to_pack!(
