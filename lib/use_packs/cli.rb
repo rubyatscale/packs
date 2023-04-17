@@ -63,7 +63,7 @@ module UsePacks
       )
     end
 
-    desc 'make_public path/to/file.rb path/to/directory', 'Pass in a space-separated list of file or directory paths to make public'
+    desc 'make_public path/to/file.rb path/to/directory', 'Make files or directories public API'
     long_desc <<~LONG_DESC
       This moves a file or directory to public API (that is -- the `app/public` folder).
 
@@ -77,7 +77,7 @@ module UsePacks
       )
     end
 
-    desc 'move packs/destination_pack path/to/file.rb path/to/directory', 'Pass in a destination pack and a space-separated list of file or directory paths to move to the destination pack'
+    desc 'move packs/destination_pack path/to/file.rb path/to/directory', 'Move files or directories from one pack to another'
     long_desc <<~LONG_DESC
       This is used for moving files into a pack (the pack must already exist).
       Note this works for moving files to packs from the monolith or from other packs
@@ -93,7 +93,7 @@ module UsePacks
       )
     end
 
-    desc 'lint_package_todo_yml_files', 'Ensures `package_todo.yml` files are up to date'
+    desc 'lint_package_todo_yml_files', 'Lint `package_todo.yml` files to check for formatting issues'
     sig { void }
     def lint_package_todo_yml_files
       UsePacks.lint_package_todo_yml_files!
@@ -147,7 +147,7 @@ module UsePacks
       puts Private.rename_pack
     end
 
-    desc 'move_to_parent packs/child_pack packs/parent_pack ', 'Sets packs/child_pack as a child of packs/parent_pack'
+    desc 'move_to_parent packs/child_pack packs/parent_pack ', 'Set packs/child_pack as a child of packs/parent_pack'
     sig { params(child_pack_name: String, parent_pack_name: String).void }
     def move_to_parent(child_pack_name, parent_pack_name)
       UsePacks.move_to_parent!(
