@@ -87,7 +87,6 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 
 
 ## Releasing
-
 Releases happen automatically through github actions once a version update is committed to `main`.
 
 ## Discussions, Issues, Questions, and More
