@@ -18,7 +18,7 @@ module UsePacks
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
         origin_pack = ParsePackwerk.package_from_path(origin_pathname)
 
-        if origin_pathname.to_s.match?(/^lib/) && !origin_pathname.to_s.match?(/^lib\/tasks/)
+        if origin_pathname.to_s.match?(/^lib/) && !origin_pathname.to_s.match?(%r{^lib/tasks})
           origin_pathname = Pathname.new(origin_pathname.to_s.gsub('lib', 'app/lib'))
         end
 

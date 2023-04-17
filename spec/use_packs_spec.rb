@@ -522,18 +522,18 @@ RSpec.describe UsePacks do
           UsePacks.move_to_pack!(
             pack_name: 'packs/my_pack',
             paths_relative_to_root: [
-              'lib/my_file.rb',
+              'lib/my_file.rb'
             ]
           )
 
           expect_files_to_not_exist([
                                       'lib/my_file.rb',
-                                      'spec/lib/my_file_spec.rb',
+                                      'spec/lib/my_file_spec.rb'
                                     ])
 
           expect_files_to_exist([
                                   'packs/my_pack/app/lib/my_file.rb',
-                                  'packs/my_pack/spec/lib/my_file_spec.rb',
+                                  'packs/my_pack/spec/lib/my_file_spec.rb'
                                 ])
         end
       end
