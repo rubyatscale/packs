@@ -13,6 +13,7 @@ AllCops:
   SuggestExtensions: false
   Exclude:
     - vendor/bundle/**/**
+  TargetRubyVersion: 2.6.0
 
 Metrics/ParameterLists:
   Enabled: false
