@@ -39,6 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'tty-prompt'
   spec.add_dependency 'visualize_packwerk'
 
+  # rubocop:disable Gemspec/DevelopmentDependencies
   spec.add_development_dependency 'bundler', '~> 2.2'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'pry-byebug'
@@ -49,4 +50,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'sorbet'
   spec.add_development_dependency 'sorbet-static'
   spec.add_development_dependency 'tapioca'
+  # rubocop:enable Gemspec/DevelopmentDependencies
 end
