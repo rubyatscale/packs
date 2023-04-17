@@ -34,6 +34,13 @@ RSpec.describe UsePacks do
   end
 
   describe '.create_pack!' do
+    before do
+      write_file('packwerk.yml', <<~YML)
+      require:
+        - packwerk/privacy/checker
+      YML
+    end
+
     # Right now, `UsePacks` only supports `packs`, `gems`, or `components` as the home for packwerk packages
     context 'pack name does not include `packs` prefix' do
       let(:pack_name) { 'my_pack' }
