@@ -36,8 +36,8 @@ RSpec.describe UsePacks do
   describe '.create_pack!' do
     before do
       write_file('packwerk.yml', <<~YML)
-      require:
-        - packwerk/privacy/checker
+        require:
+          - packwerk/privacy/checker
       YML
     end
 
