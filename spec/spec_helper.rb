@@ -1,4 +1,4 @@
-# typed: strict
+# typed: false
 # frozen_string_literal: true
 
 require 'use_packs'
@@ -14,6 +14,11 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  config.before do |example|
+    ParsePackwerk.bust_cache!
+    allow(UsePacks.const_get(:Private)).to receive(:safe_exit)
   end
 
   config.around do |example|
