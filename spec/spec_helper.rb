@@ -16,7 +16,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before do |example|
+  config.before do |_example|
     ParsePackwerk.bust_cache!
     allow(UsePacks.const_get(:Private)).to receive(:safe_exit)
   end
