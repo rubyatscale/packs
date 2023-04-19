@@ -1292,7 +1292,6 @@ RSpec.describe UsePacks do
 
 
         Moving file packs/apples/app/services/apples/foo.rb to packs/fruits/apples/app/services/apples/foo.rb
-        [SKIP] Not moving packs/apples/spec/services/apples/foo_spec.rb, does not exist
         ====================================================================================================
         Next steps
 

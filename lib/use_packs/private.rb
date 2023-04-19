@@ -324,7 +324,9 @@ module UsePacks
       elsif !origin.exist? && destination.exist?
         Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, does not exist, (#{destination} already exists)").red
       else
-        Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, does not exist").red
+        # We could choose to print this in a `--verbose` mode. For now, we find that printing this text in red confuses folks more than it informs them.
+        # This is because it's perfectly common for a spec to not exist for a file, so at best it's a warning.
+        # Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, does not exist").red
       end
     end
 
