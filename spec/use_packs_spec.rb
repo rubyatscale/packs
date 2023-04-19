@@ -1292,7 +1292,6 @@ RSpec.describe UsePacks do
 
 
         Moving file packs/apples/app/services/apples/foo.rb to packs/fruits/apples/app/services/apples/foo.rb
-        [SKIP] Not moving packs/apples/spec/services/apples/foo_spec.rb, does not exist
         ====================================================================================================
         Next steps
 
@@ -1372,8 +1371,8 @@ RSpec.describe UsePacks do
     context 'no diff after running update-todo' do
       it 'exits successfully' do
         expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo'])
-        expect(UsePacks).to receive(:exit).with(0)
-        expect(UsePacks).to_not receive(:puts)
+        expect(UsePacks.const_get(:Private)).to receive(:safe_exit).with(0)
+        expect(UsePacks.const_get(:Private)).to_not receive(:puts)
         UsePacks.lint_package_todo_yml_files!
       end
     end
@@ -1408,7 +1407,7 @@ RSpec.describe UsePacks do
           CONTENTS
         end
 
-        expect(UsePacks).to receive(:puts).with(<<~EXPECTED)
+        expect(UsePacks.const_get(:Private)).to receive(:puts).with(<<~EXPECTED)
           All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-todo`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
@@ -1429,7 +1428,7 @@ RSpec.describe UsePacks do
 
         EXPECTED
 
-        expect(UsePacks).to receive(:exit).with(1)
+        expect(UsePacks.const_get(:Private)).to receive(:safe_exit).with(1)
         UsePacks.lint_package_todo_yml_files!
       end
     end
@@ -1469,7 +1468,7 @@ RSpec.describe UsePacks do
           CONTENTS
         end
 
-        expect(UsePacks).to receive(:puts).with(<<~EXPECTED)
+        expect(UsePacks.const_get(:Private)).to receive(:puts).with(<<~EXPECTED)
           All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-todo`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
@@ -1492,7 +1491,7 @@ RSpec.describe UsePacks do
 
         EXPECTED
 
-        expect(UsePacks).to receive(:exit).with(1)
+        expect(UsePacks.const_get(:Private)).to receive(:safe_exit).with(1)
         UsePacks.lint_package_todo_yml_files!
         expect(callback_invocation).to include('All `package_todo.yml` files must be up-to-date')
       end
