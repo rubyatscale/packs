@@ -516,6 +516,8 @@ RSpec.describe UsePacks do
       describe 'RubocopPostProcessor' do
         context 'moving file listed in top-level .rubocop_todo.yml' do
           it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
+            write_file('.rubocop.yml')
+
             write_file('.rubocop_todo.yml', <<~CONTENTS)
               ---
               Layout/BeginEndAlignment:
@@ -544,6 +546,7 @@ RSpec.describe UsePacks do
 
         context 'origin pack has a pack-level package_rubocop_todo.yml, destination pack does not' do
           it 'modifies packs/*pack_package_rubocop_todo.yml, correctly' do
+            write_file('.rubocop.yml')
             write_file('packs/foo/package_rubocop_todo.yml', <<~CONTENTS)
               ---
               Layout/BeginEndAlignment:
@@ -574,6 +577,7 @@ RSpec.describe UsePacks do
 
         context 'origin and destination pack both have .rubocop_todo.yml' do
           it 'modifies packs/*/package_rubocop_todo.yml, correctly' do
+            write_file('.rubocop.yml')
             write_file('packs/foo/package_rubocop_todo.yml', <<~CONTENTS)
               ---
               Layout/BeginEndAlignment:
@@ -612,6 +616,7 @@ RSpec.describe UsePacks do
 
         context 'destination pack does not have same key in .rubocop_todo.yml' do
           it 'modifies packs/*/package_rubocop_todo.yml, correctly' do
+            write_file('.rubocop.yml')
             write_file('packs/foo/package_rubocop_todo.yml', <<~CONTENTS)
               ---
               Layout/BeginEndAlignment:
@@ -651,17 +656,36 @@ RSpec.describe UsePacks do
           end
         end
 
-        it 'runs rubocop on the changed files' do
-          UsePacks.create_pack!(pack_name: 'packs/fruits/apples')
-          ParsePackwerk.bust_cache!
-          write_file('packs/fruits/apples/app/services/apple.rb')
+        context 'rubocop is not enabled' do
+          it 'does not run rubocop related functionality' do
+            UsePacks.create_pack!(pack_name: 'packs/fruits/apples')
+            ParsePackwerk.bust_cache!
+            write_file('packs/fruits/apples/app/services/apple.rb')
 
-          expect(RuboCop::Packs).to receive(:regenerate_todo).with(files: ['packs/fruits/apples/app/public/apple.rb'])
+            expect(RuboCop::Packs).to_not receive(:regenerate_todo)
 
-          UsePacks.make_public!(
-            paths_relative_to_root: ['packs/fruits/apples/app/services/apple.rb'],
-            per_file_processors: [UsePacks::RubocopPostProcessor.new]
-          )
+            UsePacks.make_public!(
+              paths_relative_to_root: ['packs/fruits/apples/app/services/apple.rb'],
+              per_file_processors: [UsePacks::RubocopPostProcessor.new]
+            )
+          end
+        end
+
+        context 'rubocop is enabled' do
+          before { write_file('.rubocop.yml') }
+
+          it 'runs rubocop on the changed files' do
+            UsePacks.create_pack!(pack_name: 'packs/fruits/apples')
+            ParsePackwerk.bust_cache!
+            write_file('packs/fruits/apples/app/services/apple.rb')
+
+            expect(RuboCop::Packs).to receive(:regenerate_todo).with(files: ['packs/fruits/apples/app/public/apple.rb'])
+
+            UsePacks.make_public!(
+              paths_relative_to_root: ['packs/fruits/apples/app/services/apple.rb'],
+              per_file_processors: [UsePacks::RubocopPostProcessor.new]
+            )
+          end
         end
       end
 
@@ -1007,6 +1031,7 @@ RSpec.describe UsePacks do
       end
 
       it 'replaces the file in the top-level .rubocop_todo.yml' do
+        write_file('.rubocop.yml')
         write_package_yml('packs/organisms')
 
         write_file('.rubocop_todo.yml', <<~CONTENTS)
@@ -1034,6 +1059,7 @@ RSpec.describe UsePacks do
       end
 
       it 'replaces the file in the pack-specific .rubocop_todo.yml' do
+        write_file('.rubocop.yml')
         write_package_yml('packs/organisms')
 
         write_file('packs/organisms/package_rubocop_todo.yml', <<~CONTENTS)
