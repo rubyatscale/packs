@@ -7,6 +7,8 @@ module UsePacks
 
     sig { override.params(file_move_operation: Private::FileMoveOperation).void }
     def before_move_file!(file_move_operation)
+      return unless rubocop_enabled?
+
       relative_path_to_origin = file_move_operation.origin_pathname
       relative_path_to_destination = file_move_operation.destination_pathname
 
@@ -50,6 +52,8 @@ module UsePacks
 
     sig { params(file_move_operations: T::Array[Private::FileMoveOperation]).void }
     def after_move_files!(file_move_operations)
+      return unless rubocop_enabled?
+
       # There could also be no TODOs for this file, but moving it produced TODOs. This could happen if:
       # 1) The origin pack did not enforce a rubocop, such as typed public APIs
       # 2) The file satisfied the cop in the origin pack, such as the Packs/RootNamespaceIsPackName, but the desired
@@ -62,6 +66,11 @@ module UsePacks
       end
 
       RuboCop::Packs.regenerate_todo(files: files)
+    end
+
+    sig { returns(T::Boolean) }
+    def rubocop_enabled?
+      Pathname.new('.rubocop.yml').exist?
     end
   end
 end
