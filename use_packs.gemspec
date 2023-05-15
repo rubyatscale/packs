@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'use_packs'
-  spec.version       = '0.0.18'
+  spec.version       = '0.0.19'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 
@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   # https://bundler.io/blog/2015/03/20/moving-bins-to-exe.html
   spec.executables = %w[packs]
 
-  spec.add_dependency 'code_ownership'
+  spec.add_dependency 'code_ownership', '>= 1.33.0'
   spec.add_dependency 'colorize'
   spec.add_dependency 'packs'
   spec.add_dependency 'packwerk'
