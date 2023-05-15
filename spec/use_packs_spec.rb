@@ -117,7 +117,7 @@ RSpec.describe UsePacks do
           enforce_dependencies: false,
           dependencies: [],
           metadata: {},
-          config: { 'owner' => 'MyTeam' },
+          config: { 'owner' => 'MyTeam' }
         )
 
         ParsePackwerk.bust_cache!
