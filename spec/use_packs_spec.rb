@@ -66,7 +66,8 @@ RSpec.describe UsePacks do
       expect(package.enforce_privacy).to eq(true)
       expect(package.enforce_dependencies).to eq(true)
       expect(package.dependencies).to eq([])
-      expect(package.metadata).to eq({ 'owner' => 'MyTeam' })
+      expect(package.config['owner']).to eq('MyTeam')
+      expect(package.metadata).to eq({})
       expect(package.directory.join(RuboCop::Packs::PACK_LEVEL_RUBOCOP_YML).read).to eq(<<~YML)
         Department/SomeCop:
           Enabled: true
@@ -75,8 +76,7 @@ RSpec.describe UsePacks do
       expected = <<~EXPECTED
         enforce_dependencies: true
         enforce_privacy: true
-        metadata:
-          owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
+        owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
       EXPECTED
 
       expect(package.yml.read).to eq expected
@@ -116,8 +116,8 @@ RSpec.describe UsePacks do
           enforce_privacy: true,
           enforce_dependencies: false,
           dependencies: [],
-          metadata: { 'owner' => 'MyTeam' },
-          config: {}
+          metadata: {},
+          config: { 'owner' => 'MyTeam' },
         )
 
         ParsePackwerk.bust_cache!
@@ -152,19 +152,20 @@ RSpec.describe UsePacks do
       UsePacks.create_pack!(pack_name: 'packs/my_pack')
       ParsePackwerk.bust_cache!
       package = ParsePackwerk.find('packs/my_pack')
-      expect(package.metadata['owner']).to eq 'MyTeam'
+      expect(package.config['owner']).to eq 'MyTeam'
       package_yml_contents = package.yml.read
       expect(package_yml_contents).to include('owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team')
     end
 
     context 'team owner is provided' do
-      it 'automatically adds the owner metadata key' do
+      it 'automatically adds the owner top-level key' do
         write_codeownership_config
         write_file('config/teams/artists.yml', 'name: Artists')
         UsePacks.create_pack!(pack_name: 'packs/my_pack', team: CodeTeams.find('Artists'))
         ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/my_pack')
-        expect(package.metadata['owner']).to eq 'Artists'
+        expect(package.metadata).to eq({})
+        expect(package.config['owner']).to eq 'Artists'
         package_yml_contents = package.yml.read
         expect(package_yml_contents).to include('owner: Artists')
       end
@@ -197,7 +198,8 @@ RSpec.describe UsePacks do
         expect(package.enforce_privacy).to eq(true)
         expect(package.enforce_dependencies).to eq(true)
         expect(package.dependencies).to eq([])
-        expect(package.metadata).to eq({ 'owner' => 'MyTeam' })
+        expect(package.config['owner']).to eq('MyTeam')
+        expect(package.metadata).to eq({})
         expect(package.directory.join(RuboCop::Packs::PACK_LEVEL_RUBOCOP_YML).read).to eq(<<~YML)
           Department/SomeCop:
             Enabled: true
@@ -206,8 +208,7 @@ RSpec.describe UsePacks do
         expected = <<~EXPECTED
           enforce_dependencies: true
           enforce_privacy: true
-          metadata:
-            owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
+          owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
         EXPECTED
 
         expect(package.yml.read).to eq expected

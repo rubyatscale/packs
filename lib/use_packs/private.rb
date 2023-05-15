@@ -371,20 +371,20 @@ module UsePacks
         # TODO: This should probably be `if defined?(CodeOwnership) && CodeOwnership.configured?`
         # but we'll need to add an API to CodeOwnership to do this
         if Pathname.new('config/code_ownership.yml').exist?
-          metadata = {
+          config = {
             'owner' => team.nil? ? 'MyTeam' : team.name
           }
         else
-          metadata = {}
+          config = {}
         end
 
         package = ParsePackwerk::Package.new(
           enforce_dependencies: should_enforce_dependenceies,
           enforce_privacy: enforce_privacy,
           dependencies: [],
-          metadata: metadata,
+          metadata: {},
           name: pack_name,
-          config: {}
+          config: config
         )
 
         ParsePackwerk.write_package_yml!(package)
