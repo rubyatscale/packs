@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    use_packs (0.0.19)
+    use_packs (0.0.20)
       code_ownership (>= 1.33.0)
       colorize
       packs
@@ -82,7 +82,7 @@ GEM
     packs (0.0.6)
       sorbet-runtime
     parallel (1.23.0)
-    parse_packwerk (0.19.1)
+    parse_packwerk (0.19.3)
       sorbet-runtime
     parser (3.2.2.1)
       ast (~> 2.4.1)
