@@ -574,8 +574,6 @@ module UsePacks
           new_config.delete('metadata')
         end
 
-        new_config = sort_keys(new_config)
-
         new_package = packwerk_package.with(
           config: new_config,
           metadata: new_metadata,
