@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    use_packs (0.0.19)
+    use_packs (0.0.20)
       code_ownership (>= 1.33.0)
       colorize
       packs
