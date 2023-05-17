@@ -366,7 +366,7 @@ module UsePacks
 
       existing_package = ParsePackwerk.all.find { |p| p.name == pack_name }
       if existing_package.nil?
-        should_enforce_dependenceies = enforce_dependencies.nil? ? UsePacks.config.enforce_dependencies : enforce_dependencies
+        should_enforce_dependencies = enforce_dependencies.nil? ? UsePacks.config.enforce_dependencies : enforce_dependencies
 
         # TODO: This should probably be `if defined?(CodeOwnership) && CodeOwnership.configured?`
         # but we'll need to add an API to CodeOwnership to do this
@@ -379,7 +379,7 @@ module UsePacks
         end
 
         package = ParsePackwerk::Package.new(
-          enforce_dependencies: should_enforce_dependenceies || false,
+          enforce_dependencies: should_enforce_dependencies || false,
           enforce_privacy: enforce_privacy,
           dependencies: [],
           metadata: {},
