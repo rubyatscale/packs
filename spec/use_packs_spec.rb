@@ -1392,9 +1392,7 @@ RSpec.describe UsePacks do
     end
   end
 
-  describe 'package_todo_yml_files' do
-    let(:args) { ['package_todo_yml_files'] }
-
+  describe 'lint_package_todo_yml_files!' do
     context 'no diff after running update-todo' do
       it 'exits successfully' do
         expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo'])
@@ -1521,6 +1519,165 @@ RSpec.describe UsePacks do
         expect(UsePacks.const_get(:Private)).to receive(:safe_exit).with(1)
         UsePacks.lint_package_todo_yml_files!
         expect(callback_invocation).to include('All `package_todo.yml` files must be up-to-date')
+      end
+    end
+  end
+
+  describe 'lint_package_yml_files!' do
+    context 'package has no linting issues' do
+      before do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_dependencies: true
+          enforce_privacy: true
+          owner: Bar
+          dependencies:
+            - packs/apack
+            - packs/bpack
+            - packs/cpack
+        CONTENTS
+      end
+
+      it 'produces no changes' do
+        UsePacks.lint_package_yml_files!(Packs.all)
+        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
+          enforce_dependencies: true
+          enforce_privacy: true
+          owner: Bar
+          dependencies:
+            - packs/apack
+            - packs/bpack
+            - packs/cpack
+        YML
+      end
+    end
+
+    context 'package has several linting issues' do
+      before do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_visibility: true
+          enforce_privacy: true
+          enforce_dependencies: true
+          owner: Benefits Plan Recommendations
+          dependencies:
+            - gems/carrier_metadata
+            - packs/authorizations
+            - packs/carrier_registry
+            - packs/demographics
+            - packs/feature_flags
+            - packs/metrics
+            - packs/rails_shims
+            - packs/underwriting_rules
+            - packs/versions
+          ignored_dependencies:
+            - packs/carrier_implementation_setup
+            - packs/integrations
+          metadata:
+            product_group: plan_recommendation_engine
+          visible_to:
+            - packs/benefits_applications
+          layer: product
+        CONTENTS
+      end
+
+      it 'produces a linted version of the pack' do
+        UsePacks.lint_package_yml_files!(Packs.all)
+        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
+          enforce_dependencies: true
+          enforce_privacy: true
+          enforce_visibility: true
+          owner: Benefits Plan Recommendations
+          layer: product
+          dependencies:
+            - gems/carrier_metadata
+            - packs/authorizations
+            - packs/carrier_registry
+            - packs/demographics
+            - packs/feature_flags
+            - packs/metrics
+            - packs/rails_shims
+            - packs/underwriting_rules
+            - packs/versions
+          ignored_dependencies:
+            - packs/carrier_implementation_setup
+            - packs/integrations
+          visible_to:
+            - packs/benefits_applications
+          metadata:
+            product_group: plan_recommendation_engine
+        YML
+      end
+    end
+
+    context 'package has no owner' do
+      before do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_dependencies: true
+          enforce_privacy: true
+        CONTENTS
+      end
+
+      it 'produces no owner related changes' do
+        UsePacks.lint_package_yml_files!(Packs.all)
+        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
+          enforce_dependencies: true
+          enforce_privacy: true
+        YML
+      end
+    end
+
+    context 'package has an owner specified in metadata' do
+      before do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_privacy: true
+          enforce_dependencies: true
+          metadata:
+            owner: My Team
+        CONTENTS
+      end
+
+      it 'moves owner to top-level key' do
+        UsePacks.lint_package_yml_files!(Packs.all)
+        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
+          enforce_dependencies: true
+          enforce_privacy: true
+          owner: My Team
+        YML
+      end
+    end
+
+    context 'package has no metadata' do
+      before do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_privacy: true
+          enforce_dependencies: true
+          metadata:
+        CONTENTS
+      end
+
+      it 'removes metadata' do
+        UsePacks.lint_package_yml_files!(Packs.all)
+        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
+          enforce_dependencies: true
+          enforce_privacy: true
+        YML
+      end
+    end
+
+    context 'package has no dependencies' do
+      before do
+        write_file('packs/my_pack/package.yml', <<~CONTENTS)
+          enforce_privacy: true
+          enforce_dependencies: true
+          dependencies: []
+        CONTENTS
+      end
+
+      it 'removes dependencies' do
+        UsePacks.lint_package_yml_files!(Packs.all)
+        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
+          enforce_dependencies: true
+          enforce_privacy: true
+        YML
       end
     end
   end
