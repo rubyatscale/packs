@@ -388,8 +388,6 @@ module UsePacks
         )
 
         ParsePackwerk.write_package_yml!(package)
-        pack = Packs.find(package.name)
-        RuboCop::Packs.set_default_rubocop_yml(packs: [pack].compact)
 
         current_contents = package.yml.read
         new_contents = current_contents.gsub('MyTeam', 'MyTeam # specify your team here, or delete this key if this package is not owned by one team')
