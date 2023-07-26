@@ -70,9 +70,6 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 ## Run bin/packwerk update-todo
 `bin/packs update`
 
-## Regenerate packs/*/package_rubocop_todo.yml for one or more packs
-`bin/packs regenerate_rubocop_todo [ packs/my_pack packs/my_other_pack ]`
-
 ## Get info about size and violations for packs
 `bin/packs get_info [ packs/my_pack packs/my_other_pack ]`
 

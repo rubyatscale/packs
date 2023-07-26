@@ -18,7 +18,6 @@ require 'use_packs/private/interactive_cli/use_cases/rename'
 require 'use_packs/private/interactive_cli/use_cases/check'
 require 'use_packs/private/interactive_cli/use_cases/update'
 require 'use_packs/private/interactive_cli/use_cases/validate'
-require 'use_packs/private/interactive_cli/use_cases/regenerate_rubocop_todo'
 require 'use_packs/private/interactive_cli/use_cases/lint_package_yml_files'
 require 'use_packs/private/interactive_cli/use_cases/visualize'
 
