@@ -1,6 +1,6 @@
-# UsePacks
+# Packs
 
-UsePacks is a gem that helps in creating and maintaining packs. It exists to help perform some basic operations needed for pack setup and configuration. It provides a basic ruby file packager utility for [`packwerk`](https://github.com/Shopify/packwerk/). It assumes you are using [`stimpack`](https://github.com/rubyatscale/stimpack) to organize your packages.
+Packs is a gem that helps in creating and maintaining packs. It exists to help perform some basic operations needed for pack setup and configuration. It provides a basic ruby file packager utility for [`packwerk`](https://github.com/Shopify/packwerk/). It assumes you are using [`packs-rails`](https://github.com/rubyatscale/packs-rails) to organize your packages.
 
 ## Usage
 Make sure to run `bundle binstub use_packs` to generate `bin/packs` within your application.

@@ -2,7 +2,7 @@
 ## Pack Maintenance
 ### Setting Privacy
 ```ruby
-UsePacks.create_pack!(
+Packs.create_pack!(
     # This determines whether your package.yml in your new package will enforce privacy. See packwerk documentation for more details on this attribute.
     # This is an optional parameter (default is true). See https://github.com/Gusto/packs/discussions/19
     enforce_privacy: false,
@@ -11,14 +11,14 @@ UsePacks.create_pack!(
 ```
 
 ### Per-file Processors
-Your application may have specific needs when moving files. `UsePacks` gives a way to inject application-specific behavior into the file move process.
+Your application may have specific needs when moving files. `Packs` gives a way to inject application-specific behavior into the file move process.
 
 You can pass in an array of application specific behavior into the `per_file_processors` parameter of the main method.
 
 See `rubocop_post_processor.rb` as an example of renaming files in `.rubocop_todo.yml` automatically, which is something you may want to do (as you do not want to fix all style errors when you're just moving a file).
 
 # First-Time Configuration (per repo, not per developer)
-If you install binstubs, it allows simpler commands: `bin/packs` rather than `bundle exec use_packs`.
+If you install binstubs, it allows simpler commands: `bin/packs` rather than `bundle exec packs`.
 
 Install binstubs using:
-`bundle binstubs use_packs`
+`bundle binstubs packs`
