@@ -590,7 +590,7 @@ module UsePacks
 
     sig { params(packs: T::Array[Packs::Pack]).void }
     def self.visualize(packs: Packs.all)
-      VisualizePackwerk.package_graph!(packs)
+      VisualizePacks.package_graph!(packs)
     end
 
     sig { returns(String) }
