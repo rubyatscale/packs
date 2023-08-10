@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 magnus = { version = "0.6" }
+pks = { version = "0.1.68" }
