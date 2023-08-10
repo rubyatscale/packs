@@ -193,7 +193,7 @@ module Packs
 
     sig { returns(String) }
     def documentation_link
-      'https://github.com/rubyatscale/use_packs#readme'
+      'https://github.com/rubyatscale/packs#readme'
     end
   end
 end

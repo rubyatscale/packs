@@ -1,1 +1,1 @@
-See https://github.com/rubyatscale/use_packs/releases
+See https://github.com/rubyatscale/packs/releases

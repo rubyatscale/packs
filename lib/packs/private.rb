@@ -404,7 +404,7 @@ module Packs
       return if @loaded_client_configuration
 
       @loaded_client_configuration = true
-      client_configuration = Pathname.pwd.join('config/use_packs.rb')
+      client_configuration = Pathname.pwd.join('config/packs.rb')
       require client_configuration.to_s if client_configuration.exist?
     end
 

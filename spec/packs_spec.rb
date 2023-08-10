@@ -212,7 +212,7 @@ RSpec.describe Packs do
 
           One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
-          See https://github.com/rubyatscale/use_packs#readme for more info!
+          See https://github.com/rubyatscale/packs#readme for more info!
         TODO
       end
 
@@ -251,7 +251,7 @@ RSpec.describe Packs do
 
           README.md files are under version control and should change as your public API changes.#{' '}
 
-          See https://github.com/rubyatscale/use_packs#readme for more info!
+          See https://github.com/rubyatscale/packs#readme for more info!
         EXPECTED
       end
 
@@ -680,7 +680,7 @@ RSpec.describe Packs do
 
           One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
 
-          See https://github.com/rubyatscale/use_packs#readme for more info!
+          See https://github.com/rubyatscale/packs#readme for more info!
         TODO
       end
 
@@ -731,7 +731,7 @@ RSpec.describe Packs do
 
           README.md files are under version control and should change as your public API changes.#{' '}
 
-          See https://github.com/rubyatscale/use_packs#readme for more info!
+          See https://github.com/rubyatscale/packs#readme for more info!
         EXPECTED
       end
 
@@ -1118,7 +1118,7 @@ RSpec.describe Packs do
         👋 Hi!
 
 
-        You are moving one pack to be a child of a different pack. Check out https://github.com/rubyatscale/use_packs#readme for more info!
+        You are moving one pack to be a child of a different pack. Check out https://github.com/rubyatscale/packs#readme for more info!
 
         ====================================================================================================
         File Operations
