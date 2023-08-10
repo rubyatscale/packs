@@ -1,7 +1,6 @@
 # typed: false
 # frozen_string_literal: true
 
-require 'use_packs'
 require 'packs'
 require 'packs/rspec/support'
 
@@ -18,7 +17,7 @@ RSpec.configure do |config|
 
   config.before do |_example|
     ParsePackwerk.bust_cache!
-    allow(UsePacks.const_get(:Private)).to receive(:safe_exit)
+    allow(Packs.const_get(:Private)).to receive(:safe_exit)
   end
 
   config.around do |example|

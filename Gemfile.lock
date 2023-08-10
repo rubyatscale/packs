@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    use_packs (0.0.21)
+    packs (0.0.22)
       code_ownership (>= 1.33.0)
       colorize
       packs-specification
@@ -79,8 +79,6 @@ GEM
     nokogiri (1.15.0)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    packs (0.0.6)
-      sorbet-runtime
     packs-specification (0.0.9)
       sorbet-runtime
     parallel (1.23.0)
@@ -140,9 +138,9 @@ GEM
       rubocop (~> 1.41)
     rubocop-factory_bot (2.23.0)
       rubocop (~> 1.33)
-    rubocop-packs (0.0.40)
+    rubocop-packs (0.0.42)
       activesupport
-      packs
+      packs-specification
       parse_packwerk
       rubocop
       rubocop-sorbet
@@ -151,7 +149,7 @@ GEM
       rubocop (~> 1.33)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)
-    rubocop-sorbet (0.7.0)
+    rubocop-sorbet (0.7.2)
       rubocop (>= 0.90.0)
     ruby-graphviz (1.2.5)
       rexml
@@ -222,6 +220,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 2.2)
+  packs!
   packwerk!
   pry
   pry-byebug
@@ -232,7 +231,6 @@ DEPENDENCIES
   sorbet
   sorbet-static
   tapioca
-  use_packs!
 
 BUNDLED WITH
    2.2.33

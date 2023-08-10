@@ -5,11 +5,11 @@ require 'bundler/inline'
 # Send is to ward off Sorbet which can't type this method invocation
 send(:gemfile) do
   send(:source, 'https://rubygems.org')
-  gem 'use_packs', path: '../'
+  gem 'packs', path: '../'
 end
 
 all_docs = []
-UsePacks::CLI.all_commands.each do |_command_name, command|
+Packs::CLI.all_commands.each do |_command_name, command|
   all_docs << <<~DOCUMENTATION
     ## #{command.description}
     `bin/packs #{command.usage}`
