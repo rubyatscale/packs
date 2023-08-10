@@ -1,9 +1,36 @@
-# Packs
+# packs
 
-Packs is a gem that helps in creating and maintaining packs. It exists to help perform some basic operations needed for pack setup and configuration. It provides a basic ruby file packager utility for [`packwerk`](https://github.com/Shopify/packwerk/). It assumes you are using [`packs-rails`](https://github.com/rubyatscale/packs-rails) to organize your packages.
+`packs` are a specification for an extensible packaging system to help modularize Ruby applications.
+
+A `pack` (short for `package`) is a folder of Ruby code with a `package.yml` at the root that is intended to represent a well-modularized domain.
+
+This gem provides a development CLI, `bin/packs`, to make using `packs` easier.
+
+# Configuration
+By default, this library will look for `packs` in the folder `packs/*/package.yml` (as well as nested packs at `packs/*/*/package.yml`). To change where `packs` are located, create a `packs.yml` file:
+```yml
+pack_paths:
+  - "{packs,utilities,deprecated}/*" # packs with multiple roots!
+  - "{packs,utilities,deprecated}/*/*" # nested packs!
+  - gems/* # gems can be packs too!
+```
+
+# Ecosystem
+The rest of the [rubyatscale](https://github.com/rubyatscale) ecosystem is intended to help make using packs and improving the boundaries between them more clear.
+
+Here are some example integrations with `packs`:
+- [`packs-specification`](https://github.com/rubyatscale/packs-specification) is a low-dependency gem that allows your production environment to query simple information about packs
+- [`packs-rails`](https://github.com/rubyatscale/packs-rails) can be used to integrate `packs` into your `rails` application
+- [`rubocop-packs`](https://github.com/rubyatscale/rubocop-packs) contains cops to improve boundaries around `packs` 
+- [`packwerk`](https://github.com/Shopify/packwerk) and [`packwerk-extensions`](https://github.com/rubyatscale/packwerk-extensions) help you describe and constrain your package graph in terms of dependencies between packs and pack public API
+- [`code_ownership`](https://github.com/rubyatscale/code_ownership) gives your application the capability to determine the owner of a pack
+- [`pack_stats`](https://github.com/rubyatscale/pack_stats) makes it easy to send metrics about pack adoption and modularization to your favorite metrics provider, such as DataDog (which has built-in support).
+
+# How is a pack different from a gem?
+A ruby [`gem`](https://guides.rubygems.org/what-is-a-gem/) is the Ruby community solution for packaging and distributing Ruby code. A gem is a great place to start new projects, and a great end state for code that's been extracted from an existing codebase. `packs` are intended to help gradually modularize an application that has some conceptual boundaries, but is not yet ready to be factored into gems.
 
 ## Usage
-Make sure to run `bundle binstub use_packs` to generate `bin/packs` within your application.
+Make sure to run `bundle binstub packs` to generate `bin/packs` within your application.
 
 ## CLI Documentation
 ## Describe available commands or one specific command
