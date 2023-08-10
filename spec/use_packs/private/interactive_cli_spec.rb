@@ -144,7 +144,7 @@ module UsePacks
 
       prompt.input.rewind
 
-      expect(VisualizePackwerk).to receive(:package_graph!).with([Packs.all.first])
+      expect(VisualizePacks).to receive(:package_graph!).with([Packs.all.first])
 
       subject
     end
@@ -175,7 +175,7 @@ module UsePacks
 
       prompt.input.rewind
 
-      expect(VisualizePackwerk).to receive(:package_graph!).with([Packs.all.first])
+      expect(VisualizePacks).to receive(:package_graph!).with([Packs.all.first])
 
       subject
     end

@@ -1,6 +1,6 @@
 # typed: strict
 
-require 'visualize_packwerk'
+require 'visualize_packs'
 
 module UsePacks
   module Private
@@ -17,7 +17,7 @@ module UsePacks
 
             if teams_or_packs == 'Teams'
               teams = TeamSelector.multi_select(prompt)
-              VisualizePackwerk.team_graph!(teams)
+              VisualizePacks.team_graph!(teams)
             else
               by_name_or_by_owner = prompt.select('Do you select packs by name or by owner?', ['By name', 'By owner'])
               if by_name_or_by_owner == 'By owner'

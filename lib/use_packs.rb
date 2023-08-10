@@ -7,6 +7,7 @@ require 'fileutils'
 require 'colorized_string'
 
 # Internal gem requires
+require 'packs-specification'
 require 'parse_packwerk'
 require 'code_teams'
 require 'code_ownership'
