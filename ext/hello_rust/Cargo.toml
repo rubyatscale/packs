@@ -1,0 +1,12 @@
+[package]
+name = "hello_rust"
+version = "0.1.0"
+edition = "2021"
+authors = ["Alex Evanczuk <alex.evanczuk@gusto.com>"]
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+magnus = { version = "0.6" }

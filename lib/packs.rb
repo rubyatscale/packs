@@ -1,5 +1,8 @@
 # typed: strict
 
+# Rust extension
+require_relative "hello_rust/hello_rust"
+
 # Ruby internal requires
 require 'fileutils'
 

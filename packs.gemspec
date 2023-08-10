@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   # and
   # https://bundler.io/blog/2015/03/20/moving-bins-to-exe.html
   spec.executables = %w[packs]
+  spec.extensions = ["ext/hello_rust/Cargo.toml"]
 
   spec.add_dependency 'code_ownership', '>= 1.33.0'
   spec.add_dependency 'colorize'

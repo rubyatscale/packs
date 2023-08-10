@@ -32,6 +32,10 @@ RSpec.describe Packs do
     allow(Packs::Logging).to receive(:print)
   end
 
+  it "does something useful" do
+    expect(HelloRust.hello("Blah")).to eq "Hello from Rust, Blah!"
+  end
+
   describe '.create_pack!' do
     before do
       write_file('packwerk.yml', <<~YML)
