@@ -4,5 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'packwerk', github: 'Shopify/packwerk', branch: 'main'
-gem "rake-compiler"
-gem "rb_sys", "~> 0.9.63"
+gem 'rake-compiler'
+gem 'rb_sys', '~> 0.9.63'

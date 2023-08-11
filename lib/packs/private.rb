@@ -294,7 +294,7 @@ module Packs
         config: package.config
       )
       ParsePackwerk.write_package_yml!(new_package)
-      Packs.validate
+      PacksRust.validate
     end
 
     sig { params(file_move_operation: FileMoveOperation, per_file_processors: T::Array[Packs::PerFileProcessorInterface]).void }
@@ -610,12 +610,6 @@ module Packs
     sig { params(code: T::Boolean).void }
     def self.exit_with(code)
       exit code
-    end
-
-    # This function exists to give us something to stub in test
-    sig { params(command: String).returns(T::Boolean) }
-    def self.system_with(command)
-      T.cast(system(command), T::Boolean)
     end
   end
 

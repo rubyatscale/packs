@@ -58,10 +58,6 @@ module Packs
     sig { params(files: T::Array[::String]).returns(T::Array[::Packwerk::ReferenceOffense]) }
     def get_offenses_for_files(files); end
 
-    # source://packs/0.1.0/lib/packs.rb#243
-    sig { params(files: T::Array[::String]).returns(T::Array[::Packwerk::ReferenceOffense]) }
-    def get_offenses_for_files_by_package(files); end
-
     # source://packs/0.1.0/lib/packs.rb#252
     sig { void }
     def lint_package_todo_yml_files!; end

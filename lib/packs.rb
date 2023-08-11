@@ -1,7 +1,7 @@
 # typed: strict
 
 # Rust extension
-require_relative "hello_rust/hello_rust"
+require_relative 'hello_rust/hello_rust'
 
 # Ruby internal requires
 require 'fileutils'
@@ -41,17 +41,17 @@ module Packs
 
   sig { returns(T::Boolean) }
   def self.update
-    Private.system_with('bin/packwerk update-todo')
+    PacksRust.update
   end
 
   sig { returns(T::Boolean) }
   def self.validate
-    Private.system_with('bin/packwerk validate')
+    PacksRust.validate
   end
 
   sig { params(files: T::Array[String]).returns(T::Boolean) }
   def self.check(files)
-    Private.system_with("bin/packwerk check #{files.join(' ')}")
+    PacksRust.check(files)
   end
 
   sig do

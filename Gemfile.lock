@@ -107,6 +107,9 @@ GEM
       nokogiri (~> 1.14)
     rainbow (3.1.1)
     rake (13.0.6)
+    rake-compiler (1.2.5)
+      rake
+    rb_sys (0.9.81)
     rbi (0.0.17)
       ast
       parser (>= 3.0.0)
@@ -232,6 +235,8 @@ DEPENDENCIES
   pry
   pry-byebug
   rake
+  rake-compiler
+  rb_sys (~> 0.9.63)
   rspec (~> 3.0)
   rubocop
   rubocop-rspec

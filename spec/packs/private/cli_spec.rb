@@ -66,7 +66,7 @@ RSpec.describe Packs::CLI do
     context 'packs check returns success false' do
       it 'exits unsuccessfully' do
         expect_failure
-        expect(Packs).to receive(:check).with(
+        expect(PacksRust).to receive(:check).with(
           ['packs/your_pack']
         ).and_return(false)
         described_class.start(['check', 'packs/your_pack'])
@@ -78,9 +78,7 @@ RSpec.describe Packs::CLI do
     context 'packs validate returns success true' do
       it 'exits successfully' do
         expect_success
-        expect(Packs.const_get(:Private)).to receive(:system_with).with(
-          'bin/packwerk validate'
-        ).and_return(true)
+        expect(PacksRust).to receive(:validate).and_return(true)
         described_class.start(['validate'])
       end
     end
@@ -88,9 +86,7 @@ RSpec.describe Packs::CLI do
     context 'packs validate returns success false' do
       it 'exits unsuccessfully' do
         expect_failure
-        expect(Packs.const_get(:Private)).to receive(:system_with).with(
-          'bin/packwerk validate'
-        ).and_return(false)
+        expect(PacksRust).to receive(:validate).and_return(false)
         described_class.start(['validate'])
       end
     end

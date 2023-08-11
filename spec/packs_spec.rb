@@ -32,10 +32,6 @@ RSpec.describe Packs do
     allow(Packs::Logging).to receive(:print)
   end
 
-  it "does something useful" do
-    expect(HelloRust.hello("Blah")).to eq "Hello from Rust, Blah!"
-  end
-
   describe '.create_pack!' do
     before do
       write_file('packwerk.yml', <<~YML)
@@ -977,7 +973,7 @@ RSpec.describe Packs do
         write_package_yml('packs/other_pack')
 
         expect(ParsePackwerk.find('.').dependencies).to eq([])
-        expect(Packs).to receive(:validate).and_return(true)
+        expect(PacksRust).to receive(:validate).and_return(true)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/other_pack'])
@@ -989,7 +985,7 @@ RSpec.describe Packs do
         write_package_yml('.', dependencies: ['packs/foo'])
         write_package_yml('packs/other_pack')
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo'])
-        expect(Packs).to receive(:validate).and_return(true)
+        expect(PacksRust).to receive(:validate).and_return(true)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/other_pack'])
@@ -1001,7 +997,7 @@ RSpec.describe Packs do
         write_package_yml('.', dependencies: ['packs/foo', 'packs/foo', 'packs/foo'])
         write_package_yml('packs/other_pack')
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/foo', 'packs/foo'])
-        expect(Packs).to receive(:validate).and_return(false)
+        expect(PacksRust).to receive(:validate).and_return(false)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/other_pack'])
@@ -1014,7 +1010,7 @@ RSpec.describe Packs do
         write_package_yml('packs/other_pack')
 
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/zoo', 'packs/boo'])
-        expect(Packs).to receive(:validate).and_return(false)
+        expect(PacksRust).to receive(:validate).and_return(false)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/boo', 'packs/foo', 'packs/other_pack', 'packs/zoo'])
