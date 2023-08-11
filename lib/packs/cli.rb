@@ -111,19 +111,19 @@ module Packs
       Packs.lint_package_yml_files!(parse_pack_names(pack_names))
     end
 
-    desc 'validate', 'Run bin/packwerk validate (detects cycles)'
+    desc 'validate', 'Run validations (detects cycles)'
     sig { void }
     def validate
       Private.exit_with(Packs.validate)
     end
 
-    desc 'check [ packs/my_pack ]', 'Run bin/packwerk check'
+    desc 'check [ packs/my_pack ]', 'Check for new violations'
     sig { params(paths: String).void }
     def check(*paths)
       Private.exit_with(Packs.check(paths))
     end
 
-    desc 'update', 'Run bin/packwerk update-todo'
+    desc 'update', 'Update package_todo.yml files'
     sig { void }
     def update
       Private.exit_with(Packs.update)

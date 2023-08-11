@@ -88,13 +88,13 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 ## Lint `package.yml` files
 `bin/packs lint_package_yml_files [ packs/my_pack packs/my_other_pack ]`
 
-## Run bin/packwerk validate (detects cycles)
+## Run validations (detects cycles)
 `bin/packs validate`
 
-## Run bin/packwerk check
+## Check for new violations
 `bin/packs check [ packs/my_pack ]`
 
-## Run bin/packwerk update-todo
+## Update package_todo.yml files
 `bin/packs update`
 
 ## Get info about size and violations for packs

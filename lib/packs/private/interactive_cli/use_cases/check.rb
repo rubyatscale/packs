@@ -11,7 +11,7 @@ module Packs
 
           sig { override.returns(String) }
           def user_facing_name
-            'Run bin/packwerk check'
+            'Run bin/packs check'
           end
 
           sig { override.params(prompt: TTY::Prompt).void }

@@ -1133,7 +1133,7 @@ RSpec.describe Packs do
 
         1) Delete the old pack when things look good: `rm -rf packs/apples`
 
-        2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` first.
+        2) Run `bin/packs update` to update the violations. Make sure to run `spring stop` first.
 
       OUTPUT
     end
@@ -1199,7 +1199,7 @@ RSpec.describe Packs do
   end
 
   describe 'lint_package_todo_yml_files!' do
-    context 'no diff after running update-todo' do
+    context 'no diff after running update' do
       it 'exits successfully' do
         expect(Packs).to receive(:update).and_return(true)
         expect(Packs.const_get(:Private)).to receive(:exit_with).with(true)
@@ -1208,7 +1208,7 @@ RSpec.describe Packs do
       end
     end
 
-    context 'some stale violations removed after running update-todo' do
+    context 'some stale violations removed after running update' do
       it 'exits in a failure' do
         write_file('packs/my_pack/package.yml', <<~CONTENTS)
           enforce_privacy: true
@@ -1241,17 +1241,17 @@ RSpec.describe Packs do
         end
 
         expect(Packs.const_get(:Private)).to receive(:puts).with(<<~EXPECTED)
-          All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-todo`.
+          All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packs update`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
           There are three main reasons there may be a diff:
           1) Most likely, you may have stale violations, meaning there are old violations that no longer apply.
           2) You may have some sort of auto-formatter set up somewhere (e.g. something that reformats YML files) that is, for example, changing double quotes to single quotes. Ensure this is turned off for these auto-generated files.
-          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-todo` command to make changes to `package_todo.yml` files.
+          3) You may have edited these files manually. It's recommended to use the `bin/packs update` command to make changes to `package_todo.yml` files.
 
-          In all cases, you can run `bin/packwerk update-todo` to update these files.
+          In all cases, you can run `bin/packs update` to update these files.
 
-          Here is the diff generated after running `update-todo`:
+          Here is the diff generated after running `update`:
           ```
           diff -r /packs/my_pack/package_todo.yml /packs/my_pack/package_todo.yml
           8d7
@@ -1266,7 +1266,7 @@ RSpec.describe Packs do
       end
     end
 
-    context 'some formatting changes after running update-todo' do
+    context 'some formatting changes after running update' do
       it 'exits in a failure' do
         callback_invocation = false
         Packs.configure do |config|
@@ -1304,17 +1304,17 @@ RSpec.describe Packs do
         end
 
         expect(Packs.const_get(:Private)).to receive(:puts).with(<<~EXPECTED)
-          All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packwerk update-todo`.
+          All `package_todo.yml` files must be up-to-date and that no diff is generated when running `bin/packs update`.
           This helps ensure a high quality signal in other engineers' PRs when inspecting new violations by ensuring there are no unrelated changes.
 
           There are three main reasons there may be a diff:
           1) Most likely, you may have stale violations, meaning there are old violations that no longer apply.
           2) You may have some sort of auto-formatter set up somewhere (e.g. something that reformats YML files) that is, for example, changing double quotes to single quotes. Ensure this is turned off for these auto-generated files.
-          3) You may have edited these files manually. It's recommended to use the `bin/packwerk update-todo` command to make changes to `package_todo.yml` files.
+          3) You may have edited these files manually. It's recommended to use the `bin/packs update` command to make changes to `package_todo.yml` files.
 
-          In all cases, you can run `bin/packwerk update-todo` to update these files.
+          In all cases, you can run `bin/packs update` to update these files.
 
-          Here is the diff generated after running `update-todo`:
+          Here is the diff generated after running `update`:
           ```
           diff -r /packs/my_pack/package_todo.yml /packs/my_pack/package_todo.yml
           3c3
@@ -1504,7 +1504,7 @@ RSpec.describe Packs do
         #
         # You can regenerate this file using the following command:
         #
-        # bundle exec packwerk update-todo .
+        # bundle exec packwerk update .
         ---
         "packs/food":
           "Salad":
@@ -1520,7 +1520,7 @@ RSpec.describe Packs do
         #
         # You can regenerate this file using the following command:
         #
-        # bundle exec packwerk update-todo .
+        # bundle exec packwerk update .
         ---
         ".":
           "RandomMonolithFile":
@@ -1558,7 +1558,7 @@ RSpec.describe Packs do
         #
         # You can regenerate this file using the following command:
         #
-        # bundle exec packwerk update-todo .
+        # bundle exec packwerk update .
         ---
         ".":
           "RandomMonolithFile":
