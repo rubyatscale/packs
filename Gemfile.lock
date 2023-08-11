@@ -81,7 +81,7 @@ GEM
     nokogiri (1.15.3)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    packs-specification (0.0.9)
+    packs-specification (0.0.10)
       sorbet-runtime
     parallel (1.23.0)
     parse_packwerk (0.19.3)
