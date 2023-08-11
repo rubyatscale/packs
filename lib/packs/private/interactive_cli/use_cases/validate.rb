@@ -16,7 +16,7 @@ module Packs
 
           sig { override.params(prompt: TTY::Prompt).void }
           def perform!(prompt)
-            system('bin/packwerk validate')
+            Private.exit_with(Packs.validate)
           end
         end
       end

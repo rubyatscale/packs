@@ -10,6 +10,7 @@ module Packs
     sig { params(pack_name: String).void }
     def create(pack_name)
       Packs.create_pack!(pack_name: pack_name)
+      exit_successfully
     end
 
     desc 'add_dependency packs/from_pack packs/to_pack', 'Add packs/to_pack to packs/from_pack/package.yml list of dependencies'
@@ -27,6 +28,7 @@ module Packs
         pack_name: from_pack,
         dependency_name: to_pack
       )
+      exit_successfully
     end
 
     desc 'list_top_dependency_violations packs/your_pack', 'List the top dependency violations of packs/your_pack'
@@ -44,6 +46,7 @@ module Packs
         pack_name: pack_name,
         limit: options[:limit]
       )
+      exit_successfully
     end
 
     desc 'list_top_privacy_violations packs/your_pack', 'List the top privacy violations of packs/your_pack'
@@ -61,6 +64,7 @@ module Packs
         pack_name: pack_name,
         limit: options[:limit]
       )
+      exit_successfully
     end
 
     desc 'make_public path/to/file.rb path/to/directory', 'Make files or directories public API'
@@ -75,6 +79,7 @@ module Packs
         paths_relative_to_root: paths,
         per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
       )
+      exit_successfully
     end
 
     desc 'move packs/destination_pack path/to/file.rb path/to/directory', 'Move files or directories from one pack to another'
@@ -91,6 +96,7 @@ module Packs
         paths_relative_to_root: paths,
         per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
       )
+      exit_successfully
     end
 
     desc 'lint_package_todo_yml_files', 'Lint `package_todo.yml` files to check for formatting issues'
@@ -108,37 +114,40 @@ module Packs
     desc 'validate', 'Run bin/packwerk validate (detects cycles)'
     sig { void }
     def validate
-      system('bin/packwerk validate')
+      Private.exit_with(Packs.validate)
     end
 
     desc 'check [ packs/my_pack ]', 'Run bin/packwerk check'
     sig { params(paths: String).void }
     def check(*paths)
-      Packs.execute(['check', *paths])
+      Private.exit_with(Packs.check(paths))
     end
 
     desc 'update', 'Run bin/packwerk update-todo'
     sig { void }
     def update
-      system('bin/packwerk update-todo')
+      Private.exit_with(Packs.update)
     end
 
     desc 'get_info [ packs/my_pack packs/my_other_pack ]', 'Get info about size and violations for packs'
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
       Private.get_info(packs: parse_pack_names(pack_names))
+      exit_successfully
     end
 
     desc 'visualize [ packs/my_pack packs/my_other_pack ]', 'Visualize packs'
     sig { params(pack_names: String).void }
     def visualize(*pack_names)
       Private.visualize(packs: parse_pack_names(pack_names))
+      exit_successfully
     end
 
     desc 'rename', 'Rename a pack'
     sig { void }
     def rename
       puts Private.rename_pack
+      exit_successfully
     end
 
     desc 'move_to_parent packs/child_pack packs/parent_pack ', 'Set packs/child_pack as a child of packs/parent_pack'
@@ -149,6 +158,7 @@ module Packs
         pack_name: child_pack_name,
         per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
       )
+      exit_successfully
     end
 
     private
@@ -158,6 +168,11 @@ module Packs
       sig { params(pack_names: T::Array[String]).returns(T::Array[Packs::Pack]) }
       def parse_pack_names(pack_names)
         pack_names.empty? ? Packs.all : pack_names.map { |p| Packs.find(p.gsub(%r{/$}, '')) }.compact
+      end
+
+      sig { void }
+      def exit_successfully
+        Private.exit_with(true)
       end
     end
   end

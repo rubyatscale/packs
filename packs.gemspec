@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'packs'
-  spec.version       = '0.0.23'
+  spec.version       = '0.0.24'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 
@@ -49,6 +49,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop-rspec'
   spec.add_development_dependency 'sorbet'
   spec.add_development_dependency 'sorbet-static'
+  spec.add_development_dependency 'spoom', '1.2.1' # later versions do not support ruby 2.7
   spec.add_development_dependency 'tapioca'
   # rubocop:enable Gemspec/DevelopmentDependencies
 end

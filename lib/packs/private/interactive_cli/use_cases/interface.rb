@@ -10,9 +10,9 @@ module Packs
 
           interface!
 
-          sig { params(base: Class).void }
+          sig { params(base: T::Class[T.anything]).void }
           def self.included(base)
-            @use_cases ||= T.let(@use_cases, T.nilable(T::Array[Class]))
+            @use_cases ||= T.let(@use_cases, T.nilable(T::Array[T::Class[T.anything]]))
             @use_cases ||= []
             @use_cases << base
           end
