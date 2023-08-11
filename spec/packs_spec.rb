@@ -1348,7 +1348,7 @@ RSpec.describe Packs do
       end
 
       it 'produces no changes' do
-        Packs.lint_package_yml_files!(Packs.all)
+        Packs.lint_package_yml_files!
         expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
           enforce_dependencies: true
           enforce_privacy: true
@@ -1390,13 +1390,12 @@ RSpec.describe Packs do
       end
 
       it 'produces a linted version of the pack' do
-        Packs.lint_package_yml_files!(Packs.all)
+        Packs.lint_package_yml_files!
         expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
           enforce_dependencies: true
           enforce_privacy: true
           enforce_visibility: true
           owner: Benefits Plan Recommendations
-          layer: product
           dependencies:
             - gems/carrier_metadata
             - packs/authorizations
@@ -1412,6 +1411,7 @@ RSpec.describe Packs do
             - packs/integrations
           visible_to:
             - packs/benefits_applications
+          layer: product
           metadata:
             product_group: plan_recommendation_engine
         YML
@@ -1427,45 +1427,7 @@ RSpec.describe Packs do
       end
 
       it 'produces no owner related changes' do
-        Packs.lint_package_yml_files!(Packs.all)
-        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
-          enforce_dependencies: true
-          enforce_privacy: true
-        YML
-      end
-    end
-
-    context 'package has an owner specified in metadata' do
-      before do
-        write_file('packs/my_pack/package.yml', <<~CONTENTS)
-          enforce_privacy: true
-          enforce_dependencies: true
-          metadata:
-            owner: My Team
-        CONTENTS
-      end
-
-      it 'moves owner to top-level key' do
-        Packs.lint_package_yml_files!(Packs.all)
-        expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
-          enforce_dependencies: true
-          enforce_privacy: true
-          owner: My Team
-        YML
-      end
-    end
-
-    context 'package has no metadata' do
-      before do
-        write_file('packs/my_pack/package.yml', <<~CONTENTS)
-          enforce_privacy: true
-          enforce_dependencies: true
-          metadata:
-        CONTENTS
-      end
-
-      it 'removes metadata' do
-        Packs.lint_package_yml_files!(Packs.all)
+        Packs.lint_package_yml_files!
         expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
           enforce_dependencies: true
           enforce_privacy: true
@@ -1483,7 +1445,7 @@ RSpec.describe Packs do
       end
 
       it 'removes dependencies' do
-        Packs.lint_package_yml_files!(Packs.all)
+        Packs.lint_package_yml_files!
         expect(Packs.find('packs/my_pack').yml.read).to eq <<~YML
           enforce_dependencies: true
           enforce_privacy: true

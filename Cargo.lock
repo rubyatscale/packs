@@ -595,9 +595,9 @@ checksum = "12cc1b0bf1727a77a54b6654e7b5f1af8604923edc8b81885f8ec92f9e3f0a05"
 
 [[package]]
 name = "pks"
-version = "0.1.70"
+version = "0.1.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db383ff4156673c1190fb00e43b20fcc7b394562ea40488fd9ec900ae4e0c1e6"
+checksum = "ca35a9a3fe2b865030c53fdf5ff82e8bbe9d52bc8b6940ebaa053631a0d16ae5"
 dependencies = [
  "clap",
  "clap_derive",

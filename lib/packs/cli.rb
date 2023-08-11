@@ -105,10 +105,10 @@ module Packs
       Packs.lint_package_todo_yml_files!
     end
 
-    desc 'lint_package_yml_files [ packs/my_pack packs/my_other_pack ]', 'Lint `package.yml` files'
-    sig { params(pack_names: String).void }
-    def lint_package_yml_files(*pack_names)
-      Packs.lint_package_yml_files!(parse_pack_names(pack_names))
+    desc 'lint_package_yml_files', 'Lint `package.yml` files'
+    sig { void }
+    def lint_package_yml_files
+      Private.exit_with(Packs.lint_package_yml_files!)
     end
 
     desc 'validate', 'Run validations (detects cycles)'

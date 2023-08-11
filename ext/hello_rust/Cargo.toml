@@ -10,6 +10,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 magnus = { version = "0.6" }
-pks = { version = "0.1.70" }
+pks = { version = "0.1.71" }
 # Use this instead to develop locally
 # pks = { path = "../../../pks" }

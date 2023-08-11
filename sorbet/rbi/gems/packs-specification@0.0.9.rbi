@@ -62,10 +62,6 @@ module Packs
     sig { void }
     def lint_package_todo_yml_files!; end
 
-    # source://packs/0.1.0/lib/packs.rb#257
-    sig { params(packs: T::Array[::Packs::Pack]).void }
-    def lint_package_yml_files!(packs); end
-
     # source://packs/0.1.0/lib/packs.rb#194
     sig { params(pack_name: T.nilable(::String), limit: ::Integer).void }
     def list_top_dependency_violations(pack_name:, limit:); end

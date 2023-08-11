@@ -555,39 +555,6 @@ module Packs
     end
 
     sig { params(packs: T::Array[Packs::Pack]).void }
-    def self.lint_package_yml_files!(packs)
-      packs.each do |p|
-        packwerk_package = ParsePackwerk.find(p.name)
-        next if packwerk_package.nil?
-
-        new_metadata = packwerk_package.metadata
-        new_config = packwerk_package.config
-
-        # Move metadata owner key to top-level
-        existing_owner = new_config['owner'] || new_metadata.delete('owner')
-        new_config['owner'] = existing_owner if !existing_owner.nil?
-
-        if new_metadata.empty?
-          new_config.delete('metadata')
-        end
-
-        new_package = packwerk_package.with(
-          config: new_config,
-          metadata: new_metadata,
-          dependencies: packwerk_package.dependencies.uniq.sort
-        )
-
-        ParsePackwerk.write_package_yml!(new_package)
-      end
-    end
-
-    sig { params(config: T::Hash[T.anything, T.anything]).returns(T::Hash[T.anything, T.anything]) }
-    def self.sort_keys(config)
-      sort_order = ParsePackwerk.key_sort_order
-      config.to_a.sort_by { |key, _value| T.unsafe(sort_order).index(key) }.to_h
-    end
-
-    sig { params(packs: T::Array[Packs::Pack]).void }
     def self.visualize(packs: Packs.all)
       VisualizePacks.package_graph!(packs)
     end

@@ -17,4 +17,8 @@ class PacksRust
   sig { returns(T::Boolean) }
   def self.update
   end
+
+  sig { returns(T::Boolean) }
+  def self.lint_package_yml_files
+  end
 end

@@ -245,8 +245,8 @@ module Packs
     Private.lint_package_todo_yml_files!
   end
 
-  sig { params(packs: T::Array[Packs::Pack]).void }
-  def self.lint_package_yml_files!(packs)
-    Private.lint_package_yml_files!(packs)
+  sig { returns(T::Boolean) }
+  def self.lint_package_yml_files!
+    PacksRust.lint_package_yml_files
   end
 end

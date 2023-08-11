@@ -86,7 +86,7 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 `bin/packs lint_package_todo_yml_files`
 
 ## Lint `package.yml` files
-`bin/packs lint_package_yml_files [ packs/my_pack packs/my_other_pack ]`
+`bin/packs lint_package_yml_files`
 
 ## Run validations (detects cycles)
 `bin/packs validate`
