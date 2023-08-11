@@ -973,7 +973,7 @@ RSpec.describe Packs do
         write_package_yml('packs/other_pack')
 
         expect(ParsePackwerk.find('.').dependencies).to eq([])
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
+        expect(Packs).to receive(:validate).and_return(true)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/other_pack'])
@@ -985,7 +985,7 @@ RSpec.describe Packs do
         write_package_yml('.', dependencies: ['packs/foo'])
         write_package_yml('packs/other_pack')
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo'])
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
+        expect(Packs).to receive(:validate).and_return(true)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/other_pack'])
@@ -997,7 +997,7 @@ RSpec.describe Packs do
         write_package_yml('.', dependencies: ['packs/foo', 'packs/foo', 'packs/foo'])
         write_package_yml('packs/other_pack')
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/foo', 'packs/foo'])
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
+        expect(Packs).to receive(:validate).and_return(false)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/other_pack'])
@@ -1010,7 +1010,7 @@ RSpec.describe Packs do
         write_package_yml('packs/other_pack')
 
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/foo', 'packs/zoo', 'packs/boo'])
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['validate'])
+        expect(Packs).to receive(:validate).and_return(false)
         Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack')
         ParsePackwerk.bust_cache!
         expect(ParsePackwerk.find('.').dependencies).to eq(['packs/boo', 'packs/foo', 'packs/other_pack', 'packs/zoo'])
@@ -1020,7 +1020,7 @@ RSpec.describe Packs do
     context 'new dependency does not exist' do
       it 'raises an error and does not run validate' do
         expect(ParsePackwerk.find('.').dependencies).to eq([])
-        expect_any_instance_of(Packwerk::Cli).to_not receive(:execute_command)
+        expect(Packs).to_not receive(:validate)
         expect { Packs.add_dependency!(pack_name: '.', dependency_name: 'packs/other_pack') }.to raise_error do |e|
           expect(e.message).to eq 'Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`'
         end
@@ -1029,7 +1029,7 @@ RSpec.describe Packs do
 
     context 'pack does not exist' do
       it 'raises an error and does not run validate' do
-        expect_any_instance_of(Packwerk::Cli).to_not receive(:execute_command)
+        expect(Packs).to_not receive(:validate)
         expect { Packs.add_dependency!(pack_name: 'packs/other_pack', dependency_name: '.') }.to raise_error do |e|
           expect(e.message).to eq 'Can not find package with name packs/other_pack. Make sure the argument is of the form `packs/my_pack/`'
         end
@@ -1201,8 +1201,8 @@ RSpec.describe Packs do
   describe 'lint_package_todo_yml_files!' do
     context 'no diff after running update-todo' do
       it 'exits successfully' do
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo'])
-        expect(Packs.const_get(:Private)).to receive(:safe_exit).with(0)
+        expect(Packs).to receive(:update).and_return(true)
+        expect(Packs.const_get(:Private)).to receive(:exit_with).with(true)
         expect(Packs.const_get(:Private)).to_not receive(:puts)
         Packs.lint_package_todo_yml_files!
       end
@@ -1226,7 +1226,7 @@ RSpec.describe Packs do
               - packs/my_pack/app/services/my_pack_2.rb
         CONTENTS
 
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo']) do
+        expect(Packs).to receive(:update) do
           write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
             ---
             packs/my_other_pack:
@@ -1236,6 +1236,8 @@ RSpec.describe Packs do
                 files:
                 - packs/my_pack/app/services/my_pack.rb
           CONTENTS
+
+          true
         end
 
         expect(Packs.const_get(:Private)).to receive(:puts).with(<<~EXPECTED)
@@ -1259,7 +1261,7 @@ RSpec.describe Packs do
 
         EXPECTED
 
-        expect(Packs.const_get(:Private)).to receive(:safe_exit).with(1)
+        expect(Packs.const_get(:Private)).to receive(:exit_with).with(false)
         Packs.lint_package_todo_yml_files!
       end
     end
@@ -1286,8 +1288,8 @@ RSpec.describe Packs do
               - packs/my_pack/app/services/my_pack_2.rb
         CONTENTS
 
-        expect_any_instance_of(Packwerk::Cli).to receive(:execute_command).with(['update-todo']) do
-          write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
+        expect(Packs).to receive(:update) do
+            write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
             ---
             packs/my_other_pack:
               "::SomeConstant":
@@ -1297,6 +1299,8 @@ RSpec.describe Packs do
                 - packs/my_pack/app/services/my_pack.rb
                 - packs/my_pack/app/services/my_pack_2.rb
           CONTENTS
+
+          true
         end
 
         expect(Packs.const_get(:Private)).to receive(:puts).with(<<~EXPECTED)
@@ -1322,7 +1326,7 @@ RSpec.describe Packs do
 
         EXPECTED
 
-        expect(Packs.const_get(:Private)).to receive(:safe_exit).with(1)
+        expect(Packs.const_get(:Private)).to receive(:exit_with).with(false)
         Packs.lint_package_todo_yml_files!
         expect(callback_invocation).to include('All `package_todo.yml` files must be up-to-date')
       end

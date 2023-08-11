@@ -17,7 +17,7 @@ RSpec.configure do |config|
 
   config.before do |_example|
     ParsePackwerk.bust_cache!
-    allow(Packs.const_get(:Private)).to receive(:safe_exit)
+    allow(Packs.const_get(:Private)).to receive(:exit_with)
   end
 
   config.around do |example|
