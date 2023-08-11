@@ -48,7 +48,7 @@ module Packs
 
   sig { params(files: T::Array[String]).returns(T::Boolean) }
   def self.check(files)
-    Private.system_with("bin/packwerk check #{files.join(" ")}")
+    Private.system_with("bin/packwerk check #{files.join(' ')}")
   end
 
   sig do

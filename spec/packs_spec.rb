@@ -1289,7 +1289,7 @@ RSpec.describe Packs do
         CONTENTS
 
         expect(Packs).to receive(:update) do
-            write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
+          write_file('packs/my_pack/package_todo.yml', <<~CONTENTS)
             ---
             packs/my_other_pack:
               "::SomeConstant":
