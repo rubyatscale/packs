@@ -1095,12 +1095,12 @@ RSpec.describe Packs do
       logged_output = ''
 
       expect(Packs::Logging).to receive(:out).at_least(:once) do |string|
-        logged_output += ColorizedString.new(string).uncolorize
+        logged_output += Rainbow.uncolor(string)
         logged_output += "\n"
       end
 
       expect(Packs::Logging).to receive(:print).at_least(:once) do |string|
-        logged_output += ColorizedString.new(string).uncolorize
+        logged_output += Rainbow.uncolor(string)
         logged_output += "\n"
       end
 
