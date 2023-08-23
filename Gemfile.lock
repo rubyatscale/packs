@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    packs (0.0.24)
+    packs (0.0.25)
       code_ownership (>= 1.33.0)
       packs-specification
       packwerk
@@ -83,7 +83,7 @@ GEM
     packs-specification (0.0.10)
       sorbet-runtime
     parallel (1.23.0)
-    parse_packwerk (0.19.3)
+    parse_packwerk (0.20.0)
       sorbet-runtime
     parser (3.2.2.3)
       ast (~> 2.4.1)
@@ -144,21 +144,19 @@ GEM
       rubocop (~> 1.41)
     rubocop-factory_bot (2.23.1)
       rubocop (~> 1.33)
-    rubocop-packs (0.0.42)
+    rubocop-packs (0.0.43)
       activesupport
       packs-specification
       parse_packwerk
-      rubocop
+      rubocop (~> 1.0)
       rubocop-sorbet
       sorbet-runtime
     rubocop-rspec (2.23.2)
       rubocop (~> 1.33)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)
-    rubocop-sorbet (0.7.2)
+    rubocop-sorbet (0.7.3)
       rubocop (>= 0.90.0)
-    ruby-graphviz (1.2.5)
-      rexml
     ruby-progressbar (1.13.0)
     smart_properties (1.17.0)
     sorbet (0.5.10957)
@@ -207,12 +205,9 @@ GEM
     unparser (0.6.8)
       diff-lcs (~> 1.3)
       parser (>= 3.2.0)
-    visualize_packs (0.3.1)
-      code_ownership
+    visualize_packs (0.5.3)
       packs-specification
-      parse_packwerk
-      rake
-      ruby-graphviz
+      parse_packwerk (>= 0.20.0)
       sorbet-runtime
     wisper (2.0.1)
     yard (0.9.34)
