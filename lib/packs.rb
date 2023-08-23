@@ -4,7 +4,7 @@
 require 'fileutils'
 
 # External gem requires
-require 'colorized_string'
+require 'rainbow'
 
 # Internal gem requires
 require 'packs-specification'

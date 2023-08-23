@@ -19,10 +19,10 @@ PATH
   specs:
     packs (0.0.24)
       code_ownership (>= 1.33.0)
-      colorize
       packs-specification
       packwerk
       parse_packwerk
+      rainbow
       rubocop-packs
       sorbet-runtime
       thor
@@ -61,7 +61,6 @@ GEM
     code_teams (1.0.2)
       sorbet-runtime
     coderay (1.1.3)
-    colorize (1.1.0)
     concurrent-ruby (1.2.2)
     constant_resolver (0.2.0)
     crass (1.0.6)

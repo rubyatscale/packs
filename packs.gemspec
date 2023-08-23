@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.executables = %w[packs]
 
   spec.add_dependency 'code_ownership', '>= 1.33.0'
-  spec.add_dependency 'colorize'
+  spec.add_dependency 'rainbow'
   spec.add_dependency 'packs-specification'
   spec.add_dependency 'packwerk'
   spec.add_dependency 'parse_packwerk'
