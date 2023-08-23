@@ -2,7 +2,7 @@
 
 require 'pathname'
 require 'fileutils'
-require 'colorized_string'
+require 'rainbow'
 require 'sorbet-runtime'
 
 require 'packs/private/file_move_operation'
@@ -313,7 +313,7 @@ module Packs
     sig { params(origin: Pathname, destination: Pathname).void }
     def self.idempotent_mv(origin, destination)
       if origin.exist? && destination.exist?
-        Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, #{destination} already exists").red
+        Logging.print Rainbow("[SKIP] Not moving #{origin}, #{destination} already exists").red
       elsif origin.exist? && !destination.exist?
         destination.dirname.mkpath
 
@@ -321,11 +321,11 @@ module Packs
         # use git mv so that git knows that it was a move
         FileUtils.mv(origin, destination)
       elsif !origin.exist? && destination.exist?
-        Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, does not exist, (#{destination} already exists)").red
+        Logging.print Rainbow("[SKIP] Not moving #{origin}, does not exist, (#{destination} already exists)").red
       else
         # We could choose to print this in a `--verbose` mode. For now, we find that printing this text in red confuses folks more than it informs them.
         # This is because it's perfectly common for a spec to not exist for a file, so at best it's a warning.
-        # Logging.print ColorizedString.new("[SKIP] Not moving #{origin}, does not exist").red
+        # Logging.print Rainbow("[SKIP] Not moving #{origin}, does not exist").red
       end
     end
 

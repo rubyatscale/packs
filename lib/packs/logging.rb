@@ -1,6 +1,6 @@
 # typed: strict
 
-require 'colorized_string'
+require 'rainbow'
 
 module Packs
   module Logging
@@ -9,14 +9,14 @@ module Packs
     sig { params(title: String, block: T.proc.void).void }
     def self.section(title, &block)
       print_divider
-      out ColorizedString.new(title).green.bold
+      out Rainbow(title).green.bold
       out "\n"
       yield
     end
 
     sig { params(text: String).void }
     def self.print_bold_green(text)
-      out ColorizedString.new(text).green.bold
+      out Rainbow(text).green.bold
     end
 
     sig { params(text: String).void }

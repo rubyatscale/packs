@@ -2,6 +2,8 @@
 # frozen_string_literal: true
 
 require 'packs'
+# This require should eventually be done in packs/rspec/support, since it's needed to load the Dir.mktmpdir method
+require 'tmpdir'
 require 'packs/rspec/support'
 
 RSpec.configure do |config|
