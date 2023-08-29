@@ -205,7 +205,7 @@ RSpec.describe Packs do
           You can prevent other packs from using private API by using packwerk.
 
           Want to find how your private API is being used today?
-          Try running: `bin/packs list_top_privacy_violations packs/organisms`
+          Try running: `bin/packs list_top_violations privacy packs/organisms`
 
           Want to move something into this folder?
           Try running: `bin/packs make_public packs/organisms/path/to/file.rb`
@@ -673,7 +673,7 @@ RSpec.describe Packs do
           You can prevent other packs from using private API by using packwerk.
 
           Want to find how your private API is being used today?
-          Try running: `bin/packs list_top_privacy_violations packs/organisms`
+          Try running: `bin/packs list_top_violations privacy packs/organisms`
 
           Want to move something into this folder?
           Try running: `bin/packs make_public packs/organisms/path/to/file.rb`
@@ -1585,9 +1585,10 @@ RSpec.describe Packs do
       CONTENTS
     end
 
-    describe '.list_top_privacy_violations' do
+    describe '.list_top_violations for privacy' do
       let(:list_top_privacy_violations) do
-        Packs.list_top_privacy_violations(
+        Packs.list_top_violations(
+          type: 'privacy',
           pack_name: pack_name,
           limit: limit
         )
@@ -1733,7 +1734,8 @@ RSpec.describe Packs do
             logged_output += "\n"
           end
 
-          Packs.list_top_privacy_violations(
+          Packs.list_top_violations(
+            type: 'privacy',
             pack_name: nil,
             limit: limit
           )
@@ -1768,9 +1770,10 @@ RSpec.describe Packs do
       end
     end
 
-    describe '.list_top_dependency_violations' do
+    describe '.list_top_violations for dependency' do
       let(:list_top_dependency_violations) do
-        Packs.list_top_dependency_violations(
+        Packs.list_top_violations(
+          type: 'dependency',
           pack_name: pack_name,
           limit: limit
         )
@@ -1922,7 +1925,8 @@ RSpec.describe Packs do
             logged_output += "\n"
           end
 
-          Packs.list_top_dependency_violations(
+          Packs.list_top_violations(
+            type: 'dependency',
             pack_name: nil,
             limit: limit
           )

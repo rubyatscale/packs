@@ -32,23 +32,25 @@ RSpec.describe Packs::CLI do
     end
   end
 
-  describe '#list_top_dependency_violations' do
+  describe '#list_top_violations for dependency' do
     it 'lists the top dependency violations' do
-      expect(Packs).to receive(:list_top_dependency_violations).with(
+      expect(Packs).to receive(:list_top_violations).with(
+        type: 'dependency',
         pack_name: 'packs/your_pack',
         limit: 10
       )
-      described_class.start(['list_top_dependency_violations', 'packs/your_pack'])
+      described_class.start(['list_top_violations', 'dependency', 'packs/your_pack'])
     end
   end
 
-  describe '#list_top_privacy_violations' do
+  describe '#list_top_violations for privacy' do
     it 'lists the top privacy violations' do
-      expect(Packs).to receive(:list_top_privacy_violations).with(
+      expect(Packs).to receive(:list_top_violations).with(
+        type: 'privacy',
         pack_name: 'packs/your_pack',
         limit: 10
       )
-      described_class.start(['list_top_privacy_violations', 'packs/your_pack'])
+      described_class.start(['list_top_violations', 'privacy', 'packs/your_pack'])
     end
   end
 

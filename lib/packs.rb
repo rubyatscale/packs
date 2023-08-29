@@ -186,31 +186,18 @@ module Packs
 
   sig do
     params(
+      type: String,
       pack_name: T.nilable(String),
       limit: Integer
     ).void
   end
-  def self.list_top_privacy_violations(
+  def self.list_top_violations(
+    type:,
     pack_name:,
     limit:
   )
-    Private::PackRelationshipAnalyzer.list_top_privacy_violations(
-      pack_name,
-      limit
-    )
-  end
-
-  sig do
-    params(
-      pack_name: T.nilable(String),
-      limit: Integer
-    ).void
-  end
-  def self.list_top_dependency_violations(
-    pack_name:,
-    limit:
-  )
-    Private::PackRelationshipAnalyzer.list_top_dependency_violations(
+    Private::PackRelationshipAnalyzer.list_top_violations(
+      type,
       pack_name,
       limit
     )
