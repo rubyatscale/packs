@@ -52,11 +52,13 @@ This command will also sort the list and make it unique.
 ## List the top violations of a specific type for packs/your_pack.
 `bin/packs list_top_violations type [ packs/your_pack ]`
 
-Possible types are: dependency, privacy.
+Possible types are: dependency, privacy, architecture.
 
 Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way? You can use this command to list the top dependency violations.
 
 Want to create interfaces? Not sure how your pack's code is being used? You can use this command to list the top privacy violations.
+
+Want to focus on the big picture first? You can use this command to list the top architecture violations.
 
 If no pack name is passed in, this will list out violations across all packs.
 

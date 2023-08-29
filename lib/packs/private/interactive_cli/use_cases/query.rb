@@ -30,7 +30,7 @@ module Packs
 
             limit = prompt.ask('Specify the limit of constants to analyze', default: 10, convert: :integer)
 
-            selection = prompt.select('Are you interested in dependency, or privacy violations?', %w[Dependency Privacy], default: 'Privacy')
+            selection = prompt.select('Are you interested in dependency, or privacy violations?', %w[Dependency Privacy Architecture], default: 'Privacy')
 
             Packs.list_top_violations(
               type: selection.downcase,

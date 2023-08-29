@@ -54,6 +54,17 @@ RSpec.describe Packs::CLI do
     end
   end
 
+  describe '#list_top_violations for architecture' do
+    it 'lists the top architecture violations' do
+      expect(Packs).to receive(:list_top_violations).with(
+        type: 'architecture',
+        pack_name: 'packs/your_pack',
+        limit: 10
+      )
+      described_class.start(['list_top_violations', 'architecture', 'packs/your_pack'])
+    end
+  end
+
   describe '#check' do
     context 'packs check returns success true' do
       it 'exits successfully' do

@@ -31,7 +31,7 @@ module Packs
       exit_successfully
     end
 
-    POSIBLE_TYPES = T.let(%w[dependency privacy], T::Array[String])
+    POSIBLE_TYPES = T.let(%w[dependency privacy architecture], T::Array[String])
     desc 'list_top_violations type [ packs/your_pack ]', 'List the top violations of a specific type for packs/your_pack.'
     long_desc <<~LONG_DESC
       Possible types are: #{POSIBLE_TYPES.join(', ')}.
@@ -39,6 +39,8 @@ module Packs
       Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way? You can use this command to list the top dependency violations.
 
       Want to create interfaces? Not sure how your pack's code is being used? You can use this command to list the top privacy violations.
+
+      Want to focus on the big picture first? You can use this command to list the top architecture violations.
 
       If no pack name is passed in, this will list out violations across all packs.
     LONG_DESC
