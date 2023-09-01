@@ -100,9 +100,6 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 ## Get info about size and violations for packs
 `bin/packs get_info [ packs/my_pack packs/my_other_pack ]`
 
-## Visualize packs
-`bin/packs visualize [ packs/my_pack packs/my_other_pack ]`
-
 ## Rename a pack
 `bin/packs rename`
 

@@ -587,11 +587,6 @@ module Packs
       config.to_a.sort_by { |key, _value| T.unsafe(sort_order).index(key) }.to_h
     end
 
-    sig { params(packs: T::Array[Packs::Pack]).void }
-    def self.visualize(packs: Packs.all)
-      VisualizePacks.package_graph!(packs)
-    end
-
     sig { returns(String) }
     def self.rename_pack
       <<~WARNING

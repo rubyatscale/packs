@@ -136,13 +136,6 @@ module Packs
       exit_successfully
     end
 
-    desc 'visualize [ packs/my_pack packs/my_other_pack ]', 'Visualize packs'
-    sig { params(pack_names: String).void }
-    def visualize(*pack_names)
-      Private.visualize(packs: parse_pack_names(pack_names))
-      exit_successfully
-    end
-
     desc 'rename', 'Rename a pack'
     sig { void }
     def rename
