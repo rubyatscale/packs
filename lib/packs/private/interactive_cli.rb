@@ -19,7 +19,6 @@ require 'packs/private/interactive_cli/use_cases/check'
 require 'packs/private/interactive_cli/use_cases/update'
 require 'packs/private/interactive_cli/use_cases/validate'
 require 'packs/private/interactive_cli/use_cases/lint_package_yml_files'
-require 'packs/private/interactive_cli/use_cases/visualize'
 
 module Packs
   module Private
