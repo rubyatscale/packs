@@ -117,7 +117,7 @@ module Packs
         You can prevent other packs from using private API by using packwerk.
 
         Want to find how your private API is being used today?
-        Try running: `bin/packs list_top_privacy_violations #{pack_name}`
+        Try running: `bin/packs list_top_violations privacy #{pack_name}`
 
         Want to move something into this folder?
         Try running: `bin/packs make_public #{pack_name}/path/to/file.rb`
@@ -149,41 +149,20 @@ module Packs
       MSG
     end
 
-    sig { params(pack_name: T.nilable(String), limit: Integer).returns(String) }
-    def before_list_top_dependency_violations(pack_name, limit)
+    sig { params(type: String, pack_name: T.nilable(String), limit: Integer).returns(String) }
+    def before_list_top_violations(type, pack_name, limit)
       if pack_name.nil?
         <<~PACK_CONTENT
-          You are listing top #{limit} dependency violations for all packs. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `bin/packs list_top_dependency_violations #{pack_name} -l 1000`
+          You are listing top #{limit} #{type} violations for all packs. See #{documentation_link} for other utilities!
+          Pass in a limit to display more or less, e.g. `bin/packs list_top_violations #{type} #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
           Anything not in pack_name/app/public is considered private API.
         PACK_CONTENT
       else
         <<~PACK_CONTENT
-          You are listing top #{limit} dependency violations for #{pack_name}. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `bin/packs list_top_dependency_violations #{pack_name} -l 1000`
-
-          This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
-          Anything not in #{pack_name}/app/public is considered private API.
-        PACK_CONTENT
-      end
-    end
-
-    sig { params(pack_name: T.nilable(String), limit: Integer).returns(String) }
-    def before_list_top_privacy_violations(pack_name, limit)
-      if pack_name.nil?
-        <<~PACK_CONTENT
-          You are listing top #{limit} privacy violations for all packs. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `bin/packs list_top_privacy_violations #{pack_name} -l 1000`
-
-          This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
-          Anything not in pack_name/app/public is considered private API.
-        PACK_CONTENT
-      else
-        <<~PACK_CONTENT
-          You are listing top #{limit} privacy violations for #{pack_name}. See #{documentation_link} for other utilities!
-          Pass in a limit to display more or less, e.g. `bin/packs list_top_privacy_violations #{pack_name} -l 1000`
+          You are listing top #{limit} #{type} violations for #{pack_name}. See #{documentation_link} for other utilities!
+          Pass in a limit to display more or less, e.g. `bin/packs list_top_violations #{type} #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
           Anything not in #{pack_name}/app/public is considered private API.

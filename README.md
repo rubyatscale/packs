@@ -49,21 +49,16 @@ modify packs/from_pack/package.yml's list of dependencies and add packs/to_pack.
 
 This command will also sort the list and make it unique.
 
-## List the top dependency violations of packs/your_pack
-`bin/packs list_top_dependency_violations packs/your_pack`
+## List the top violations of a specific type for packs/your_pack.
+`bin/packs list_top_violations type [ packs/your_pack ]`
 
-Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way
+Possible types are: dependency, privacy, architecture.
 
-You can use this command to list the top dependency violations.
+Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way? You can use this command to list the top dependency violations.
 
-If no pack name is passed in, this will list out violations across all packs.
+Want to create interfaces? Not sure how your pack's code is being used? You can use this command to list the top privacy violations.
 
-## List the top privacy violations of packs/your_pack
-`bin/packs list_top_privacy_violations packs/your_pack`
-
-Want to create interfaces? Not sure how your pack's code is being used?
-
-You can use this command to list the top privacy violations.
+Want to focus on the big picture first? You can use this command to list the top architecture violations.
 
 If no pack name is passed in, this will list out violations across all packs.
 
