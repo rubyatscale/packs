@@ -222,6 +222,30 @@ RSpec.describe Packs do
           actual_todo = Pathname.new('packs/organisms/app/public/TODO.md').read
           expect(actual_todo).to eq expected_todo
         end
+
+        context 'skipping creation of public directory' do
+          it 'does not add a TODO.md file' do
+            Packs.create_pack!(pack_name: 'packs/organisms', skip_public: true)
+
+            ParsePackwerk.bust_cache!
+            package = ParsePackwerk.find('packs/organisms')
+            expect(package.enforce_privacy).to eq(true)
+            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
+            expect(todo_file.exist?).to eq false
+          end
+        end
+
+        context 'pack not enforcing privacy' do
+          it 'does not add a TODO.md file' do
+            Packs.create_pack!(pack_name: 'packs/organisms', enforce_privacy: false)
+
+            ParsePackwerk.bust_cache!
+            package = ParsePackwerk.find('packs/organisms')
+            expect(package.enforce_privacy).to eq(false)
+            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
+            expect(todo_file.exist?).to eq false
+          end
+        end
       end
 
       context 'app with one file in public dir' do
@@ -286,6 +310,13 @@ RSpec.describe Packs do
   end
 
   describe '.move_to_pack!' do
+    before do
+      write_file('packwerk.yml', <<~YML)
+        require:
+          - packwerk/privacy/checker
+      YML
+    end
+
     context 'pack is not nested' do
       context 'pack not yet created' do
         it 'errors' do
@@ -695,6 +726,35 @@ RSpec.describe Packs do
 
           actual_todo = Pathname.new('packs/organisms/app/public/TODO.md').read
           expect(actual_todo).to eq expected_todo
+        end
+
+        context 'skipping creation of public directory' do
+          it 'does not add a TODO.md file' do
+            write_file('app/services/foo.rb')
+            write_package_yml('packs/organisms')
+            Packs.move_to_pack!(
+              pack_name: 'packs/organisms',
+              paths_relative_to_root: ['app/services/foo.rb'],
+              skip_public: true
+            )
+
+            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
+            expect(todo_file.exist?).to eq false
+          end
+        end
+
+        context 'pack not enforcing privacy' do
+          it 'does not add a TODO.md file' do
+            write_file('app/services/foo.rb')
+            write_package_yml('packs/organisms', enforce_privacy: false)
+            Packs.move_to_pack!(
+              pack_name: 'packs/organisms',
+              paths_relative_to_root: ['app/services/foo.rb']
+            )
+
+            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
+            expect(todo_file.exist?).to eq false
+          end
         end
       end
 

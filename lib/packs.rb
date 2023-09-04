@@ -56,20 +56,23 @@ module Packs
       pack_name: String,
       enforce_privacy: T::Boolean,
       enforce_dependencies: T.nilable(T::Boolean),
-      team: T.nilable(CodeTeams::Team)
+      team: T.nilable(CodeTeams::Team),
+      skip_public: T.nilable(T::Boolean)
     ).void
   end
   def self.create_pack!(
     pack_name:,
     enforce_privacy: true,
     enforce_dependencies: nil,
-    team: nil
+    team: nil,
+    skip_public: false
   )
     Private.create_pack!(
       pack_name: pack_name,
       enforce_privacy: enforce_privacy,
       enforce_dependencies: enforce_dependencies,
-      team: team
+      team: team,
+      skip_public: skip_public
     )
   end
 
@@ -77,13 +80,15 @@ module Packs
     params(
       pack_name: String,
       paths_relative_to_root: T::Array[String],
-      per_file_processors: T::Array[PerFileProcessorInterface]
+      per_file_processors: T::Array[PerFileProcessorInterface],
+      skip_public: T.nilable(T::Boolean)
     ).void
   end
   def self.move_to_pack!(
     pack_name:,
     paths_relative_to_root: [],
-    per_file_processors: []
+    per_file_processors: [],
+    skip_public: false
   )
     Logging.section('👋 Hi!') do
       intro = Packs.config.user_event_logger.before_move_to_pack(pack_name)
@@ -93,7 +98,8 @@ module Packs
     Private.move_to_pack!(
       pack_name: pack_name,
       paths_relative_to_root: paths_relative_to_root,
-      per_file_processors: per_file_processors
+      per_file_processors: per_file_processors,
+      skip_public: skip_public
     )
 
     Logging.section('Next steps') do
