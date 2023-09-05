@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    packs (0.0.28)
+    packs (0.0.29)
       code_ownership (>= 1.33.0)
       packs-specification
       packwerk
