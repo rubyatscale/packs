@@ -223,18 +223,6 @@ RSpec.describe Packs do
           expect(actual_todo).to eq expected_todo
         end
 
-        context 'skipping creation of public directory' do
-          it 'does not add a TODO.md file' do
-            Packs.create_pack!(pack_name: 'packs/organisms', skip_public: true)
-
-            ParsePackwerk.bust_cache!
-            package = ParsePackwerk.find('packs/organisms')
-            expect(package.enforce_privacy).to eq(true)
-            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
-            expect(todo_file.exist?).to eq false
-          end
-        end
-
         context 'pack not enforcing privacy' do
           it 'does not add a TODO.md file' do
             Packs.create_pack!(pack_name: 'packs/organisms', enforce_privacy: false)
@@ -726,21 +714,6 @@ RSpec.describe Packs do
 
           actual_todo = Pathname.new('packs/organisms/app/public/TODO.md').read
           expect(actual_todo).to eq expected_todo
-        end
-
-        context 'skipping creation of public directory' do
-          it 'does not add a TODO.md file' do
-            write_file('app/services/foo.rb')
-            write_package_yml('packs/organisms')
-            Packs.move_to_pack!(
-              pack_name: 'packs/organisms',
-              paths_relative_to_root: ['app/services/foo.rb'],
-              skip_public: true
-            )
-
-            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
-            expect(todo_file.exist?).to eq false
-          end
         end
 
         context 'pack not enforcing privacy' do

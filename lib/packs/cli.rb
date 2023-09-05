@@ -8,13 +8,11 @@ module Packs
 
     desc 'create packs/your_pack', 'Create pack with name packs/your_pack'
     option :enforce_privacy, type: :boolean, default: true, aliases: :p, banner: 'Enforce privacy'
-    option :skip_public, type: :boolean, default: false, aliases: :P, banner: 'Skip creating public directory'
     sig { params(pack_name: String).void }
     def create(pack_name)
       Packs.create_pack!(
         pack_name: pack_name,
-        enforce_privacy: options[:enforce_privacy],
-        skip_public: options[:skip_public]
+        enforce_privacy: options[:enforce_privacy]
       )
       exit_successfully
     end
@@ -90,14 +88,12 @@ module Packs
 
       Make sure there are no spaces between the comma-separated list of paths of directories.
     LONG_DESC
-    option :skip_public, type: :boolean, default: false, aliases: :P, banner: "Skip creating public directory with TODO.md file if it doesn't exist already"
     sig { params(pack_name: String, paths: String).void }
     def move(pack_name, *paths)
       Packs.move_to_pack!(
         pack_name: pack_name,
         paths_relative_to_root: paths,
-        per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new],
-        skip_public: options[:skip_public]
+        per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
       )
       exit_successfully
     end

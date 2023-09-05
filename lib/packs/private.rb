@@ -46,11 +46,10 @@ module Packs
         pack_name: String,
         enforce_privacy: T::Boolean,
         enforce_dependencies: T.nilable(T::Boolean),
-        team: T.nilable(CodeTeams::Team),
-        skip_public: T.nilable(T::Boolean)
+        team: T.nilable(CodeTeams::Team)
       ).void
     end
-    def self.create_pack!(pack_name:, enforce_privacy:, enforce_dependencies:, team:, skip_public: false)
+    def self.create_pack!(pack_name:, enforce_privacy:, enforce_dependencies:, team:)
       Logging.section('👋 Hi!') do
         intro = Packs.config.user_event_logger.before_create_pack(pack_name)
         Logging.print_bold_green(intro)
@@ -59,7 +58,7 @@ module Packs
       pack_name = Private.clean_pack_name(pack_name)
 
       package = create_pack_if_not_exists!(pack_name: pack_name, enforce_privacy: enforce_privacy, enforce_dependencies: enforce_dependencies, team: team)
-      add_public_directory(package) if package.enforce_privacy && !skip_public
+      add_public_directory(package) if package.enforce_privacy
       add_readme_todo(package)
 
       Logging.section('Next steps') do
@@ -73,18 +72,17 @@ module Packs
       params(
         pack_name: String,
         paths_relative_to_root: T::Array[String],
-        per_file_processors: T::Array[Packs::PerFileProcessorInterface],
-        skip_public: T.nilable(T::Boolean)
+        per_file_processors: T::Array[Packs::PerFileProcessorInterface]
       ).void
     end
-    def self.move_to_pack!(pack_name:, paths_relative_to_root:, per_file_processors: [], skip_public: false)
+    def self.move_to_pack!(pack_name:, paths_relative_to_root:, per_file_processors: [])
       pack_name = Private.clean_pack_name(pack_name)
       package = ParsePackwerk.all.find { |p| p.name == pack_name }
       if package.nil?
         raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
-      add_public_directory(package) if package.enforce_privacy && !skip_public
+      add_public_directory(package) if package.enforce_privacy
       add_readme_todo(package)
       package_location = package.directory
 
