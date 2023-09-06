@@ -7,7 +7,7 @@ A `pack` (short for `package`) is a folder of Ruby code with a `package.yml` at 
 This gem provides a development CLI, `bin/packs`, to make using `packs` easier.
 
 # Configuration
-By default, this library will look for `packs` in the folder `packs/*/package.yml` (as well as nested packs at `packs/*/*/package.yml`). To change where `packs` are located, create a `packs.yml` file:
+By default, this library will look for `packs` in the folder `packs/*/package.yml` (as well as nested packs at `packs/*/*/package.yml`). To change where `packs` are located, create a `packs.yml` file in the root of your project:
 ```yml
 pack_paths:
   - "{packs,utilities,deprecated}/*" # packs with multiple roots!
