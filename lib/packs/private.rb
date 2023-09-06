@@ -58,7 +58,7 @@ module Packs
       pack_name = Private.clean_pack_name(pack_name)
 
       package = create_pack_if_not_exists!(pack_name: pack_name, enforce_privacy: enforce_privacy, enforce_dependencies: enforce_dependencies, team: team)
-      add_public_directory(package)
+      add_public_directory(package) if package.enforce_privacy
       add_readme_todo(package)
 
       Logging.section('Next steps') do
@@ -82,7 +82,7 @@ module Packs
         raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
       end
 
-      add_public_directory(package)
+      add_public_directory(package) if package.enforce_privacy
       add_readme_todo(package)
       package_location = package.directory
 

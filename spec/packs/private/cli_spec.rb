@@ -16,7 +16,7 @@ RSpec.describe Packs::CLI do
   describe '#create' do
     it 'creates a pack' do
       expect_success
-      expect(Packs).to receive(:create_pack!).with(pack_name: 'packs/your_pack')
+      expect(Packs).to receive(:create_pack!).with(pack_name: 'packs/your_pack', enforce_privacy: true)
       Packs::CLI.start(['create', 'packs/your_pack'])
     end
   end

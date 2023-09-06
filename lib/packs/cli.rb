@@ -7,9 +7,13 @@ module Packs
     extend T::Sig
 
     desc 'create packs/your_pack', 'Create pack with name packs/your_pack'
+    option :enforce_privacy, type: :boolean, default: true, aliases: :p, banner: 'Enforce privacy'
     sig { params(pack_name: String).void }
     def create(pack_name)
-      Packs.create_pack!(pack_name: pack_name)
+      Packs.create_pack!(
+        pack_name: pack_name,
+        enforce_privacy: options[:enforce_privacy]
+      )
       exit_successfully
     end
 
