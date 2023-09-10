@@ -499,10 +499,10 @@ module Packs
         all_outbound += outbound_violations[pack.name] || []
       end
 
-      puts "There are #{all_inbound.select(&:privacy?).sum { |v| v.files.count }} total inbound privacy violations"
-      puts "There are #{all_inbound.select(&:dependency?).sum { |v| v.files.count }} total inbound dependency violations"
-      puts "There are #{all_outbound.select(&:privacy?).sum { |v| v.files.count }} total outbound privacy violations"
-      puts "There are #{all_outbound.select(&:dependency?).sum { |v| v.files.count }} total outbound dependency violations"
+      puts "There are #{all_inbound.select { _1.type == 'privacy' }.sum { |v| v.files.count }} total inbound privacy violations"
+      puts "There are #{all_inbound.select { _1.type == 'dependency' }.sum { |v| v.files.count }} total inbound dependency violations"
+      puts "There are #{all_outbound.select { _1.type == 'privacy' }.sum { |v| v.files.count }} total outbound privacy violations"
+      puts "There are #{all_outbound.select { _1.type == 'dependency' }.sum { |v| v.files.count }} total outbound dependency violations"
 
       packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
         owner = CodeOwnership.for_package(pack)
@@ -516,12 +516,12 @@ module Packs
           public_api: pack.relative_path.join('app/public'),
           violations: {
             dependency: {
-              in: inbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count },
-              out: outbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }
+              in: inbound_for_pack.flatten.select { _1.type == 'dependency' }.sum { |v| v.files.count },
+              out: outbound_for_pack.flatten.select { _1.type == 'dependency' }.sum { |v| v.files.count }
             },
             privacy: {
-              in: inbound_for_pack.select(&:privacy?).sum { |v| v.files.count },
-              out: outbound_for_pack.select(&:privacy?).sum { |v| v.files.count }
+              in: inbound_for_pack.select { _1.type == 'privacy' }.sum { |v| v.files.count },
+              out: outbound_for_pack.select { _1.type == 'privacy' }.sum { |v| v.files.count }
             }
           }
         }
