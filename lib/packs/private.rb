@@ -481,60 +481,60 @@ module Packs
 
     sig { params(packs: T::Array[Packs::Pack]).void }
     def self.get_info(packs: Packs.all)
-      inbound_violations = {}
-      outbound_violations = {}
+      violation_types = [:privacy, :dependency]
+      violations = {
+        inbound: {},
+        outbound: {}
+      }
+      directions = violations.keys
+      dir_x_types = directions.product(violation_types)
+
       ParsePackwerk.all.each do |p|
         p.violations.each do |violation|
-          outbound_violations[p.name] ||= []
-          outbound_violations[p.name] << violation
-          inbound_violations[violation.to_package_name] ||= []
-          inbound_violations[violation.to_package_name] << violation
+          violations[:outbound][p.name] ||= []
+          violations[:outbound][p.name] << violation
+          violations[:inbound][violation.to_package_name] ||= []
+          violations[:inbound][violation.to_package_name] << violation
         end
       end
 
-      all_inbound = T.let([], T::Array[ParsePackwerk::Violation])
-      all_outbound = T.let([], T::Array[ParsePackwerk::Violation])
+      all = {
+        inbound: T.let([], T::Array[ParsePackwerk::Violation]),
+        outbound: T.let([], T::Array[ParsePackwerk::Violation])
+      }
       packs.each do |pack|
-        all_inbound += inbound_violations[pack.name] || []
-        all_outbound += outbound_violations[pack.name] || []
+        all[:inbound] += violations[:inbound][pack.name] || []
+        all[:outbound] += violations[:outbound][pack.name] || []
       end
 
-      puts "There are #{all_inbound.select { _1.type == 'privacy' }.sum { |v| v.files.count }} total inbound privacy violations"
-      puts "There are #{all_inbound.select { _1.type == 'dependency' }.sum { |v| v.files.count }} total inbound dependency violations"
-      puts "There are #{all_outbound.select { _1.type == 'privacy' }.sum { |v| v.files.count }} total outbound privacy violations"
-      puts "There are #{all_outbound.select { _1.type == 'dependency' }.sum { |v| v.files.count }} total outbound dependency violations"
+      dir_x_types.each do |direction, type|
+        puts "There are #{all[direction].select { _1.type.to_sym == type }.sum { |v| v.files.count }} total #{direction} #{type} violations"
+      end
 
       packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
         owner = CodeOwnership.for_package(pack)
-        inbound_for_pack = inbound_violations[pack.name] || []
-        outbound_for_pack = outbound_violations[pack.name] || []
 
         row = {
           pack_name: pack.name,
           owner: owner.nil? ? 'No one' : owner.name,
           size: pack.relative_path.glob('**/*.rb').count,
-          public_api: pack.relative_path.join('app/public'),
-          violations: {
-            dependency: {
-              in: inbound_for_pack.flatten.select { _1.type == 'dependency' }.sum { |v| v.files.count },
-              out: outbound_for_pack.flatten.select { _1.type == 'dependency' }.sum { |v| v.files.count }
-            },
-            privacy: {
-              in: inbound_for_pack.select { _1.type == 'privacy' }.sum { |v| v.files.count },
-              out: outbound_for_pack.select { _1.type == 'privacy' }.sum { |v| v.files.count }
-            }
-          }
+          public_api: pack.relative_path.join('app/public')
         }
+
+        dir_x_types.each do |direction, type|
+          key = [direction, type, 'violations'].join('_').to_sym
+          row[key] = (violations[direction][pack.name] || []).select { _1.type.to_sym == type }.sum { |v| v.files.count }
+        end
 
         puts "\n=========== Info about: #{row[:pack_name]}"
 
         puts "Owned by: #{row[:owner]}"
         puts "Size: #{row[:size]} ruby files"
         puts "Public API: #{row[:public_api]}"
-        puts "There are #{row.dig(:violations, :privacy, :in)} inbound privacy violations"
-        puts "There are #{row.dig(:violations, :dependency, :in)} inbound dependency violations"
-        puts "There are #{row.dig(:violations, :privacy, :out)} outbound privacy violations"
-        puts "There are #{row.dig(:violations, :dependency, :out)} outbound dependency violations"
+        dir_x_types.each do |direction, type|
+          key = [direction, type, 'violations'].join('_').to_sym
+          puts "There are #{row[key]} #{direction} #{type} violations"
+        end
       end
     end
 
