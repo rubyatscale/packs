@@ -505,19 +505,36 @@ module Packs
       puts "There are #{all_outbound.select(&:dependency?).sum { |v| v.files.count }} total outbound dependency violations"
 
       packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
-        puts "\n=========== Info about: #{pack.name}"
-
         owner = CodeOwnership.for_package(pack)
-        puts "Owned by: #{owner.nil? ? 'No one' : owner.name}"
-        puts "Size: #{pack.relative_path.glob('**/*.rb').count} ruby files"
-        puts "Public API: #{pack.relative_path.join('app/public')}"
-
         inbound_for_pack = inbound_violations[pack.name] || []
         outbound_for_pack = outbound_violations[pack.name] || []
-        puts "There are #{inbound_for_pack.select(&:privacy?).sum { |v| v.files.count }} inbound privacy violations"
-        puts "There are #{inbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }} inbound dependency violations"
-        puts "There are #{outbound_for_pack.select(&:privacy?).sum { |v| v.files.count }} outbound privacy violations"
-        puts "There are #{outbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }} outbound dependency violations"
+
+        row = {
+          pack_name: pack.name,
+          owner: owner.nil? ? 'No one' : owner.name,
+          size: pack.relative_path.glob('**/*.rb').count,
+          public_api: pack.relative_path.join('app/public'),
+          violations: {
+            dependency: {
+              in: inbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count },
+              out: outbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }
+            },
+            privacy: {
+              in: inbound_for_pack.select(&:privacy?).sum { |v| v.files.count },
+              out: outbound_for_pack.select(&:privacy?).sum { |v| v.files.count }
+            }
+          }
+        }
+
+        puts "\n=========== Info about: #{row[:pack_name]}"
+
+        puts "Owned by: #{row[:owner]}"
+        puts "Size: #{row[:size]} ruby files"
+        puts "Public API: #{row[:public_api]}"
+        puts "There are #{row.dig(:violations, :privacy, :in)} inbound privacy violations"
+        puts "There are #{row.dig(:violations, :dependency, :in)} inbound dependency violations"
+        puts "There are #{row.dig(:violations, :privacy, :out)} outbound privacy violations"
+        puts "There are #{row.dig(:violations, :dependency, :out)} outbound dependency violations"
       end
     end
 
