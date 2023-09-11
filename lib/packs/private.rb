@@ -488,7 +488,7 @@ module Packs
     def self.get_info(packs: Packs.all, format: :detail)
       require 'csv' if format == :csv
 
-      violation_types = %i[privacy dependency]
+      violation_types = %i[privacy dependency architecture]
       violations = {
         inbound: {},
         outbound: {}
