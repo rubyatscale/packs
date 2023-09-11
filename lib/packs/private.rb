@@ -482,19 +482,19 @@ module Packs
     sig do
       params(
         packs: T::Array[Packs::Pack],
-        format: Symbol
+        format: Symbol,
+        types: T::Array[Symbol]
       ).void
     end
-    def self.get_info(packs: Packs.all, format: :detail)
+    def self.get_info(packs: Packs.all, format: :detail, types: %i[privacy dependency architecture])
       require 'csv' if format == :csv
 
-      violation_types = %i[privacy dependency architecture]
       violations = {
         inbound: {},
         outbound: {}
       }
       directions = violations.keys
-      dir_x_types = directions.product(violation_types)
+      dir_x_types = directions.product(types)
 
       ParsePackwerk.all.each do |p|
         p.violations.each do |violation|

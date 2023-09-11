@@ -130,11 +130,17 @@ module Packs
 
     desc 'get_info [ packs/my_pack packs/my_other_pack ]', 'Get info about size and violations for packs'
     option :format, type: :string, default: 'detail', aliases: :f, banner: 'Specify the output format (detail, csv)'
+    option :types, type: :string, default: 'privacy,dependency', aliases: :t, banner: 'List of validation types to include (privacy,dependency,architecture)'
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
+      selected_types = options[:types].to_s.downcase.split(',')
+      invalid_types = selected_types - POSIBLE_TYPES
+      raise StandardError, "Invalid type(s): #{invalid_types.join(', ')}. Possible types are: #{POSIBLE_TYPES.join(', ')}" unless invalid_types.empty?
+
       Private.get_info(
         packs: parse_pack_names(pack_names),
-        format: options[:format].to_sym
+        format: options[:format].to_sym,
+        types: selected_types.map(&:to_sym)
       )
       exit_successfully
     end

@@ -28,9 +28,18 @@ module Packs
 
             format = prompt.select('What output format do you want?', %w[Detail CSV])
 
+            types = prompt.multi_select(
+              'What violation types do you want stats for?',
+              %w[Privacy Dependency Architecture]
+            )
+
             puts "You've selected #{selected_packs.count} packs. Wow! Here's all the info."
 
-            Private.get_info(packs: selected_packs, format: format.downcase.to_sym)
+            Private.get_info(
+              packs: selected_packs,
+              format: format.downcase.to_sym,
+              types: types.map(&:downcase).map(&:to_sym)
+            )
           end
         end
       end
