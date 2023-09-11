@@ -129,9 +129,13 @@ module Packs
     end
 
     desc 'get_info [ packs/my_pack packs/my_other_pack ]', 'Get info about size and violations for packs'
+    option :format, type: :string, default: 'detail', aliases: :f, banner: 'Specify the output format (detail, csv)'
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
-      Private.get_info(packs: parse_pack_names(pack_names))
+      Private.get_info(
+        packs: parse_pack_names(pack_names),
+        format: options[:format].to_sym
+      )
       exit_successfully
     end
 

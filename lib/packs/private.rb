@@ -479,9 +479,16 @@ module Packs
       Packs.find(package.name)
     end
 
-    sig { params(packs: T::Array[Packs::Pack]).void }
-    def self.get_info(packs: Packs.all)
-      violation_types = [:privacy, :dependency]
+    sig do
+      params(
+        packs: T::Array[Packs::Pack],
+        format: Symbol
+      ).void
+    end
+    def self.get_info(packs: Packs.all, format: :detail)
+      require 'csv' if format == :csv
+
+      violation_types = %i[privacy dependency]
       violations = {
         inbound: {},
         outbound: {}
@@ -507,8 +514,17 @@ module Packs
         all[:outbound] += violations[:outbound][pack.name] || []
       end
 
-      dir_x_types.each do |direction, type|
-        puts "There are #{all[direction].select { _1.type.to_sym == type }.sum { |v| v.files.count }} total #{direction} #{type} violations"
+      case format
+      when :csv
+        headers = ['Pack name', 'Owned by', 'Size', 'Public API']
+        dir_x_types.each do |direction, type|
+          headers << "#{direction.capitalize} #{type} violations"
+        end
+        puts CSV.generate_line(headers)
+      else # :detail
+        dir_x_types.each do |direction, type|
+          puts "There are #{all[direction].select { _1.type.to_sym == type }.sum { |v| v.files.count }} total #{direction} #{type} violations"
+        end
       end
 
       packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
@@ -526,14 +542,19 @@ module Packs
           row[key] = (violations[direction][pack.name] || []).select { _1.type.to_sym == type }.sum { |v| v.files.count }
         end
 
-        puts "\n=========== Info about: #{row[:pack_name]}"
+        case format
+        when :csv
+          puts CSV.generate_line(row.values)
+        else # :detail
+          puts "\n=========== Info about: #{row[:pack_name]}"
 
-        puts "Owned by: #{row[:owner]}"
-        puts "Size: #{row[:size]} ruby files"
-        puts "Public API: #{row[:public_api]}"
-        dir_x_types.each do |direction, type|
-          key = [direction, type, 'violations'].join('_').to_sym
-          puts "There are #{row[key]} #{direction} #{type} violations"
+          puts "Owned by: #{row[:owner]}"
+          puts "Size: #{row[:size]} ruby files"
+          puts "Public API: #{row[:public_api]}"
+          dir_x_types.each do |direction, type|
+            key = [direction, type, 'violations'].join('_').to_sym
+            puts "There are #{row[key]} #{direction} #{type} violations"
+          end
         end
       end
     end
