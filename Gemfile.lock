@@ -23,7 +23,6 @@ PATH
       packwerk
       parse_packwerk
       rainbow
-      rubocop-packs
       sorbet-runtime
       thor
       tty-prompt
@@ -125,7 +124,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
-    rubocop (1.56.0)
+    rubocop (1.56.3)
       base64 (~> 0.1.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -139,23 +138,6 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.29.0)
       parser (>= 3.2.1.0)
-    rubocop-capybara (2.18.0)
-      rubocop (~> 1.41)
-    rubocop-factory_bot (2.23.1)
-      rubocop (~> 1.33)
-    rubocop-packs (0.0.43)
-      activesupport
-      packs-specification
-      parse_packwerk
-      rubocop (~> 1.0)
-      rubocop-sorbet
-      sorbet-runtime
-    rubocop-rspec (2.23.2)
-      rubocop (~> 1.33)
-      rubocop-capybara (~> 2.17)
-      rubocop-factory_bot (~> 2.22)
-    rubocop-sorbet (0.7.3)
-      rubocop (>= 0.90.0)
     ruby-progressbar (1.13.0)
     smart_properties (1.17.0)
     sorbet (0.5.10957)
@@ -223,7 +205,6 @@ DEPENDENCIES
   rake
   rspec (~> 3.0)
   rubocop
-  rubocop-rspec
   sorbet
   sorbet-static
   spoom (= 1.2.1)
