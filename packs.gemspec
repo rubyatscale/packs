@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'packs'
-  spec.version       = '0.0.26'
+  spec.version       = '0.0.29'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 
@@ -36,7 +36,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'sorbet-runtime'
   spec.add_dependency 'thor'
   spec.add_dependency 'tty-prompt'
-  spec.add_dependency 'visualize_packs', '<= 0.3.1'
 
   # rubocop:disable Gemspec/DevelopmentDependencies
   spec.add_development_dependency 'bundler', '~> 2.2'

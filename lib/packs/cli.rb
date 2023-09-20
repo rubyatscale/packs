@@ -7,9 +7,13 @@ module Packs
     extend T::Sig
 
     desc 'create packs/your_pack', 'Create pack with name packs/your_pack'
+    option :enforce_privacy, type: :boolean, default: true, aliases: :p, banner: 'Enforce privacy'
     sig { params(pack_name: String).void }
     def create(pack_name)
-      Packs.create_pack!(pack_name: pack_name)
+      Packs.create_pack!(
+        pack_name: pack_name,
+        enforce_privacy: options[:enforce_privacy]
+      )
       exit_successfully
     end
 
@@ -31,36 +35,31 @@ module Packs
       exit_successfully
     end
 
-    desc 'list_top_dependency_violations packs/your_pack', 'List the top dependency violations of packs/your_pack'
+    POSIBLE_TYPES = T.let(%w[dependency privacy architecture], T::Array[String])
+    desc 'list_top_violations type [ packs/your_pack ]', 'List the top violations of a specific type for packs/your_pack.'
     long_desc <<~LONG_DESC
-      Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way
+      Possible types are: #{POSIBLE_TYPES.join(', ')}.
 
-      You can use this command to list the top dependency violations.
+      Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way? You can use this command to list the top dependency violations.
+
+      Want to create interfaces? Not sure how your pack's code is being used? You can use this command to list the top privacy violations.
+
+      Want to focus on the big picture first? You can use this command to list the top architecture violations.
 
       If no pack name is passed in, this will list out violations across all packs.
     LONG_DESC
     option :limit, type: :numeric, default: 10, aliases: :l, banner: 'Specify the limit of constants to analyze'
-    sig { params(pack_name: String).void }
-    def list_top_dependency_violations(pack_name)
-      Packs.list_top_dependency_violations(
-        pack_name: pack_name,
-        limit: options[:limit]
-      )
-      exit_successfully
+    sig do
+      params(
+        type: String,
+        pack_name: T.nilable(String)
+      ).void
     end
+    def list_top_violations(type, pack_name = nil)
+      raise StandardError, "Invalid type #{type}. Possible types are: #{POSIBLE_TYPES.join(', ')}" unless POSIBLE_TYPES.include?(type)
 
-    desc 'list_top_privacy_violations packs/your_pack', 'List the top privacy violations of packs/your_pack'
-    long_desc <<~LONG_DESC
-      Want to create interfaces? Not sure how your pack's code is being used?
-
-      You can use this command to list the top privacy violations.
-
-      If no pack name is passed in, this will list out violations across all packs.
-    LONG_DESC
-    option :limit, type: :numeric, default: 10, aliases: :l, banner: 'Specify the limit of constants to analyze'
-    sig { params(pack_name: String).void }
-    def list_top_privacy_violations(pack_name)
-      Packs.list_top_privacy_violations(
+      Packs.list_top_violations(
+        type: type,
         pack_name: pack_name,
         limit: options[:limit]
       )
@@ -133,13 +132,6 @@ module Packs
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
       Private.get_info(packs: parse_pack_names(pack_names))
-      exit_successfully
-    end
-
-    desc 'visualize [ packs/my_pack packs/my_other_pack ]', 'Visualize packs'
-    sig { params(pack_names: String).void }
-    def visualize(*pack_names)
-      Private.visualize(packs: parse_pack_names(pack_names))
       exit_successfully
     end
 

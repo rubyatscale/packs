@@ -205,7 +205,7 @@ RSpec.describe Packs do
           You can prevent other packs from using private API by using packwerk.
 
           Want to find how your private API is being used today?
-          Try running: `bin/packs list_top_privacy_violations packs/organisms`
+          Try running: `bin/packs list_top_violations privacy packs/organisms`
 
           Want to move something into this folder?
           Try running: `bin/packs make_public packs/organisms/path/to/file.rb`
@@ -221,6 +221,18 @@ RSpec.describe Packs do
           Packs.create_pack!(pack_name: 'packs/organisms')
           actual_todo = Pathname.new('packs/organisms/app/public/TODO.md').read
           expect(actual_todo).to eq expected_todo
+        end
+
+        context 'pack not enforcing privacy' do
+          it 'does not add a TODO.md file' do
+            Packs.create_pack!(pack_name: 'packs/organisms', enforce_privacy: false)
+
+            ParsePackwerk.bust_cache!
+            package = ParsePackwerk.find('packs/organisms')
+            expect(package.enforce_privacy).to eq(false)
+            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
+            expect(todo_file.exist?).to eq false
+          end
         end
       end
 
@@ -286,6 +298,13 @@ RSpec.describe Packs do
   end
 
   describe '.move_to_pack!' do
+    before do
+      write_file('packwerk.yml', <<~YML)
+        require:
+          - packwerk/privacy/checker
+      YML
+    end
+
     context 'pack is not nested' do
       context 'pack not yet created' do
         it 'errors' do
@@ -673,7 +692,7 @@ RSpec.describe Packs do
           You can prevent other packs from using private API by using packwerk.
 
           Want to find how your private API is being used today?
-          Try running: `bin/packs list_top_privacy_violations packs/organisms`
+          Try running: `bin/packs list_top_violations privacy packs/organisms`
 
           Want to move something into this folder?
           Try running: `bin/packs make_public packs/organisms/path/to/file.rb`
@@ -695,6 +714,20 @@ RSpec.describe Packs do
 
           actual_todo = Pathname.new('packs/organisms/app/public/TODO.md').read
           expect(actual_todo).to eq expected_todo
+        end
+
+        context 'pack not enforcing privacy' do
+          it 'does not add a TODO.md file' do
+            write_file('app/services/foo.rb')
+            write_package_yml('packs/organisms', enforce_privacy: false)
+            Packs.move_to_pack!(
+              pack_name: 'packs/organisms',
+              paths_relative_to_root: ['app/services/foo.rb']
+            )
+
+            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
+            expect(todo_file.exist?).to eq false
+          end
         end
       end
 
@@ -1585,9 +1618,10 @@ RSpec.describe Packs do
       CONTENTS
     end
 
-    describe '.list_top_privacy_violations' do
+    describe '.list_top_violations for privacy' do
       let(:list_top_privacy_violations) do
-        Packs.list_top_privacy_violations(
+        Packs.list_top_violations(
+          type: 'privacy',
           pack_name: pack_name,
           limit: limit
         )
@@ -1733,7 +1767,8 @@ RSpec.describe Packs do
             logged_output += "\n"
           end
 
-          Packs.list_top_privacy_violations(
+          Packs.list_top_violations(
+            type: 'privacy',
             pack_name: nil,
             limit: limit
           )
@@ -1768,9 +1803,10 @@ RSpec.describe Packs do
       end
     end
 
-    describe '.list_top_dependency_violations' do
+    describe '.list_top_violations for dependency' do
       let(:list_top_dependency_violations) do
-        Packs.list_top_dependency_violations(
+        Packs.list_top_violations(
+          type: 'dependency',
           pack_name: pack_name,
           limit: limit
         )
@@ -1922,7 +1958,8 @@ RSpec.describe Packs do
             logged_output += "\n"
           end
 
-          Packs.list_top_dependency_violations(
+          Packs.list_top_violations(
+            type: 'dependency',
             pack_name: nil,
             limit: limit
           )

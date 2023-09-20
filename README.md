@@ -7,7 +7,7 @@ A `pack` (short for `package`) is a folder of Ruby code with a `package.yml` at 
 This gem provides a development CLI, `bin/packs`, to make using `packs` easier.
 
 # Configuration
-By default, this library will look for `packs` in the folder `packs/*/package.yml` (as well as nested packs at `packs/*/*/package.yml`). To change where `packs` are located, create a `packs.yml` file:
+By default, this library will look for `packs` in the folder `packs/*/package.yml` (as well as nested packs at `packs/*/*/package.yml`). To change where `packs` are located, create a `packs.yml` file in the root of your project:
 ```yml
 pack_paths:
   - "{packs,utilities,deprecated}/*" # packs with multiple roots!
@@ -49,21 +49,16 @@ modify packs/from_pack/package.yml's list of dependencies and add packs/to_pack.
 
 This command will also sort the list and make it unique.
 
-## List the top dependency violations of packs/your_pack
-`bin/packs list_top_dependency_violations packs/your_pack`
+## List the top violations of a specific type for packs/your_pack.
+`bin/packs list_top_violations type [ packs/your_pack ]`
 
-Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way
+Possible types are: dependency, privacy, architecture.
 
-You can use this command to list the top dependency violations.
+Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way? You can use this command to list the top dependency violations.
 
-If no pack name is passed in, this will list out violations across all packs.
+Want to create interfaces? Not sure how your pack's code is being used? You can use this command to list the top privacy violations.
 
-## List the top privacy violations of packs/your_pack
-`bin/packs list_top_privacy_violations packs/your_pack`
-
-Want to create interfaces? Not sure how your pack's code is being used?
-
-You can use this command to list the top privacy violations.
+Want to focus on the big picture first? You can use this command to list the top architecture violations.
 
 If no pack name is passed in, this will list out violations across all packs.
 
@@ -99,9 +94,6 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 
 ## Get info about size and violations for packs
 `bin/packs get_info [ packs/my_pack packs/my_other_pack ]`
-
-## Visualize packs
-`bin/packs visualize [ packs/my_pack packs/my_other_pack ]`
 
 ## Rename a pack
 `bin/packs rename`
