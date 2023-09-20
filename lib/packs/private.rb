@@ -2,6 +2,7 @@
 
 require 'pathname'
 require 'fileutils'
+require 'tmpdir'
 require 'rainbow'
 require 'sorbet-runtime'
 
