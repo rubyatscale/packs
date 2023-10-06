@@ -1164,7 +1164,7 @@ RSpec.describe Packs do
 
         Your next steps might be:
 
-        1) Delete the old pack when things look good: `rm -rf packs/apples`
+        1) Delete the old pack when things look good: `git rm -r packs/apples`
 
         2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` first.
 
