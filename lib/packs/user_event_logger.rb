@@ -99,7 +99,7 @@ module Packs
       <<~MSG
         Your next steps might be:
 
-        1) Delete the old pack when things look good: `rm -rf #{pack_name}`
+        1) Delete the old pack when things look good: `git rm -r #{pack_name}`
 
         2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` first.
       MSG
