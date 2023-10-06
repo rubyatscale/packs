@@ -129,6 +129,7 @@ module Packs
     end
 
     desc 'get_info [ packs/my_pack packs/my_other_pack ]', 'Get info about size and violations for packs'
+    option :include_date, type: :boolean, default: false, aliases: :d, banner: "Include today's date as part of the data (useful to take snapshots over time)"
     option :format, type: :string, default: 'detail', aliases: :f, banner: 'Specify the output format (detail, csv)'
     option :types, type: :string, default: 'privacy,dependency', aliases: :t, banner: 'List of validation types to include (privacy,dependency,architecture)'
     sig { params(pack_names: String).void }
@@ -140,7 +141,8 @@ module Packs
       Private.get_info(
         packs: parse_pack_names(pack_names),
         format: options[:format].to_sym,
-        types: selected_types.map(&:to_sym)
+        types: selected_types.map(&:to_sym),
+        include_date: options[:include_date]
       )
       exit_successfully
     end

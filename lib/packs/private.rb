@@ -10,6 +10,8 @@ require 'packs/private/file_move_operation'
 require 'packs/private/pack_relationship_analyzer'
 require 'packs/private/interactive_cli'
 
+require 'date'
+
 module Packs
   module Private
     extend T::Sig
@@ -483,12 +485,14 @@ module Packs
       params(
         packs: T::Array[Packs::Pack],
         format: Symbol,
-        types: T::Array[Symbol]
+        types: T::Array[Symbol],
+        include_date: T::Boolean
       ).void
     end
-    def self.get_info(packs: Packs.all, format: :detail, types: %i[privacy dependency architecture])
+    def self.get_info(packs: Packs.all, format: :detail, types: %i[privacy dependency architecture], include_date: false)
       require 'csv' if format == :csv
 
+      today = Date.today.iso8601
       violations = {
         inbound: {},
         outbound: {}
@@ -516,12 +520,14 @@ module Packs
 
       case format
       when :csv
-        headers = ['Pack name', 'Owned by', 'Size', 'Public API']
+        headers = ['Date', 'Pack name', 'Owned by', 'Size', 'Public API']
+        headers.delete('Date') unless include_date
         dir_x_types.each do |direction, type|
           headers << "#{direction.capitalize} #{type} violations"
         end
         puts CSV.generate_line(headers)
       else # :detail
+        puts "Date: #{today}" if include_date
         dir_x_types.each do |direction, type|
           puts "There are #{all[direction].select { _1.type.to_sym == type }.sum { |v| v.files.count }} total #{direction} #{type} violations"
         end
@@ -531,11 +537,14 @@ module Packs
         owner = CodeOwnership.for_package(pack)
 
         row = {
+          date: today,
           pack_name: pack.name,
           owner: owner.nil? ? 'No one' : owner.name,
           size: pack.relative_path.glob('**/*.rb').count,
           public_api: pack.relative_path.join('app/public')
         }
+
+        row.delete(:date) unless include_date
 
         dir_x_types.each do |direction, type|
           key = [direction, type, 'violations'].join('_').to_sym
@@ -548,6 +557,7 @@ module Packs
         else # :detail
           puts "\n=========== Info about: #{row[:pack_name]}"
 
+          puts "Date: #{row[:date]}" if include_date
           puts "Owned by: #{row[:owner]}"
           puts "Size: #{row[:size]} ruby files"
           puts "Public API: #{row[:public_api]}"
