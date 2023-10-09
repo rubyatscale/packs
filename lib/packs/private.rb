@@ -84,7 +84,6 @@ module Packs
       end
 
       add_public_directory(package) if package.enforce_privacy
-      add_readme_todo(package)
       package_location = package.directory
 
       file_move_operations = T.let([], T::Array[Private::FileMoveOperation])
@@ -131,6 +130,8 @@ module Packs
           end
         end
       end
+
+      add_readme_todo(package)
 
       per_file_processors.each do |processor|
         processor.after_move_files!(file_move_operations)
