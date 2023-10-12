@@ -497,8 +497,6 @@ module Packs
         inbound: {},
         outbound: {}
       }
-      directions = violations.keys
-      dir_x_types = directions.product(types)
 
       ParsePackwerk.all.each do |p|
         p.violations.each do |violation|
@@ -522,14 +520,18 @@ module Packs
       when :csv
         headers = ['Date', 'Pack name', 'Owned by', 'Size', 'Public API']
         headers.delete('Date') unless include_date
-        dir_x_types.each do |direction, type|
-          headers << "#{direction.capitalize} #{type} violations"
+        types.each do |type|
+          headers << "Inbound #{type} violations"
+          headers << "Outbound #{type} violations"
         end
         puts CSV.generate_line(headers)
       else # :detail
         puts "Date: #{today}" if include_date
-        dir_x_types.each do |direction, type|
-          puts "There are #{all[direction].select { _1.type.to_sym == type }.sum { |v| v.files.count }} total #{direction} #{type} violations"
+        types.each do |type|
+          inbound_count = all[:inbound].select { _1.type.to_sym == type }.sum { |v| v.files.count }
+          outbound_count = all[:outbound].select { _1.type.to_sym == type }.sum { |v| v.files.count }
+          puts "There are #{inbound_count} total inbound #{type} violations"
+          puts "There are #{outbound_count} total outbound #{type} violations"
         end
       end
 
@@ -546,9 +548,11 @@ module Packs
 
         row.delete(:date) unless include_date
 
-        dir_x_types.each do |direction, type|
-          key = [direction, type, 'violations'].join('_').to_sym
-          row[key] = (violations[direction][pack.name] || []).select { _1.type.to_sym == type }.sum { |v| v.files.count }
+        types.each do |type|
+          key = ['inbound', type, 'violations'].join('_').to_sym
+          row[key] = (violations[:inbound][pack.name] || []).select { _1.type.to_sym == type }.sum { |v| v.files.count }
+          key = ['outbound', type, 'violations'].join('_').to_sym
+          row[key] = (violations[:outbound][pack.name] || []).select { _1.type.to_sym == type }.sum { |v| v.files.count }
         end
 
         case format
@@ -561,9 +565,11 @@ module Packs
           puts "Owned by: #{row[:owner]}"
           puts "Size: #{row[:size]} ruby files"
           puts "Public API: #{row[:public_api]}"
-          dir_x_types.each do |direction, type|
-            key = [direction, type, 'violations'].join('_').to_sym
-            puts "There are #{row[key]} #{direction} #{type} violations"
+          types.each do |type|
+            key = ['inbound', type, 'violations'].join('_').to_sym
+            puts "There are #{row[key]} inbound #{type} violations"
+            key = ['outbound', type, 'violations'].join('_').to_sym
+            puts "There are #{row[key]} outbound #{type} violations"
           end
         end
       end
