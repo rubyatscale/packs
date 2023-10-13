@@ -10,6 +10,8 @@ require 'packs/private/file_move_operation'
 require 'packs/private/pack_relationship_analyzer'
 require 'packs/private/interactive_cli'
 
+require 'date'
+
 module Packs
   module Private
     extend T::Sig
@@ -479,45 +481,97 @@ module Packs
       Packs.find(package.name)
     end
 
-    sig { params(packs: T::Array[Packs::Pack]).void }
-    def self.get_info(packs: Packs.all)
-      inbound_violations = {}
-      outbound_violations = {}
+    sig do
+      params(
+        packs: T::Array[Packs::Pack],
+        format: Symbol,
+        types: T::Array[Symbol],
+        include_date: T::Boolean
+      ).void
+    end
+    def self.get_info(packs: Packs.all, format: :detail, types: %i[privacy dependency architecture], include_date: false)
+      require 'csv' if format == :csv
+
+      today = Date.today.iso8601
+      violations = {
+        inbound: {},
+        outbound: {}
+      }
+
       ParsePackwerk.all.each do |p|
         p.violations.each do |violation|
-          outbound_violations[p.name] ||= []
-          outbound_violations[p.name] << violation
-          inbound_violations[violation.to_package_name] ||= []
-          inbound_violations[violation.to_package_name] << violation
+          violations[:outbound][p.name] ||= []
+          violations[:outbound][p.name] << violation
+          violations[:inbound][violation.to_package_name] ||= []
+          violations[:inbound][violation.to_package_name] << violation
         end
       end
 
-      all_inbound = T.let([], T::Array[ParsePackwerk::Violation])
-      all_outbound = T.let([], T::Array[ParsePackwerk::Violation])
+      all = {
+        inbound: T.let([], T::Array[ParsePackwerk::Violation]),
+        outbound: T.let([], T::Array[ParsePackwerk::Violation])
+      }
       packs.each do |pack|
-        all_inbound += inbound_violations[pack.name] || []
-        all_outbound += outbound_violations[pack.name] || []
+        all[:inbound] += violations[:inbound][pack.name] || []
+        all[:outbound] += violations[:outbound][pack.name] || []
       end
 
-      puts "There are #{all_inbound.select(&:privacy?).sum { |v| v.files.count }} total inbound privacy violations"
-      puts "There are #{all_inbound.select(&:dependency?).sum { |v| v.files.count }} total inbound dependency violations"
-      puts "There are #{all_outbound.select(&:privacy?).sum { |v| v.files.count }} total outbound privacy violations"
-      puts "There are #{all_outbound.select(&:dependency?).sum { |v| v.files.count }} total outbound dependency violations"
+      case format
+      when :csv
+        headers = ['Date', 'Pack name', 'Owned by', 'Size', 'Public API']
+        headers.delete('Date') unless include_date
+        types.each do |type|
+          headers << "Inbound #{type} violations"
+          headers << "Outbound #{type} violations"
+        end
+        puts CSV.generate_line(headers)
+      else # :detail
+        puts "Date: #{today}" if include_date
+        types.each do |type|
+          inbound_count = all[:inbound].select { _1.type.to_sym == type }.sum { |v| v.files.count }
+          outbound_count = all[:outbound].select { _1.type.to_sym == type }.sum { |v| v.files.count }
+          puts "There are #{inbound_count} total inbound #{type} violations"
+          puts "There are #{outbound_count} total outbound #{type} violations"
+        end
+      end
 
       packs.sort_by { |p| -p.relative_path.glob('**/*.rb').count }.each do |pack|
-        puts "\n=========== Info about: #{pack.name}"
-
         owner = CodeOwnership.for_package(pack)
-        puts "Owned by: #{owner.nil? ? 'No one' : owner.name}"
-        puts "Size: #{pack.relative_path.glob('**/*.rb').count} ruby files"
-        puts "Public API: #{pack.relative_path.join('app/public')}"
 
-        inbound_for_pack = inbound_violations[pack.name] || []
-        outbound_for_pack = outbound_violations[pack.name] || []
-        puts "There are #{inbound_for_pack.select(&:privacy?).sum { |v| v.files.count }} inbound privacy violations"
-        puts "There are #{inbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }} inbound dependency violations"
-        puts "There are #{outbound_for_pack.select(&:privacy?).sum { |v| v.files.count }} outbound privacy violations"
-        puts "There are #{outbound_for_pack.flatten.select(&:dependency?).sum { |v| v.files.count }} outbound dependency violations"
+        row = {
+          date: today,
+          pack_name: pack.name,
+          owner: owner.nil? ? 'No one' : owner.name,
+          size: pack.relative_path.glob('**/*.rb').count,
+          public_api: pack.relative_path.join('app/public')
+        }
+
+        row.delete(:date) unless include_date
+
+        types.each do |type|
+          key = ['inbound', type, 'violations'].join('_').to_sym
+          row[key] = (violations[:inbound][pack.name] || []).select { _1.type.to_sym == type }.sum { |v| v.files.count }
+          key = ['outbound', type, 'violations'].join('_').to_sym
+          row[key] = (violations[:outbound][pack.name] || []).select { _1.type.to_sym == type }.sum { |v| v.files.count }
+        end
+
+        case format
+        when :csv
+          puts CSV.generate_line(row.values)
+        else # :detail
+          puts "\n=========== Info about: #{row[:pack_name]}"
+
+          puts "Date: #{row[:date]}" if include_date
+          puts "Owned by: #{row[:owner]}"
+          puts "Size: #{row[:size]} ruby files"
+          puts "Public API: #{row[:public_api]}"
+          types.each do |type|
+            key = ['inbound', type, 'violations'].join('_').to_sym
+            puts "There are #{row[key]} inbound #{type} violations"
+            key = ['outbound', type, 'violations'].join('_').to_sym
+            puts "There are #{row[key]} outbound #{type} violations"
+          end
+        end
       end
     end
 
