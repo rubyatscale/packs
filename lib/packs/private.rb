@@ -199,13 +199,20 @@ module Packs
           new_dependencies += [new_package_name]
         end
 
+        new_config = other_package.config.dup
+        if new_config['ignored_dependencies']
+          new_config['ignored_dependencies'] = new_config['ignored_dependencies'].map do |d|
+            d == pack_name ? new_package_name : d
+          end
+        end
+
         new_other_package = ParsePackwerk::Package.new(
           name: other_package.name,
           enforce_privacy: other_package.enforce_privacy,
           enforce_dependencies: other_package.enforce_dependencies,
           dependencies: new_dependencies.uniq.sort,
           metadata: other_package.metadata,
-          config: other_package.config
+          config: new_config
         )
 
         ParsePackwerk.write_package_yml!(new_other_package)
