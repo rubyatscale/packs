@@ -38,7 +38,8 @@ sig do
     enforce_privacy: T::Boolean,
     visible_to: T::Array[String],
     metadata: T.untyped,
-    owner: T.nilable(String)
+    owner: T.nilable(String),
+    config: T::Hash[String, T.untyped]
   ).void
 end
 def write_package_yml(
@@ -48,7 +49,8 @@ def write_package_yml(
   enforce_privacy: true,
   visible_to: [],
   metadata: {},
-  owner: nil
+  owner: nil,
+  config: {}
 )
   if owner
     metadata.merge!({ 'owner' => owner })
@@ -60,7 +62,7 @@ def write_package_yml(
     enforce_dependencies: enforce_dependencies,
     enforce_privacy: enforce_privacy,
     metadata: metadata,
-    config: {}
+    config: config
   )
 
   ParsePackwerk.write_package_yml!(package)
