@@ -1244,6 +1244,36 @@ RSpec.describe Packs do
         expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
       end
     end
+
+    describe 'RubocopPostProcessor' do
+      it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
+        write_file('.rubocop.yml')
+
+        write_file('.rubocop_todo.yml', <<~CONTENTS)
+          ---
+          Layout/BeginEndAlignment:
+            Exclude:
+            - packs/foo/app/services/foo.rb
+        CONTENTS
+
+        before_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
+
+        expect(before_rubocop_todo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/foo/app/services/foo.rb'] } })
+
+        write_file('packs/foo/app/services/foo.rb')
+        Packs.create_pack!(pack_name: 'packs/bar')
+        Packs.create_pack!(pack_name: 'packs/foo')
+        ParsePackwerk.bust_cache!
+        Packs.move_to_parent!(
+          pack_name: 'packs/foo',
+          parent_name: 'packs/bar',
+          per_file_processors: [Packs::RubocopPostProcessor.new]
+        )
+
+        after_rubocop_todo = YAML.load_file(Pathname.new('.rubocop_todo.yml'))
+        expect(after_rubocop_todo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/bar/foo/app/services/foo.rb'] } })
+      end
+    end
   end
 
   describe 'lint_package_todo_yml_files!' do

@@ -74,10 +74,7 @@ module Packs
     LONG_DESC
     sig { params(paths: String).void }
     def make_public(*paths)
-      Packs.make_public!(
-        paths_relative_to_root: paths,
-        per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
-      )
+      Packs.make_public!(paths_relative_to_root: paths)
       exit_successfully
     end
 
@@ -92,8 +89,7 @@ module Packs
     def move(pack_name, *paths)
       Packs.move_to_pack!(
         pack_name: pack_name,
-        paths_relative_to_root: paths,
-        per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
+        paths_relative_to_root: paths
       )
       exit_successfully
     end
@@ -159,8 +155,7 @@ module Packs
     def move_to_parent(child_pack_name, parent_pack_name)
       Packs.move_to_parent!(
         parent_name: parent_pack_name,
-        pack_name: child_pack_name,
-        per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
+        pack_name: child_pack_name
       )
       exit_successfully
     end

@@ -82,7 +82,7 @@ module Packs
   def self.move_to_pack!(
     pack_name:,
     paths_relative_to_root: [],
-    per_file_processors: []
+    per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
   )
     Logging.section('👋 Hi!') do
       intro = Packs.config.user_event_logger.before_move_to_pack(pack_name)
@@ -109,7 +109,7 @@ module Packs
   end
   def self.make_public!(
     paths_relative_to_root: [],
-    per_file_processors: []
+    per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
   )
     Logging.section('Making files public') do
       intro = Packs.config.user_event_logger.before_make_public
@@ -163,7 +163,7 @@ module Packs
   def self.move_to_parent!(
     pack_name:,
     parent_name:,
-    per_file_processors: []
+    per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
   )
     Logging.section('👋 Hi!') do
       intro = Packs.config.user_event_logger.before_move_to_parent(pack_name)
