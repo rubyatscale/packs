@@ -109,7 +109,7 @@ module Packs
   end
   def self.make_public!(
     paths_relative_to_root: [],
-    per_file_processors: []
+    per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
   )
     Logging.section('Making files public') do
       intro = Packs.config.user_event_logger.before_make_public

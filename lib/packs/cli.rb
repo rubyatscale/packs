@@ -74,10 +74,7 @@ module Packs
     LONG_DESC
     sig { params(paths: String).void }
     def make_public(*paths)
-      Packs.make_public!(
-        paths_relative_to_root: paths,
-        per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
-      )
+      Packs.make_public!(paths_relative_to_root: paths)
       exit_successfully
     end
 
