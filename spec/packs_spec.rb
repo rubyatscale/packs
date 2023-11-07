@@ -1294,6 +1294,10 @@ RSpec.describe Packs do
 
     describe 'UpdateReferencesPostProcessor' do
       describe 'when riprep is installed' do
+        before do
+          allow(Packs::UpdateReferencesPostProcessor).to receive(:ripgrep_enabled?).and_return(true)
+        end
+
         it 'modifies exsiting files that reference the origin pack\'s path correctly' do
           write_file('.some_other_file.yml')
 
