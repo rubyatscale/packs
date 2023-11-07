@@ -100,7 +100,7 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 
 ## Set packs/child_pack as a child of packs/parent_pack
 `bin/packs move_to_parent packs/child_pack packs/parent_pack `
-
+To update all references to the pack's path add `per_file_processors:[Packs::UpdateReferencesPostProcessor.new]`
 
 ## Releasing
 Releases happen automatically through github actions once a version update is committed to `main`.
