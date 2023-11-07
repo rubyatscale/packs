@@ -40,7 +40,7 @@ module Packs
       end
     end
 
-    sig { params(file_move_operations: T::Array[Private::FileMoveOperation]).void }
+    sig { override.params(file_move_operations: T::Array[Private::FileMoveOperation]).void }
     def after_move_files!(file_move_operations)
       if @teams.any?
         Logging.section('Code Ownership') do
