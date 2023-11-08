@@ -1294,20 +1294,31 @@ RSpec.describe Packs do
     end
 
     describe 'UpdateReferencesPostProcessor' do
-      describe 'when riprep is installed (fails if ripgrep is not locally installed)' do
-        it 'modifies exsiting files that reference the origin pack\'s path correctly' do
-          write_file('.some_other_file.yml')
+      before do 
+        write_file('.some_other_file.yml')
 
-          write_file('.some_other_file.yml', <<~CONTENTS)
-            ignored_dependencies:
-              - packs/foo/app/services/foo.rb
-          CONTENTS
+        write_file('.some_other_file.yml', <<~CONTENTS)
+          ignored_dependencies:
+            - packs/foo/app/services/foo.rb
+        CONTENTS
 
-          write_file('example_readme.md')
-          write_file('example_readme.md', <<~CONTENTS)
-            an example referencing the path: packs/foo/app/services/foo.rb
-          CONTENTS
+        write_file('example_readme.md')
+        write_file('example_readme.md', <<~CONTENTS)
+          an example referencing the path: packs/foo/app/services/foo.rb
+        CONTENTS
 
+        write_file('skims')
+        write_file('skims', <<~CONTENTS)
+          kim kardashian
+        CONTENTS
+      end 
+
+      describe 'when riprep is installed' do
+        before do
+          allow(Packs::UpdateReferencesPostProcessor).to receive(:ripgrep_enabled?).and_return(true)
+        end
+
+        it 'modifies existing files that reference the origin pack\'s path correctly' do
           before_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
           expect(before_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/foo/app/services/foo.rb'] })
 
