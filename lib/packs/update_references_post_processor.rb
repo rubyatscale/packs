@@ -14,7 +14,7 @@ module Packs
     sig { override.params(file_move_operations: T::Array[Private::FileMoveOperation]).void }
     def after_move_files!(file_move_operations)
       return if file_move_operations.empty?
- 
+
       origin_pack = T.must(file_move_operations.first).origin_pack.name
       destination_pack = T.must(file_move_operations.first).destination_pack.name
 
@@ -24,6 +24,7 @@ module Packs
         Logging.print('For faster UpdateReferences install ripgrep: https://github.com/BurntSushi/ripgrep/tree/master')
         Dir.glob('./**/*', File::FNM_DOTMATCH) do |file_name|
           next if File.directory?(file_name)
+
           text = File.read(file_name)
           replace = text.gsub(origin_pack, destination_pack)
           File.open(file_name, 'w') { |file| file.puts replace }

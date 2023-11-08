@@ -1293,7 +1293,7 @@ RSpec.describe Packs do
     end
 
     describe 'UpdateReferencesPostProcessor' do
-      before do 
+      before do
         write_file('.some_other_file.yml')
 
         write_file('.some_other_file.yml', <<~CONTENTS)
@@ -1310,7 +1310,7 @@ RSpec.describe Packs do
         write_file('skims', <<~CONTENTS)
           kim kardashian
         CONTENTS
-      end 
+      end
 
       describe 'when riprep is installed' do
         before do
