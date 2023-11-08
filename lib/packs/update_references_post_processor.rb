@@ -20,7 +20,7 @@ module Packs
 
       if self.class.ripgrep_enabled?
         p Dir.glob('./**/*')
-        `rg '#{origin_pack}' -l --hidden | xargs sed -i '' 's,#{origin_pack},#{destination_pack},g'`
+        `rg '#{origin_pack}' -l --hidden | xargs sed -i -e 's,#{origin_pack},#{destination_pack},g'`
         p 'rg done'
       else
         Logging.print('For faster UpdateReferences install ripgrep: https://github.com/BurntSushi/ripgrep/tree/master')
