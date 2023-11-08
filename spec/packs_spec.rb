@@ -1313,7 +1313,7 @@ RSpec.describe Packs do
 
       describe 'when ripgrep is installed' do
         it 'modifies existing files that reference the origin pack\'s path correctly' do
-          expect(!!system('which', 'rg', out: File::NULL, err: :out)).to eq true
+          expect(system('which', 'rg', out: File::NULL, err: :out)).to eq true
           before_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
           expect(before_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/foo/app/services/foo.rb'] })
 
