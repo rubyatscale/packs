@@ -19,9 +19,7 @@ module Packs
       destination_pack = T.must(file_move_operations.first).destination_pack.name
 
       if self.class.ripgrep_enabled?
-        p system('which', 'rg', out: File::NULL, err: :out)
-        p origin_pack
-        p destination_pack
+        p Dir.glob('./**/*')
         `rg '#{origin_pack}' -l --hidden | xargs sed -i '' 's,#{origin_pack},#{destination_pack},g'`
         p 'rg done'
       else
