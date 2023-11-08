@@ -1278,7 +1278,6 @@ RSpec.describe Packs do
     describe 'UpdateReferencesPostProcessor' do
       before do
         write_file('.some_other_file.yml')
-
         write_file('.some_other_file.yml', <<~CONTENTS)
           ignored_dependencies:
             - packs/foo/app/services/foo.rb
@@ -1289,13 +1288,13 @@ RSpec.describe Packs do
           an example referencing the path: packs/foo/app/services/foo.rb
         CONTENTS
 
-        write_file('skims')
-        write_file('skims', <<~CONTENTS)
+        write_file('kfile')
+        write_file('kfile', <<~CONTENTS)
           kim kardashian
         CONTENTS
       end
 
-      describe 'when riprep is installed' do
+      describe 'when ripgrep is installed' do
         before do
           allow(Packs::UpdateReferencesPostProcessor).to receive(:ripgrep_enabled?).and_return(true)
         end
@@ -1307,8 +1306,8 @@ RSpec.describe Packs do
           before_update_reference_readme = File.read('example_readme.md')
           expect(before_update_reference_readme).to include('packs/foo/app/services/foo.rb')
 
-          before_update_reference_readme = File.read('skims')
-          expect(before_update_reference_readme).to include('kim kardashian')
+          before_update_reference_kfile = File.read('kfile')
+          expect(before_update_reference_kfile).to include('kim kardashian')
 
           write_file('packs/foo/app/services/foo.rb')
           Packs.create_pack!(pack_name: 'packs/bar')
@@ -1324,8 +1323,8 @@ RSpec.describe Packs do
           expect(after_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/bar/foo/app/services/foo.rb'] })
           after_update_reference_readme = File.read('example_readme.md')
           expect(after_update_reference_readme).to include('packs/bar/foo/app/services/foo.rb')
-          after_update_reference_readme = File.read('skims')
-          expect(after_update_reference_readme).to eq("kim kardashian\n")
+          after_update_reference_kfile = File.read('kfile')
+          expect(after_update_reference_kfile).to eq("kim kardashian\n")
         end
       end
 
@@ -1341,8 +1340,8 @@ RSpec.describe Packs do
           before_update_reference_readme = File.read('example_readme.md')
           expect(before_update_reference_readme).to include('packs/foo/app/services/foo.rb')
 
-          before_update_reference_readme = File.read('skims')
-          expect(before_update_reference_readme).to include('kim kardashian')
+          before_update_reference_kfile = File.read('kfile')
+          expect(before_update_reference_kfile).to include('kim kardashian')
           logged_output = ''
 
           expect(Packs::Logging).to receive(:print).at_least(:once) do |string|
@@ -1369,8 +1368,8 @@ RSpec.describe Packs do
           expect(after_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/bar/foo/app/services/foo.rb'] })
           after_update_reference_readme = File.read('example_readme.md')
           expect(after_update_reference_readme).to include('packs/bar/foo/app/services/foo.rb')
-          after_update_reference_readme = File.read('skims')
-          expect(after_update_reference_readme).to eq("kim kardashian\n")
+          after_update_reference_kfile = File.read('kfile')
+          expect(after_update_reference_kfile).to eq("kim kardashian\n")
         end
       end
     end
