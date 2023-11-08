@@ -1296,6 +1296,9 @@ RSpec.describe Packs do
           before_update_reference_readme = File.read('example_readme.md')
           expect(before_update_reference_readme).to include('packs/foo/app/services/foo.rb')
 
+          before_update_reference_readme = File.read('skims')
+          expect(before_update_reference_readme).to include('kim kardashian')
+
           write_file('packs/foo/app/services/foo.rb')
           Packs.create_pack!(pack_name: 'packs/bar')
           Packs.create_pack!(pack_name: 'packs/foo')
@@ -1310,6 +1313,8 @@ RSpec.describe Packs do
           expect(after_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/bar/foo/app/services/foo.rb'] })
           after_update_reference_readme = File.read('example_readme.md')
           expect(after_update_reference_readme).to include('packs/bar/foo/app/services/foo.rb')
+          after_update_reference_readme = File.read('skims')
+          expect(after_update_reference_readme).to eq("kim kardashian\n")
         end
       end
 
@@ -1318,17 +1323,15 @@ RSpec.describe Packs do
           allow(Packs::UpdateReferencesPostProcessor).to receive(:ripgrep_enabled?).and_return(false)
         end
 
-        it 'does not update any references and logs a message' do
-          write_file('.some_other_file.yml')
-
-          write_file('.some_other_file.yml', <<~CONTENTS)
-            ignored_dependencies:
-              - packs/foo/app/services/foo.rb
-          CONTENTS
-
+        it 'modifies existing files with ruby and tells the user to install ripgrep' do
           before_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
           expect(before_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/foo/app/services/foo.rb'] })
 
+          before_update_reference_readme = File.read('example_readme.md')
+          expect(before_update_reference_readme).to include('packs/foo/app/services/foo.rb')
+
+          before_update_reference_readme = File.read('skims')
+          expect(before_update_reference_readme).to include('kim kardashian')
           logged_output = ''
 
           expect(Packs::Logging).to receive(:print).at_least(:once) do |string|
@@ -1346,13 +1349,17 @@ RSpec.describe Packs do
             per_file_processors: [Packs::UpdateReferencesPostProcessor.new]
           )
 
-          after_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
-          expect(after_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/foo/app/services/foo.rb'] })
-
           expected_logged_output = <<~OUTPUT
-            Skipping UpdateReferencesPostProcessor since ripgrep is not installed
+            For faster UpdateReferences install ripgrep: https://github.com/BurntSushi/ripgrep/tree/master
           OUTPUT
           expect(logged_output).to include expected_logged_output
+
+          after_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
+          expect(after_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/bar/foo/app/services/foo.rb'] })
+          after_update_reference_readme = File.read('example_readme.md')
+          expect(after_update_reference_readme).to include('packs/bar/foo/app/services/foo.rb')
+          after_update_reference_readme = File.read('skims')
+          expect(after_update_reference_readme).to eq("kim kardashian\n")
         end
       end
     end

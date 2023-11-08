@@ -21,7 +21,7 @@ The rest of the [rubyatscale](https://github.com/rubyatscale) ecosystem is inten
 Here are some example integrations with `packs`:
 - [`packs-specification`](https://github.com/rubyatscale/packs-specification) is a low-dependency gem that allows your production environment to query simple information about packs
 - [`packs-rails`](https://github.com/rubyatscale/packs-rails) can be used to integrate `packs` into your `rails` application
-- [`rubocop-packs`](https://github.com/rubyatscale/rubocop-packs) contains cops to improve boundaries around `packs` 
+- [`rubocop-packs`](https://github.com/rubyatscale/rubocop-packs) contains cops to improve boundaries around `packs`
 - [`packwerk`](https://github.com/Shopify/packwerk) and [`packwerk-extensions`](https://github.com/rubyatscale/packwerk-extensions) help you describe and constrain your package graph in terms of dependencies between packs and pack public API
 - [`code_ownership`](https://github.com/rubyatscale/code_ownership) gives your application the capability to determine the owner of a pack
 - [`pack_stats`](https://github.com/rubyatscale/pack_stats) makes it easy to send metrics about pack adoption and modularization to your favorite metrics provider, such as DataDog (which has built-in support).
@@ -78,29 +78,36 @@ Note this works for moving files to packs from the monolith or from other packs
 Make sure there are no spaces between the comma-separated list of paths of directories.
 
 ## Lint `package_todo.yml` files to check for formatting issues
+
 `bin/packs lint_package_todo_yml_files`
 
 ## Lint `package.yml` files
+
 `bin/packs lint_package_yml_files [ packs/my_pack packs/my_other_pack ]`
 
 ## Run bin/packwerk validate (detects cycles)
+
 `bin/packs validate`
 
 ## Run bin/packwerk check
+
 `bin/packs check [ packs/my_pack ]`
 
 ## Run bin/packwerk update-todo
+
 `bin/packs update`
 
 ## Get info about size and violations for packs
+
 `bin/packs get_info [ packs/my_pack packs/my_other_pack ]`
 
 ## Rename a pack
+
 `bin/packs rename`
 
 ## Set packs/child_pack as a child of packs/parent_pack
+
 `bin/packs move_to_parent packs/child_pack packs/parent_pack `
-To update all references to the pack's path add `per_file_processors:[Packs::UpdateReferencesPostProcessor.new]`
 
 ## Releasing
 Releases happen automatically through github actions once a version update is committed to `main`.
