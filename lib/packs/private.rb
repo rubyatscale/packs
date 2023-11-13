@@ -170,7 +170,7 @@ module Packs
 
       new_package = ParsePackwerk::Package.new(
         name: new_package_name,
-        enforce_privacy: package.enforce_dependencies,
+        enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
         dependencies: package.dependencies,
         metadata: package.metadata,
