@@ -23,7 +23,7 @@ module Packs
 
         2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` if you've added new load paths (new top-level directories) in your pack.
 
-        3) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
+        3) Expose public API in #{pack_name}/#{ParsePackwerk::DEFAULT_PUBLIC_PATH}. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
 
         4) Update your readme at #{pack_name}/README.md
       MSG
@@ -45,7 +45,7 @@ module Packs
 
         2) Touch base with each team who owns files involved in this move
 
-        3) Expose public API in #{pack_name}/app/public. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
+        3) Expose public API in #{pack_name}/#{ParsePackwerk::DEFAULT_PUBLIC_PATH}. Try `bin/packs make_public #{pack_name}/path/to/file.rb`
 
         4) Update your readme at #{pack_name}/README.md
       MSG
@@ -136,7 +136,7 @@ module Packs
         If you're the author, please consider replacing this file with a README.md, which may contain:
         - What your pack is and does
         - How you expect people to use your pack
-        - Example usage of your pack's public API (which lives in `#{pack_name}/app/public`)
+        - Example usage of your pack's public API (which lives in `#{pack_name}/#{ParsePackwerk::DEFAULT_PUBLIC_PATH}`)
         - Limitations, risks, and important considerations of usage
         - How to get in touch with eng and other stakeholders for questions or issues pertaining to this pack (note: it is recommended to add ownership in `#{pack_name}/package.yml` under the `owner` metadata key)
         - What SLAs/SLOs (service level agreements/objectives), if any, your package provides
@@ -157,7 +157,7 @@ module Packs
           Pass in a limit to display more or less, e.g. `bin/packs list_top_violations #{type} #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
-          Anything not in pack_name/app/public is considered private API.
+          Anything not in pack_name/#{ParsePackwerk::DEFAULT_PUBLIC_PATH} is considered private API.
         PACK_CONTENT
       else
         <<~PACK_CONTENT
@@ -165,7 +165,7 @@ module Packs
           Pass in a limit to display more or less, e.g. `bin/packs list_top_violations #{type} #{pack_name} -l 1000`
 
           This script is intended to help you find which of YOUR pack's private classes, constants, or modules other packs are using the most.
-          Anything not in #{pack_name}/app/public is considered private API.
+          Anything not in #{pack_name}/#{ParsePackwerk::DEFAULT_PUBLIC_PATH} is considered private API.
         PACK_CONTENT
       end
     end
