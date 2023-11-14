@@ -30,7 +30,19 @@ Here are some example integrations with `packs`:
 A ruby [`gem`](https://guides.rubygems.org/what-is-a-gem/) is the Ruby community solution for packaging and distributing Ruby code. A gem is a great place to start new projects, and a great end state for code that's been extracted from an existing codebase. `packs` are intended to help gradually modularize an application that has some conceptual boundaries, but is not yet ready to be factored into gems.
 
 ## Usage
-Make sure to run `bundle binstub packs` to generate `bin/packs` within your application.
+1. Add the gem to your Gemfile and do a `bundle install`
+```
+gem 'packs-rails'
+gem 'packs'
+```
+
+2. Initialize packwerk
+```
+bundle binstub packwerk
+bin/packwerk init
+```
+
+3. Make sure to run `bundle binstub packs` to generate `bin/packs` within your application.
 
 ## CLI Documentation
 ## Describe available commands or one specific command
