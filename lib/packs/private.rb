@@ -204,8 +204,8 @@ module Packs
         end
 
         if other_package.name == parent_name &&
-          !new_dependencies.include?(new_package_name) &&
-          !new_config['ignored_dependencies']&.include?(new_package_name)
+           !new_dependencies.include?(new_package_name) &&
+           !new_config['ignored_dependencies']&.include?(new_package_name)
           new_dependencies += [new_package_name]
         end
 
