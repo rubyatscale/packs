@@ -1139,6 +1139,23 @@ RSpec.describe Packs do
       expect(ParsePackwerk.find('packs/turtles').config['ignored_dependencies']).to eq(['packs/fruits/apples'])
     end
 
+    context 'when the pack is an ignored dependency of the parent pack' do
+      it 'does not add a dependency' do
+        write_package_yml('packs/fruits', config: { 'ignored_dependencies' => ['packs/apples'] })
+        write_package_yml('packs/apples', dependencies: ['packs/other_pack'], metadata: { 'custom_field' => 'custom value' })
+
+        Packs.move_to_parent!(
+          pack_name: 'packs/apples',
+          parent_name: 'packs/fruits'
+        )
+
+        ParsePackwerk.bust_cache!
+
+        expect(ParsePackwerk.find('packs/fruits').config['ignored_dependencies']).to eq(['packs/fruits/apples'])
+        expect(ParsePackwerk.find('packs/fruits').dependencies).to be_empty
+      end
+    end
+
     it 'gives some helpful output to users' do
       logged_output = ''
 

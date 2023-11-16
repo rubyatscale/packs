@@ -195,15 +195,18 @@ module Packs
 
       ParsePackwerk.all.each do |other_package|
         new_dependencies = other_package.dependencies.map { |d| d == pack_name ? new_package_name : d }
-        if other_package.name == parent_name && !new_dependencies.include?(new_package_name)
-          new_dependencies += [new_package_name]
-        end
 
         new_config = other_package.config.dup
         if new_config['ignored_dependencies']
           new_config['ignored_dependencies'] = new_config['ignored_dependencies'].map do |d|
             d == pack_name ? new_package_name : d
           end
+        end
+
+        if other_package.name == parent_name &&
+          !new_dependencies.include?(new_package_name) &&
+          !new_config['ignored_dependencies']&.include?(new_package_name)
+          new_dependencies += [new_package_name]
         end
 
         new_other_package = ParsePackwerk::Package.new(
