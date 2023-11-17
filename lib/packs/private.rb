@@ -370,8 +370,9 @@ module Packs
       ).returns(ParsePackwerk::Package)
     end
     def self.create_pack_if_not_exists!(pack_name:, enforce_privacy:, enforce_dependencies:, team: nil)
-      if PERMITTED_PACK_LOCATIONS.none? { |permitted_location| pack_name.start_with?(permitted_location) }
-        raise StandardError, "Packs only supports packages in the the following directories: #{PERMITTED_PACK_LOCATIONS.inspect}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
+      allowed_locations = Packs::Specification.config.pack_paths
+      if allowed_locations.none? { |location| File.fnmatch(location, pack_name) }
+        raise StandardError, "Packs only supports packages in the the following directories: #{allowed_locations}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
       end
 
       existing_package = ParsePackwerk.all.find { |p| p.name == pack_name }

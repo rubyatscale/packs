@@ -24,12 +24,6 @@ require 'packs/cli'
 module Packs
   extend T::Sig
 
-  PERMITTED_PACK_LOCATIONS = T.let(%w[
-                                     gems
-                                     components
-                                     packs
-                                   ], T::Array[String])
-
   sig { void }
   def self.start_interactive_mode!
     Private::InteractiveCli.start!
