@@ -103,6 +103,7 @@ RSpec.describe Packs do
           enforce_privacy: true,
           enforce_dependencies: false,
           dependencies: [],
+          violations: [],
           metadata: {},
           config: { 'owner' => 'MyTeam' }
         )
