@@ -173,6 +173,7 @@ module Packs
         enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
         dependencies: package.dependencies,
+        violations: package.violations,
         metadata: package.metadata,
         config: package.config
       )
@@ -214,6 +215,7 @@ module Packs
           enforce_privacy: other_package.enforce_privacy,
           enforce_dependencies: other_package.enforce_dependencies,
           dependencies: new_dependencies.uniq.sort,
+          violations: other_package.violations,
           metadata: other_package.metadata,
           config: new_config
         )
@@ -304,6 +306,7 @@ module Packs
         dependencies: (package.dependencies + [dependency_name]).uniq.sort,
         enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
+        violations: package.violations,
         metadata: package.metadata,
         config: package.config
       )
@@ -395,6 +398,7 @@ module Packs
           enforce_dependencies: should_enforce_dependencies || false,
           enforce_privacy: enforce_privacy,
           dependencies: [],
+          violations: [],
           metadata: {},
           name: pack_name,
           config: config

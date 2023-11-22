@@ -34,6 +34,7 @@ sig do
   params(
     pack_name: String,
     dependencies: T::Array[String],
+    violations: T::Array[ParsePackwerk::Violation],
     enforce_dependencies: T::Boolean,
     enforce_privacy: T::Boolean,
     visible_to: T::Array[String],
@@ -45,6 +46,7 @@ end
 def write_package_yml(
   pack_name,
   dependencies: [],
+  violations: [],
   enforce_dependencies: true,
   enforce_privacy: true,
   visible_to: [],
@@ -59,6 +61,7 @@ def write_package_yml(
   package = ParsePackwerk::Package.new(
     name: pack_name,
     dependencies: dependencies,
+    violations: violations,
     enforce_dependencies: enforce_dependencies,
     enforce_privacy: enforce_privacy,
     metadata: metadata,
