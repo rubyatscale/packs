@@ -1292,6 +1292,105 @@ RSpec.describe Packs do
         expect(after_rubocop_todo).to eq({ 'Layout/BeginEndAlignment' => { 'Exclude' => ['packs/bar/foo/app/services/foo.rb'] } })
       end
     end
+
+    describe 'UpdateReferencesPostProcessor' do
+      before do
+        write_file('.some_other_file.yml')
+        write_file('.some_other_file.yml', <<~CONTENTS)
+          ignored_dependencies:
+            - packs/foo/app/services/foo.rb
+        CONTENTS
+
+        write_file('example_readme.md')
+        write_file('example_readme.md', <<~CONTENTS)
+          an example referencing the path: packs/foo/app/services/foo.rb
+        CONTENTS
+
+        write_file('kfile')
+        write_file('kfile', <<~CONTENTS)
+          kim kardashian
+        CONTENTS
+      end
+
+      describe 'when ripgrep is installed' do
+        before do
+          allow(Packs::UpdateReferencesPostProcessor).to receive(:ripgrep_enabled?).and_return(true)
+        end
+
+        it 'modifies existing files that reference the origin pack\'s path correctly' do
+          before_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
+          expect(before_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/foo/app/services/foo.rb'] })
+
+          before_update_reference_readme = File.read('example_readme.md')
+          expect(before_update_reference_readme).to include('packs/foo/app/services/foo.rb')
+
+          before_update_reference_kfile = File.read('kfile')
+          expect(before_update_reference_kfile).to include('kim kardashian')
+
+          write_file('packs/foo/app/services/foo.rb')
+          Packs.create_pack!(pack_name: 'packs/bar')
+          Packs.create_pack!(pack_name: 'packs/foo')
+          ParsePackwerk.bust_cache!
+          Packs.move_to_parent!(
+            pack_name: 'packs/foo',
+            parent_name: 'packs/bar',
+            per_file_processors: [Packs::UpdateReferencesPostProcessor.new]
+          )
+
+          after_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
+          expect(after_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/bar/foo/app/services/foo.rb'] })
+          after_update_reference_readme = File.read('example_readme.md')
+          expect(after_update_reference_readme).to include('packs/bar/foo/app/services/foo.rb')
+          after_update_reference_kfile = File.read('kfile')
+          expect(after_update_reference_kfile).to eq("kim kardashian\n")
+        end
+      end
+
+      describe 'when ripgrep is not installed' do
+        before do
+          allow(Packs::UpdateReferencesPostProcessor).to receive(:ripgrep_enabled?).and_return(false)
+        end
+
+        it 'modifies existing files with ruby and tells the user to install ripgrep' do
+          before_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
+          expect(before_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/foo/app/services/foo.rb'] })
+
+          before_update_reference_readme = File.read('example_readme.md')
+          expect(before_update_reference_readme).to include('packs/foo/app/services/foo.rb')
+
+          before_update_reference_kfile = File.read('kfile')
+          expect(before_update_reference_kfile).to include('kim kardashian')
+          logged_output = ''
+
+          expect(Packs::Logging).to receive(:print).at_least(:once) do |string|
+            logged_output += string
+            logged_output += "\n"
+          end
+
+          write_file('packs/foo/app/services/foo.rb')
+          Packs.create_pack!(pack_name: 'packs/bar')
+          Packs.create_pack!(pack_name: 'packs/foo')
+          ParsePackwerk.bust_cache!
+          Packs.move_to_parent!(
+            pack_name: 'packs/foo',
+            parent_name: 'packs/bar',
+            per_file_processors: [Packs::UpdateReferencesPostProcessor.new]
+          )
+
+          expected_logged_output = <<~OUTPUT
+            For faster UpdateReferences install ripgrep: https://github.com/BurntSushi/ripgrep/tree/master
+          OUTPUT
+          expect(logged_output).to include expected_logged_output
+
+          after_update_reference_yml = YAML.load_file(Pathname.new('.some_other_file.yml'))
+          expect(after_update_reference_yml).to eq({ 'ignored_dependencies' => ['packs/bar/foo/app/services/foo.rb'] })
+          after_update_reference_readme = File.read('example_readme.md')
+          expect(after_update_reference_readme).to include('packs/bar/foo/app/services/foo.rb')
+          after_update_reference_kfile = File.read('kfile')
+          expect(after_update_reference_kfile).to eq("kim kardashian\n")
+        end
+      end
+    end
   end
 
   describe 'lint_package_todo_yml_files!' do
