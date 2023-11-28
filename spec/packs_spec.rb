@@ -46,7 +46,7 @@ RSpec.describe Packs do
 
       it 'errors' do
         expect { Packs.create_pack!(pack_name: 'foo/my_pack') }.to raise_error(
-          'Packs only supports packages in the the following directories: ["gems", "components", "packs"]. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`.'
+          'Packs only supports packages in the the following directories: ["packs/*", "packs/*/*"]. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`.'
         )
       end
     end
@@ -161,6 +161,10 @@ RSpec.describe Packs do
 
     context 'pack is in gems' do
       let(:pack_name) { 'gems/my_pack' }
+
+      before do
+        allow(Packs::Specification.config).to receive(:pack_paths).and_return(['gems/*'])
+      end
 
       it 'creates the pack' do
         Packs.create_pack!(pack_name: 'gems/my_pack')
