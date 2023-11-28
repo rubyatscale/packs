@@ -348,7 +348,7 @@ module Packs
 
     sig { params(package: ParsePackwerk::Package).void }
     def self.add_public_directory(package)
-      public_directory = package.directory.join('app/public')
+      public_directory = package.directory.join(package.public_path)
 
       if public_directory.glob('**/**.rb').none?
         FileUtils.mkdir_p(public_directory)
@@ -512,7 +512,10 @@ module Packs
         outbound: {}
       }
 
+      package_by_name = {}
+
       ParsePackwerk.all.each do |p|
+        package_by_name[p.name] = p
         p.violations.each do |violation|
           violations[:outbound][p.name] ||= []
           violations[:outbound][p.name] << violation
@@ -557,7 +560,7 @@ module Packs
           pack_name: pack.name,
           owner: owner.nil? ? 'No one' : owner.name,
           size: pack.relative_path.glob('**/*.rb').count,
-          public_api: pack.relative_path.join('app/public')
+          public_api: pack.relative_path.join(package_by_name[pack.name].public_path)
         }
 
         row.delete(:date) unless include_date
