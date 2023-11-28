@@ -21,7 +21,7 @@ The rest of the [rubyatscale](https://github.com/rubyatscale) ecosystem is inten
 Here are some example integrations with `packs`:
 - [`packs-specification`](https://github.com/rubyatscale/packs-specification) is a low-dependency gem that allows your production environment to query simple information about packs
 - [`packs-rails`](https://github.com/rubyatscale/packs-rails) can be used to integrate `packs` into your `rails` application
-- [`rubocop-packs`](https://github.com/rubyatscale/rubocop-packs) contains cops to improve boundaries around `packs` 
+- [`rubocop-packs`](https://github.com/rubyatscale/rubocop-packs) contains cops to improve boundaries around `packs`
 - [`packwerk`](https://github.com/Shopify/packwerk) and [`packwerk-extensions`](https://github.com/rubyatscale/packwerk-extensions) help you describe and constrain your package graph in terms of dependencies between packs and pack public API
 - [`code_ownership`](https://github.com/rubyatscale/code_ownership) gives your application the capability to determine the owner of a pack
 - [`pack_stats`](https://github.com/rubyatscale/pack_stats) makes it easy to send metrics about pack adoption and modularization to your favorite metrics provider, such as DataDog (which has built-in support).
@@ -77,7 +77,7 @@ If no pack name is passed in, this will list out violations across all packs.
 ## Make files or directories public API
 `bin/packs make_public path/to/file.rb path/to/directory`
 
-This moves a file or directory to public API (that is -- the `app/public` folder).
+This moves a file or directory to public API (either the `app/public` folder or the pack's specified public path).
 
 Make sure there are no spaces between the comma-separated list of paths of directories.
 
