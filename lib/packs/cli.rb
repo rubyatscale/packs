@@ -68,7 +68,7 @@ module Packs
 
     desc 'make_public path/to/file.rb path/to/directory', 'Make files or directories public API'
     long_desc <<~LONG_DESC
-      This moves a file or directory to public API (that is -- the `#{ParsePackwerk::DEFAULT_PUBLIC_PATH}` folder).
+      This moves a file or directory to public API (either the `#{ParsePackwerk::DEFAULT_PUBLIC_PATH}` folder or the pack's specified public path).
 
       Make sure there are no spaces between the comma-separated list of paths of directories.
     LONG_DESC
