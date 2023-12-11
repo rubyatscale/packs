@@ -191,7 +191,7 @@ module Packs
     per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
   )
     Logging.section('👋 Hi!') do
-      intro = Packs.config.user_event_logger.before_move_to_parent(pack_name) # TODO
+      intro = Packs.config.user_event_logger.before_move_to_folder(pack_name)
       Logging.print_bold_green(intro)
     end
 
@@ -202,7 +202,7 @@ module Packs
     )
 
     Logging.section('Next steps') do
-      next_steps = Packs.config.user_event_logger.after_move_to_parent(pack_name) # TODO
+      next_steps = Packs.config.user_event_logger.after_move_to_folder(pack_name)
 
       Logging.print_bold_green(next_steps)
     end

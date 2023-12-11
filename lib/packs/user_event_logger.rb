@@ -106,6 +106,24 @@ module Packs
     end
 
     sig { params(pack_name: String).returns(String) }
+    def before_move_to_folder(pack_name)
+      <<~MSG
+        You are moving one pack to a new directory. Check out #{documentation_link} for more info!
+      MSG
+    end
+
+    sig { params(pack_name: String).returns(String) }
+    def after_move_to_folder(pack_name)
+      <<~MSG
+        Your next steps might be:
+
+        1) Delete the old pack when things look good: `git rm -r #{pack_name}`
+
+        2) Run `bin/packwerk update-todo` to update the violations. Make sure to run `spring stop` first.
+      MSG
+    end
+
+    sig { params(pack_name: String).returns(String) }
     def on_create_public_directory_todo(pack_name)
       <<~MSG
         This directory holds your public API!

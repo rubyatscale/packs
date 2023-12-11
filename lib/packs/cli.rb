@@ -150,12 +150,22 @@ module Packs
       exit_successfully
     end
 
-    desc 'move_to_parent packs/child_pack packs/parent_pack ', 'Set packs/child_pack as a child of packs/parent_pack'
+    desc 'move_to_parent packs/child_pack packs/parent_pack', 'Set packs/child_pack as a child of packs/parent_pack'
     sig { params(child_pack_name: String, parent_pack_name: String).void }
     def move_to_parent(child_pack_name, parent_pack_name)
       Packs.move_to_parent!(
         parent_name: parent_pack_name,
         pack_name: child_pack_name
+      )
+      exit_successfully
+    end
+
+    desc 'move_to_folder packs/foo packs/bar', 'Move packs/foo to the packs/bar folder'
+    sig { params(pack_name: String, destination: String).void }
+    def move_to_folder(pack_name, destination)
+      Packs.move_to_folder!(
+        pack_name: pack_name,
+        destination: destination
       )
       exit_successfully
     end
