@@ -1397,6 +1397,146 @@ RSpec.describe Packs do
     end
   end
 
+  describe 'move_to_folder!' do
+    it 'moves over all files and the package.yml' do
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples', dependencies: ['packs/other_pack'], metadata: { 'custom_field' => 'custom value' })
+
+      write_file('packs/apples/package_todo.yml', <<~CONTENTS)
+        ---
+        ".":
+          "SomeConstant":
+            violations:
+            - privacy
+            files:
+            - packs/apples/app/services/apple.rb
+      CONTENTS
+
+      write_file('packs/apples/app/services/apples/some_yml.yml')
+      write_file('packs/apples/app/services/apples.rb')
+      write_file('packs/apples/app/services/apples/foo.rb')
+      write_file('packs/apples/README.md')
+
+      Packs.move_to_folder!(
+        pack_name: 'packs/apples',
+        destination: 'packs/fruits'
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(ParsePackwerk.find('packs/apples')).to be_nil
+      actual_package = ParsePackwerk.find('packs/fruits/apples')
+      expect(actual_package).to_not be_nil
+      expect(actual_package.metadata['custom_field']).to eq 'custom value'
+      expect(actual_package.dependencies).to eq(['packs/other_pack'])
+
+      expect_files_to_exist([
+                              'packs/fruits/apples/app/services/apples/some_yml.yml',
+                              'packs/fruits/apples/app/services/apples.rb',
+                              'packs/fruits/apples/app/services/apples/foo.rb',
+                              'packs/fruits/apples/README.md'
+                            ])
+
+      expect_files_to_not_exist([
+                                  'packs/apples/app/services/apples/some_yml.yml',
+                                  'packs/apples/app/services/apples.rb',
+                                  'packs/apples/app/services/apples/foo.rb',
+                                  'packs/apples/package.yml',
+                                  'packs/apples/package_todo.yml',
+                                  'packs/apples/README.md'
+                                ])
+
+      expect(Pathname.new('packs/apples')).to exist
+      expect(Pathname.new('packs/fruits/apples')).to exist
+    end
+
+    it 'updates ignored_dependencies in all package.yml' do
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples', dependencies: ['packs/other_pack'], metadata: { 'custom_field' => 'custom value' })
+      write_package_yml('packs/turtles', config: { 'ignored_dependencies' => ['packs/apples'] })
+
+      Packs.move_to_folder!(
+        pack_name: 'packs/apples',
+        destination: 'packs/fruits'
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(ParsePackwerk.find('packs/turtles').config['ignored_dependencies']).to eq(['packs/fruits/apples'])
+    end
+
+    it 'rewrites other packs package.yml files to point to the new nested package' do
+      write_package_yml('packs/fruits', dependencies: ['packs/apples'])
+      write_package_yml('packs/other_pack', dependencies: ['packs/apples', 'packs/something_else'])
+      write_package_yml('packs/apples')
+
+      Packs.move_to_folder!(
+        pack_name: 'packs/apples',
+        destination: 'packs/fruits'
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(ParsePackwerk.find('packs/fruits').dependencies).to eq(['packs/fruits/apples'])
+      expect(ParsePackwerk.find('packs/other_pack').dependencies).to eq(['packs/fruits/apples', 'packs/something_else'])
+    end
+
+    it 'updates sorbet config to point at the new spec location' do
+      write_package_yml('packs/fruits')
+      write_package_yml('packs/apples')
+      write_file('sorbet/config', <<~CONTENTS)
+        --dir
+        .
+        --ignore=/packs/other_pack/spec
+        --ignore=/packs/apples/spec
+      CONTENTS
+
+      Packs.move_to_folder!(
+        pack_name: 'packs/apples',
+        destination: 'packs/fruits'
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(Pathname.new('sorbet/config').read).to eq <<~CONTENTS
+        --dir
+        .
+        --ignore=/packs/other_pack/spec
+        --ignore=/packs/fruits/apples/spec
+      CONTENTS
+    end
+
+    it 'does not create a package.yml in the target folder' do
+      write_package_yml('packs/apples')
+
+      Packs.move_to_folder!(
+        pack_name: 'packs/apples',
+        destination: 'packs/fruits'
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(Pathname.new('packs/fruits/package.yml')).not_to exist
+    end
+
+    it 'does not modify a package.yml in the target folder if one already exists' do
+      write_package_yml('packs/apples')
+      write_package_yml('packs/fruits')
+
+      expected = File.read('packs/fruits/package.yml')
+
+      Packs.move_to_folder!(
+        pack_name: 'packs/apples',
+        destination: 'packs/fruits'
+      )
+
+      ParsePackwerk.bust_cache!
+
+      expect(Pathname.new('packs/fruits/package.yml')).to exist
+      expect(File.read('packs/fruits/package.yml')).to eq(expected)
+    end
+  end
+
   describe 'lint_package_todo_yml_files!' do
     context 'no diff after running update-todo' do
       it 'exits successfully' do

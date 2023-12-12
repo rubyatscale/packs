@@ -143,6 +143,83 @@ module Packs
     sig do
       params(
         pack_name: String,
+        destination: String,
+        per_file_processors: T::Array[PerFileProcessorInterface]
+      ).void
+    end
+    def self.move_to_folder!(pack_name:, destination:, per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new])
+      pack_name = Private.clean_pack_name(pack_name)
+      package = ParsePackwerk.all.find { |p| p.name == pack_name }
+      if package.nil?
+        raise StandardError, "Can not find package with name #{pack_name}. Make sure the argument is of the form `packs/my_pack/`"
+      end
+
+      # First we create a new pack that has the exact same properties of the old one!
+      package_last_name = package.directory.basename
+      new_package_name = File.join(destination, package_last_name)
+
+      new_package = ParsePackwerk::Package.new(
+        name: new_package_name,
+        enforce_privacy: package.enforce_privacy,
+        enforce_dependencies: package.enforce_dependencies,
+        dependencies: package.dependencies,
+        violations: package.violations,
+        metadata: package.metadata,
+        config: package.config
+      )
+      ParsePackwerk.write_package_yml!(new_package)
+      ParsePackwerk.bust_cache!
+
+      # Move everything from the old pack to the new one
+      move_to_pack!(
+        pack_name: new_package_name,
+        paths_relative_to_root: [package.directory.to_s],
+        per_file_processors: per_file_processors
+      )
+
+      # Then delete the old package.yml and package_todo.yml files
+      package.yml.delete
+      package_todo_file = ParsePackwerk::PackageTodo.for(package).pathname
+      package_todo_file.delete if package_todo_file.exist?
+
+      ParsePackwerk.bust_cache!
+
+      ParsePackwerk.all.each do |other_package|
+        new_dependencies = other_package.dependencies.map { |d| d == pack_name ? new_package_name : d }
+
+        new_config = other_package.config.dup
+        if new_config['ignored_dependencies']
+          new_config['ignored_dependencies'] = new_config['ignored_dependencies'].map do |d|
+            d == pack_name ? new_package_name : d
+          end
+        end
+
+        new_other_package = ParsePackwerk::Package.new(
+          name: other_package.name,
+          enforce_privacy: other_package.enforce_privacy,
+          enforce_dependencies: other_package.enforce_dependencies,
+          dependencies: new_dependencies.uniq.sort,
+          violations: other_package.violations,
+          metadata: other_package.metadata,
+          config: new_config
+        )
+
+        ParsePackwerk.write_package_yml!(new_other_package)
+      end
+
+      sorbet_config = Pathname.new('sorbet/config')
+      if sorbet_config.exist?
+        Packs.replace_in_file(
+          file: sorbet_config.to_s,
+          find: package.directory.join('spec'),
+          replace_with: new_package.directory.join('spec')
+        )
+      end
+    end
+
+    sig do
+      params(
+        pack_name: String,
         parent_name: String,
         per_file_processors: T::Array[PerFileProcessorInterface]
       ).void

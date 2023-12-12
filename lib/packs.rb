@@ -180,6 +180,36 @@ module Packs
 
   sig do
     params(
+      pack_name: String,
+      destination: String,
+      per_file_processors: T::Array[PerFileProcessorInterface]
+    ).void
+  end
+  def self.move_to_folder!(
+    pack_name:,
+    destination:,
+    per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
+  )
+    Logging.section('👋 Hi!') do
+      intro = Packs.config.user_event_logger.before_move_to_folder(pack_name)
+      Logging.print_bold_green(intro)
+    end
+
+    Private.move_to_folder!(
+      pack_name: pack_name,
+      destination: destination,
+      per_file_processors: per_file_processors
+    )
+
+    Logging.section('Next steps') do
+      next_steps = Packs.config.user_event_logger.after_move_to_folder(pack_name)
+
+      Logging.print_bold_green(next_steps)
+    end
+  end
+
+  sig do
+    params(
       type: String,
       pack_name: T.nilable(String),
       limit: Integer
