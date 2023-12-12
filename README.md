@@ -11,7 +11,7 @@ By default, this library will look for `packs` in the folder `packs/*/package.ym
 ```yml
 pack_paths:
   - "{packs,utilities,deprecated}/*" # packs with multiple roots!
-  - "{packs,utilities,deprecated}/*/*" # nested packs!
+  - "{packs,utilities,deprecated}/**/*" # nested packs!
   - gems/* # gems can be packs too!
 ```
 
