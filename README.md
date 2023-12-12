@@ -113,8 +113,8 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 ## Set packs/child_pack as a child of packs/parent_pack
 `bin/packs move_to_parent packs/child_pack packs/parent_pack`
 
-## Move packs/foo to the packs/bar folder
-`bin/packs move_to_folder packs/foo packs/bar`
+## Move packs/foo to the some/directory folder, where some/directory does not contain a package.yml file
+`bin/packs move_to_folder packs/foo some/directory`
 
 
 ## Releasing

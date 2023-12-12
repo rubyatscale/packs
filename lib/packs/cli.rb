@@ -160,7 +160,7 @@ module Packs
       exit_successfully
     end
 
-    desc 'move_to_folder packs/foo packs/bar', 'Move packs/foo to the packs/bar folder'
+    desc 'move_to_folder packs/foo some/directory', 'Move packs/foo to the some/directory folder, where some/directory does not contain a package.yml file'
     sig { params(pack_name: String, destination: String).void }
     def move_to_folder(pack_name, destination)
       Packs.move_to_folder!(
