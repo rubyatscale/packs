@@ -11,7 +11,7 @@
 # source://packs-specification//lib/packs/pack.rb#3
 module Packs
   class << self
-    # source://packs/0.1.0/lib/packs.rb#122
+    # source://packs/0.0.37/lib/packs.rb#134
     sig { params(pack_name: ::String, dependency_name: ::String).void }
     def add_dependency!(pack_name:, dependency_name:); end
 
@@ -19,32 +19,33 @@ module Packs
     sig { returns(T::Array[::Packs::Pack]) }
     def all; end
 
-    # source://packs/0.1.0/lib/packs.rb#220
+    # source://packs/0.0.37/lib/packs.rb#249
     sig { void }
     def bust_cache!; end
 
-    # source://packs/0.1.0/lib/packs/configuration.rb#50
+    # source://packs/0.0.37/lib/packs.rb#44
+    sig { params(files: T::Array[::String]).returns(T::Boolean) }
+    def check(files); end
+
+    # source://packs/0.0.37/lib/packs/configuration.rb#50
     sig { returns(::Packs::Configuration) }
     def config; end
 
-    # source://packs/0.1.0/lib/packs/configuration.rb#57
+    # source://packs/0.0.37/lib/packs/configuration.rb#57
     sig { params(blk: T.proc.params(arg0: ::Packs::Configuration).void).void }
     def configure(&blk); end
 
-    # source://packs/0.1.0/lib/packs.rb#47
+    # source://packs/0.0.37/lib/packs.rb#57
     sig do
       params(
         pack_name: ::String,
         enforce_privacy: T::Boolean,
+        enforce_architecture: T::Boolean,
         enforce_dependencies: T.nilable(T::Boolean),
         team: T.nilable(::CodeTeams::Team)
       ).void
     end
-    def create_pack!(pack_name:, enforce_privacy: T.unsafe(nil), enforce_dependencies: T.unsafe(nil), team: T.unsafe(nil)); end
-
-    # source://packs/0.1.0/lib/packs.rb#229
-    sig { params(argv: T.untyped, formatter: T.nilable(::Packwerk::OffensesFormatter)).void }
-    def execute(argv, formatter = T.unsafe(nil)); end
+    def create_pack!(pack_name:, enforce_privacy: T.unsafe(nil), enforce_architecture: T.unsafe(nil), enforce_dependencies: T.unsafe(nil), team: T.unsafe(nil)); end
 
     # source://packs-specification//lib/packs-specification.rb#24
     sig { params(name: ::String).returns(T.nilable(::Packs::Pack)) }
@@ -54,31 +55,19 @@ module Packs
     sig { params(file_path: T.any(::Pathname, ::String)).returns(T.nilable(::Packs::Pack)) }
     def for_file(file_path); end
 
-    # source://packs/0.1.0/lib/packs.rb#236
-    sig { params(files: T::Array[::String]).returns(T::Array[::Packwerk::ReferenceOffense]) }
-    def get_offenses_for_files(files); end
-
-    # source://packs/0.1.0/lib/packs.rb#243
-    sig { params(files: T::Array[::String]).returns(T::Array[::Packwerk::ReferenceOffense]) }
-    def get_offenses_for_files_by_package(files); end
-
-    # source://packs/0.1.0/lib/packs.rb#252
+    # source://packs/0.0.37/lib/packs.rb#255
     sig { void }
     def lint_package_todo_yml_files!; end
 
-    # source://packs/0.1.0/lib/packs.rb#257
+    # source://packs/0.0.37/lib/packs.rb#260
     sig { params(packs: T::Array[::Packs::Pack]).void }
     def lint_package_yml_files!(packs); end
 
-    # source://packs/0.1.0/lib/packs.rb#194
-    sig { params(pack_name: T.nilable(::String), limit: ::Integer).void }
-    def list_top_dependency_violations(pack_name:, limit:); end
+    # source://packs/0.0.37/lib/packs.rb#221
+    sig { params(type: ::String, pack_name: T.nilable(::String), limit: ::Integer).void }
+    def list_top_violations(type:, pack_name:, limit:); end
 
-    # source://packs/0.1.0/lib/packs.rb#178
-    sig { params(pack_name: T.nilable(::String), limit: ::Integer).void }
-    def list_top_privacy_violations(pack_name:, limit:); end
-
-    # source://packs/0.1.0/lib/packs.rb#96
+    # source://packs/0.0.37/lib/packs.rb#108
     sig do
       params(
         paths_relative_to_root: T::Array[::String],
@@ -87,7 +76,17 @@ module Packs
     end
     def make_public!(paths_relative_to_root: T.unsafe(nil), per_file_processors: T.unsafe(nil)); end
 
-    # source://packs/0.1.0/lib/packs.rb#68
+    # source://packs/0.0.37/lib/packs.rb#191
+    sig do
+      params(
+        pack_name: ::String,
+        destination: ::String,
+        per_file_processors: T::Array[::Packs::PerFileProcessorInterface]
+      ).void
+    end
+    def move_to_folder!(pack_name:, destination:, per_file_processors: T.unsafe(nil)); end
+
+    # source://packs/0.0.37/lib/packs.rb#80
     sig do
       params(
         pack_name: ::String,
@@ -97,7 +96,7 @@ module Packs
     end
     def move_to_pack!(pack_name:, paths_relative_to_root: T.unsafe(nil), per_file_processors: T.unsafe(nil)); end
 
-    # source://packs/0.1.0/lib/packs.rb#149
+    # source://packs/0.0.37/lib/packs.rb#161
     sig do
       params(
         pack_name: ::String,
@@ -107,13 +106,21 @@ module Packs
     end
     def move_to_parent!(pack_name:, parent_name:, per_file_processors: T.unsafe(nil)); end
 
-    # source://packs/0.1.0/lib/packs.rb#211
+    # source://packs/0.0.37/lib/packs.rb#240
     sig { params(file: ::String, find: ::Pathname, replace_with: ::Pathname).void }
     def replace_in_file(file:, find:, replace_with:); end
 
-    # source://packs/0.1.0/lib/packs.rb#35
+    # source://packs/0.0.37/lib/packs.rb#29
     sig { void }
     def start_interactive_mode!; end
+
+    # source://packs/0.0.37/lib/packs.rb#34
+    sig { returns(T::Boolean) }
+    def update; end
+
+    # source://packs/0.0.37/lib/packs.rb#39
+    sig { returns(T::Boolean) }
+    def validate; end
   end
 end
 
@@ -148,7 +155,7 @@ class Packs::Pack < ::T::Struct
     sig { params(package_yml_absolute_path: ::Pathname).returns(::Packs::Pack) }
     def from(package_yml_absolute_path); end
 
-    # source://sorbet-runtime/0.5.10826/lib/types/struct.rb#13
+    # source://sorbet-runtime/0.5.11151/lib/types/struct.rb#13
     def inherited(s); end
   end
 end
@@ -201,7 +208,7 @@ class Packs::Specification::Configuration < ::T::Struct
     sig { returns(::Packs::Specification::Configuration) }
     def fetch; end
 
-    # source://sorbet-runtime/0.5.10826/lib/types/struct.rb#13
+    # source://sorbet-runtime/0.5.11151/lib/types/struct.rb#13
     def inherited(s); end
 
     # source://packs-specification//lib/packs/specification/configuration.rb#26

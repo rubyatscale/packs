@@ -49,6 +49,7 @@ module Packs
     params(
       pack_name: String,
       enforce_privacy: T::Boolean,
+      enforce_architecture: T::Boolean,
       enforce_dependencies: T.nilable(T::Boolean),
       team: T.nilable(CodeTeams::Team)
     ).void
@@ -56,6 +57,7 @@ module Packs
   def self.create_pack!(
     pack_name:,
     enforce_privacy: true,
+    enforce_architecture: true,
     enforce_dependencies: nil,
     team: nil
   )
@@ -63,6 +65,7 @@ module Packs
       pack_name: pack_name,
       enforce_privacy: enforce_privacy,
       enforce_dependencies: enforce_dependencies,
+      enforce_architecture: enforce_architecture,
       team: team
     )
   end

@@ -40,6 +40,38 @@ RSpec.describe Packs do
       YML
     end
 
+    context 'architecture extension is enabled' do
+      before do
+        write_file('packwerk.yml', <<~YML)
+          require:
+            - packwerk/architecture/checker
+        YML
+      end
+
+      it 'creates a package.yml correctly' do
+        write_codeownership_config
+
+        Packs.create_pack!(pack_name: 'packs/my_pack')
+        ParsePackwerk.bust_cache!
+        package = ParsePackwerk.find('packs/my_pack')
+        expect(package.name).to eq('packs/my_pack')
+        expect(package.enforce_dependencies).to eq(true)
+        expect(package.enforce_privacy).to eq(false)
+        expect(package.enforce_architecture).to eq(true)
+        expect(package.dependencies).to eq([])
+        expect(package.config['owner']).to eq('MyTeam')
+        expect(package.metadata).to eq({})
+
+        expected = <<~EXPECTED
+          enforce_dependencies: true
+          enforce_architecture: true
+          owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
+        EXPECTED
+
+        expect(package.yml.read).to eq expected
+      end
+    end
+
     # Right now, `Packs` only supports `packs`, `gems`, or `components` as the home for packwerk packages
     context 'pack name does not include `packs` prefix' do
       let(:pack_name) { 'my_pack' }
@@ -58,8 +90,9 @@ RSpec.describe Packs do
       ParsePackwerk.bust_cache!
       package = ParsePackwerk.find('packs/my_pack')
       expect(package.name).to eq('packs/my_pack')
-      expect(package.enforce_privacy).to eq(true)
       expect(package.enforce_dependencies).to eq(true)
+      expect(package.enforce_privacy).to eq(true)
+      expect(package.enforce_architecture).to eq(false)
       expect(package.dependencies).to eq([])
       expect(package.config['owner']).to eq('MyTeam')
       expect(package.metadata).to eq({})
@@ -80,6 +113,7 @@ RSpec.describe Packs do
         package = ParsePackwerk.find('packs/my_pack')
         expect(package.name).to eq('packs/my_pack')
         expect(package.enforce_privacy).to eq(true)
+        expect(package.enforce_architecture).to eq(false)
         expect(package.enforce_dependencies).to eq(true)
         expect(package.dependencies).to eq([])
         expect(package.metadata).to eq({})
