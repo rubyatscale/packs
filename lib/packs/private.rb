@@ -47,12 +47,13 @@ module Packs
     sig do
       params(
         pack_name: String,
-        enforce_privacy: T::Boolean,
         enforce_dependencies: T.nilable(T::Boolean),
+        enforce_privacy: T::Boolean,
+        enforce_architecture: T::Boolean,
         team: T.nilable(CodeTeams::Team)
       ).void
     end
-    def self.create_pack!(pack_name:, enforce_privacy:, enforce_dependencies:, team:)
+    def self.create_pack!(pack_name:, enforce_dependencies:, enforce_privacy:, enforce_architecture:, team:)
       Logging.section('👋 Hi!') do
         intro = Packs.config.user_event_logger.before_create_pack(pack_name)
         Logging.print_bold_green(intro)
@@ -60,7 +61,13 @@ module Packs
 
       pack_name = Private.clean_pack_name(pack_name)
 
-      package = create_pack_if_not_exists!(pack_name: pack_name, enforce_privacy: enforce_privacy, enforce_dependencies: enforce_dependencies, team: team)
+      package = create_pack_if_not_exists!(
+        pack_name: pack_name,
+        enforce_dependencies: enforce_dependencies,
+        enforce_privacy: enforce_privacy,
+        enforce_architecture: enforce_architecture,
+        team: team
+      )
       add_public_directory(package) if package.enforce_privacy
       add_readme_todo(package)
 
@@ -160,8 +167,9 @@ module Packs
 
       new_package = ParsePackwerk::Package.new(
         name: new_package_name,
-        enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
+        enforce_privacy: package.enforce_privacy,
+        enforce_architecture: package.enforce_architecture,
         dependencies: package.dependencies,
         violations: package.violations,
         metadata: package.metadata,
@@ -196,8 +204,9 @@ module Packs
 
         new_other_package = ParsePackwerk::Package.new(
           name: other_package.name,
-          enforce_privacy: other_package.enforce_privacy,
           enforce_dependencies: other_package.enforce_dependencies,
+          enforce_privacy: other_package.enforce_privacy,
+          enforce_architecture: other_package.enforce_architecture,
           dependencies: new_dependencies.uniq.sort,
           violations: other_package.violations,
           metadata: other_package.metadata,
@@ -238,7 +247,12 @@ module Packs
       parent_name = Private.clean_pack_name(parent_name)
       parent_package = ParsePackwerk.all.find { |p| p.name == parent_name }
       if parent_package.nil?
-        parent_package = create_pack_if_not_exists!(pack_name: parent_name, enforce_privacy: true, enforce_dependencies: true)
+        parent_package = create_pack_if_not_exists!(
+          pack_name: parent_name,
+          enforce_dependencies: true,
+          enforce_privacy: true,
+          enforce_architecture: true
+        )
       end
 
       # First we create a new pack that has the exact same properties of the old one!
@@ -249,6 +263,7 @@ module Packs
         name: new_package_name,
         enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
+        enforce_architecture: package.enforce_architecture,
         dependencies: package.dependencies,
         violations: package.violations,
         metadata: package.metadata,
@@ -289,8 +304,9 @@ module Packs
 
         new_other_package = ParsePackwerk::Package.new(
           name: other_package.name,
-          enforce_privacy: other_package.enforce_privacy,
           enforce_dependencies: other_package.enforce_dependencies,
+          enforce_privacy: other_package.enforce_privacy,
+          enforce_architecture: other_package.enforce_architecture,
           dependencies: new_dependencies.uniq.sort,
           violations: other_package.violations,
           metadata: other_package.metadata,
@@ -382,6 +398,7 @@ module Packs
         name: pack_name,
         dependencies: (package.dependencies + [dependency_name]).uniq.sort,
         enforce_privacy: package.enforce_privacy,
+        enforce_architecture: package.enforce_architecture,
         enforce_dependencies: package.enforce_dependencies,
         violations: package.violations,
         metadata: package.metadata,
@@ -447,12 +464,13 @@ module Packs
     sig do
       params(
         pack_name: String,
-        enforce_privacy: T::Boolean,
         enforce_dependencies: T.nilable(T::Boolean),
+        enforce_privacy: T::Boolean,
+        enforce_architecture: T::Boolean,
         team: T.nilable(CodeTeams::Team)
       ).returns(ParsePackwerk::Package)
     end
-    def self.create_pack_if_not_exists!(pack_name:, enforce_privacy:, enforce_dependencies:, team: nil)
+    def self.create_pack_if_not_exists!(pack_name:, enforce_dependencies:, enforce_privacy:, enforce_architecture:, team: nil)
       allowed_locations = Packs::Specification.config.pack_paths
       if allowed_locations.none? { |location| File.fnmatch(location, pack_name) }
         raise StandardError, "Packs only supports packages in the the following directories: #{allowed_locations}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
@@ -475,6 +493,7 @@ module Packs
         package = ParsePackwerk::Package.new(
           enforce_dependencies: should_enforce_dependencies || false,
           enforce_privacy: enforce_privacy,
+          enforce_architecture: enforce_architecture,
           dependencies: [],
           violations: [],
           metadata: {},

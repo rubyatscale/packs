@@ -7,12 +7,16 @@ module Packs
     extend T::Sig
 
     desc 'create packs/your_pack', 'Create pack with name packs/your_pack'
+    option :enforce_dependencies, type: :boolean, default: nil, aliases: :d, banner: 'Enforce dependencies'
     option :enforce_privacy, type: :boolean, default: true, aliases: :p, banner: 'Enforce privacy'
+    option :enforce_architecture, type: :boolean, default: true, aliases: :a, banner: 'Enforce architecture'
     sig { params(pack_name: String).void }
     def create(pack_name)
       Packs.create_pack!(
         pack_name: pack_name,
-        enforce_privacy: options[:enforce_privacy]
+        enforce_dependencies: options[:enforce_dependencies],
+        enforce_privacy: options[:enforce_privacy],
+        enforce_architecture: options[:enforce_architecture]
       )
       exit_successfully
     end

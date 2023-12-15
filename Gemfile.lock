@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/Shopify/packwerk.git
-  revision: e850241a4572a984bc9def8307faef7271c6890b
+  revision: c27be1b1bc917d088fa46484414f303d81217117
   branch: main
   specs:
     packwerk (3.1.0)
@@ -17,11 +17,11 @@ GIT
 PATH
   remote: .
   specs:
-    packs (0.0.37)
+    packs (0.0.38)
       code_ownership (>= 1.33.0)
       packs-specification
       packwerk
-      parse_packwerk
+      parse_packwerk (>= 0.22.0)
       rainbow
       sorbet-runtime
       thor
@@ -81,7 +81,7 @@ GEM
     packs-specification (0.0.10)
       sorbet-runtime
     parallel (1.23.0)
-    parse_packwerk (0.20.1)
+    parse_packwerk (0.22.0)
       sorbet-runtime
     parser (3.2.2.3)
       ast (~> 2.4.1)

@@ -35,8 +35,9 @@ sig do
     pack_name: String,
     dependencies: T::Array[String],
     violations: T::Array[ParsePackwerk::Violation],
-    enforce_dependencies: T::Boolean,
+    enforce_dependencies: T.nilable(T::Boolean),
     enforce_privacy: T::Boolean,
+    enforce_architecture: T::Boolean,
     visible_to: T::Array[String],
     metadata: T.untyped,
     owner: T.nilable(String),
@@ -49,6 +50,7 @@ def write_package_yml(
   violations: [],
   enforce_dependencies: true,
   enforce_privacy: true,
+  enforce_architecture: true,
   visible_to: [],
   metadata: {},
   owner: nil,
@@ -64,6 +66,7 @@ def write_package_yml(
     violations: violations,
     enforce_dependencies: enforce_dependencies,
     enforce_privacy: enforce_privacy,
+    enforce_architecture: enforce_architecture,
     metadata: metadata,
     config: config
   )
