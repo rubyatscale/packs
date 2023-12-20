@@ -6,9 +6,9 @@ require 'tmpdir'
 require 'rainbow'
 require 'sorbet-runtime'
 
-require 'packs/private/file_move_operation'
-require 'packs/private/pack_relationship_analyzer'
-require 'packs/private/interactive_cli'
+require_relative 'private/file_move_operation'
+require_relative 'private/pack_relationship_analyzer'
+require_relative 'private/interactive_cli'
 
 require 'date'
 

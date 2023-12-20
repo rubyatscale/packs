@@ -13,14 +13,14 @@ require 'code_teams'
 require 'code_ownership'
 
 # Private implementation requires
-require 'packs/private'
-require 'packs/per_file_processor_interface'
-require 'packs/rubocop_post_processor'
-require 'packs/update_references_post_processor'
-require 'packs/code_ownership_post_processor'
-require 'packs/logging'
-require 'packs/configuration'
-require 'packs/cli'
+require_relative 'packs/private'
+require_relative 'packs/per_file_processor_interface'
+require_relative 'packs/rubocop_post_processor'
+require_relative 'packs/update_references_post_processor'
+require_relative 'packs/code_ownership_post_processor'
+require_relative 'packs/logging'
+require_relative 'packs/configuration'
+require_relative 'packs/cli'
 
 module Packs
   extend T::Sig

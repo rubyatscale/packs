@@ -1,7 +1,7 @@
 # typed: strict
 
-require 'packs/user_event_logger'
-require 'packs/default_user_event_logger'
+require_relative 'user_event_logger'
+require_relative 'default_user_event_logger'
 
 module Packs
   class Configuration
