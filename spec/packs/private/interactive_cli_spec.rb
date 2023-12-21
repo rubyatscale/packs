@@ -124,5 +124,62 @@ module Packs
       )
       subject
     end
+
+    it 'allows moving a pack to a folder' do
+      write_package_yml('packs/my_pack')
+      `mkdir packs/utilities/`
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::RETURN
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::RETURN
+      prompt.input << "my_pack\r"
+      prompt.input << "utilities\r"
+      prompt.input.rewind
+      expect(Packs).to receive(:move_to_folder!).with(
+        pack_name: 'packs/my_pack',
+        destination: 'packs/utilities',
+        per_file_processors: anything
+      )
+      subject
+    end
+
+    it 'allows moving a pack to a parent when originally attempting to move to folder' do
+      write_package_yml('packs/my_pack')
+      write_package_yml('packs/utilities')
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::RETURN
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::RETURN
+      prompt.input << "my_pack\r"
+      prompt.input << "utilities\r"
+      prompt.input << INPUTS::RETURN
+      prompt.input.rewind
+      expect(Packs).to receive(:move_to_parent!).with(
+        pack_name: 'packs/my_pack',
+        parent_name: 'packs/utilities',
+        per_file_processors: anything
+      )
+      subject
+    end
+
+    it 'allows moving a pack to a parent' do
+      write_package_yml('packs/child_pack')
+      write_package_yml('packs/parent_pack')
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::DOWN
+      prompt.input << INPUTS::RETURN
+      prompt.input << INPUTS::RETURN
+      prompt.input << "child\r"
+      prompt.input << "parent\r"
+      prompt.input.rewind
+      expect(Packs).to receive(:move_to_parent!).with(
+        pack_name: 'packs/child_pack',
+        parent_name: 'packs/parent_pack',
+        per_file_processors: anything
+      )
+      subject
+    end
   end
 end

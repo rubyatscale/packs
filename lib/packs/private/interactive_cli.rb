@@ -10,17 +10,16 @@ require_relative 'interactive_cli/file_selector'
 require_relative 'interactive_cli/use_cases/interface'
 require_relative 'interactive_cli/use_cases/create'
 require_relative 'interactive_cli/use_cases/move'
+require_relative 'interactive_cli/use_cases/move_pack'
 require_relative 'interactive_cli/use_cases/add_dependency'
 require_relative 'interactive_cli/use_cases/get_info'
 require_relative 'interactive_cli/use_cases/query'
 require_relative 'interactive_cli/use_cases/make_public'
-require_relative 'interactive_cli/use_cases/move_to_parent'
 require_relative 'interactive_cli/use_cases/rename'
 require_relative 'interactive_cli/use_cases/check'
 require_relative 'interactive_cli/use_cases/update'
 require_relative 'interactive_cli/use_cases/validate'
 require_relative 'interactive_cli/use_cases/lint_package_yml_files'
-require_relative 'interactive_cli/use_cases/move_pack'
 
 module Packs
   module Private

@@ -36,7 +36,7 @@ module Packs
 
               if Packs.find(destination)
                 use_move_to_parent = prompt.select(
-                  "The directory #{destination} is a pack. Add #{pack.last_name} as a dependency?",
+                  "The directory #{destination} contains a pack. Add #{pack.last_name} as a dependency?",
                   { 'Yes' => true, 'No' => false }
                 )
 
