@@ -16,7 +16,7 @@ module Packs
 
           prompt.select(
             question_text,
-            directories,
+            directories.flatten,
             filter: true,
             per_page: 10,
             show_help: :always
