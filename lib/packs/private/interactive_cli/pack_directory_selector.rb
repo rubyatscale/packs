@@ -15,12 +15,12 @@ module Packs
           end
 
           prompt.select(
-          question_text,
+            question_text,
             directories,
             filter: true,
             per_page: 10,
             show_help: :always
-        )
+          )
         end
       end
     end
