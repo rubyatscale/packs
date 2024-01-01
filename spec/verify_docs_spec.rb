@@ -9,7 +9,7 @@ RSpec.describe Packs, :skip_chdir_to_tmpdir do
 
   let(:expected_content) do
     all_docs = []
-    Packs::CLI.all_commands.each do |_command_name, command|
+    Packs::CLI.all_commands.each_value do |command|
       all_docs << <<~DOCUMENTATION
         ## #{command.description}
         `bin/packs #{command.usage}`
