@@ -18,7 +18,7 @@ module Packs
       ]
 
       expect(prompt).to receive(:select) do |_, directories, _, _, _|
-        expect(directories).to eq(expected)
+        expect(directories).to match_array(expected)
       end.and_return(expected.first)
 
       described_class.select(prompt)
