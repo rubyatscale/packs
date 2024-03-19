@@ -15,7 +15,7 @@ module Packs
     def after_move_files!(file_move_operations)
       return if file_move_operations.empty?
 
-      origin_pack = T.must(file_move_operations.first).origin_pack.name
+      origin_pack = T.must(file_move_operations.first).origin_pack&.name || ParsePackwerk::ROOT_PACKAGE_NAME
       destination_pack = T.must(file_move_operations.first).destination_pack.name
 
       if self.class.ripgrep_enabled?
