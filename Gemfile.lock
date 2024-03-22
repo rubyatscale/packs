@@ -18,6 +18,7 @@ PATH
   remote: .
   specs:
     packs (0.0.39)
+      bigdecimal
       code_ownership (>= 1.33.0)
       packs-specification
       packwerk
@@ -50,6 +51,7 @@ GEM
       erubi (~> 1.4)
       parser (>= 2.4)
       smart_properties
+    bigdecimal (3.1.6)
     builder (3.2.4)
     byebug (11.1.3)
     code_ownership (1.34.2)
