@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   # https://bundler.io/blog/2015/03/20/moving-bins-to-exe.html
   spec.executables = %w[packs]
 
+  spec.add_dependency 'bigdecimal'
   spec.add_dependency 'code_ownership', '>= 1.33.0'
   spec.add_dependency 'packs-specification'
   spec.add_dependency 'packwerk'
