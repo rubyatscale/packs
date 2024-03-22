@@ -3,54 +3,5 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  rspec:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby:
-          - 2.7
-          # See comment comes from https://github.com/ruby/setup-ruby#matrix-of-ruby-versions
-          # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
-          - '3.0'
-          - 3.1
-          - 3.2
-          - 3.3
-          - head
-    env:
-      BUNDLE_GEMFILE: Gemfile
-    name: "RSpec tests: Ruby ${{ matrix.ruby }}"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install ripgrep
-        run: sudo apt-get install -y ripgrep
-      - name: Set up Ruby ${{ matrix.ruby }}
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: ${{ matrix.ruby }}
-      - name: Run tests
-        run: bundle exec rspec
-  static_type_check:
-    name: "Type Check"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: head
-      - name: Run static type checks
-        run: bundle exec srb tc
-  rubocop:
-    runs-on: ubuntu-latest
-    name: Rubocop
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: head
-      - name: Run style checks
-        run: bundle exec rubocop
+  call-workflow-from-shared-config:
+    uses: rubyatscale/shared-config/.github/workflows/ci.yml@main
