@@ -9,3 +9,4 @@ on:
 jobs:
   call-workflow-from-shared-config:
     uses: rubyatscale/shared-config/.github/workflows/cd.yml@main
+    secrets: inherit
