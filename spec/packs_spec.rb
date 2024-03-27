@@ -375,6 +375,23 @@ RSpec.describe Packs do
                               ])
       end
 
+      it 'can move files from non-pack packages into a pack' do
+        target_pack = 'packs/animals'
+        file_to_move = 'lib/tasks/donkey.rake'
+        write_file(file_to_move)
+        write_package_yml('lib')
+
+        write_package_yml(target_pack)
+        Packs.move_to_pack!(
+          pack_name: target_pack,
+          paths_relative_to_root: [file_to_move]
+        )
+
+        expect_files_to_not_exist([file_to_move])
+
+        expect_files_to_exist([File.join(target_pack, file_to_move)])
+      end
+
       it 'can move directories from a monolith and their specs into a package' do
         write_file('app/services/horse_like/donkey.rb')
         write_file('spec/services/horse_like/donkey_spec.rb')
