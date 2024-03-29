@@ -78,6 +78,10 @@ GEM
     netrc (0.11.0)
     nokogiri (1.15.3-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.15.3-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.15.3-x86_64-linux)
+      racc (~> 1.4)
     packs-specification (0.0.10)
       sorbet-runtime
     parallel (1.23.0)
@@ -140,13 +144,14 @@ GEM
       parser (>= 3.2.1.0)
     ruby-progressbar (1.13.0)
     smart_properties (1.17.0)
-    sorbet (0.5.10957)
-      sorbet-static (= 0.5.10957)
-    sorbet-runtime (0.5.10957)
-    sorbet-static (0.5.10957-universal-darwin-22)
-    sorbet-static-and-runtime (0.5.10957)
-      sorbet (= 0.5.10957)
-      sorbet-runtime (= 0.5.10957)
+    sorbet (0.5.11318)
+      sorbet-static (= 0.5.11318)
+    sorbet-runtime (0.5.11318)
+    sorbet-static (0.5.11318-universal-darwin)
+    sorbet-static (0.5.11318-x86_64-linux)
+    sorbet-static-and-runtime (0.5.11318)
+      sorbet (= 0.5.11318)
+      sorbet-runtime (= 0.5.11318)
     spoom (1.2.1)
       sorbet (>= 0.5.10187)
       sorbet-runtime (>= 0.5.9204)
@@ -187,7 +192,9 @@ GEM
 PLATFORMS
   arm64-darwin-22
   arm64-darwin-23
-  ruby
+  x86_64-darwin-22
+  x86_64-darwin-23
+  x86_64-linux
 
 DEPENDENCIES
   bundler (~> 2.2)
