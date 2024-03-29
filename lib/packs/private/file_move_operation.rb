@@ -9,34 +9,38 @@ module Packs
       const :destination_pathname, Pathname
       const :destination_pack, ParsePackwerk::Package
 
-      sig { returns(ParsePackwerk::Package) }
+      sig { returns(T.nilable(Packs::Pack)) }
       def origin_pack
-        ParsePackwerk.package_from_path(origin_pathname)
+        self.class.get_origin_pack(origin_pathname)
+      end
+
+      sig { params(origin_pathname: Pathname).returns(T.nilable(Packs::Pack)) }
+      def self.get_origin_pack(origin_pathname)
+        Packs.for_file(origin_pathname)
       end
 
       sig { params(origin_pathname: Pathname, new_package_root: Pathname).returns(Pathname) }
       def self.destination_pathname_for_package_move(origin_pathname, new_package_root)
-        origin_pack = ParsePackwerk.package_from_path(origin_pathname)
-
-        if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
-          new_package_root.join(origin_pathname).cleanpath
-        else
+        origin_pack = get_origin_pack(origin_pathname)
+        if origin_pack
           Pathname.new(origin_pathname.to_s.gsub(origin_pack.name, new_package_root.to_s)).cleanpath
+        else
+          new_package_root.join(origin_pathname).cleanpath
         end
       end
 
       sig { params(origin_pathname: Pathname).returns(Pathname) }
       def self.destination_pathname_for_new_public_api(origin_pathname)
-        origin_pack = ParsePackwerk.package_from_path(origin_pathname)
-        if origin_pack.name == ParsePackwerk::ROOT_PACKAGE_NAME
-          filepath_without_pack_name = origin_pathname.to_s
-        else
+        origin_pack = get_origin_pack(origin_pathname)
+        if origin_pack
           filepath_without_pack_name = origin_pathname.to_s.gsub("#{origin_pack.name}/", '')
+        else
+          filepath_without_pack_name = origin_pathname.to_s
         end
 
         # We join the pack name with the rest of the path...
         path_parts = filepath_without_pack_name.split('/')
-        Pathname.new(origin_pack.name).join(
+        Pathname.new(origin_pack&.name || ParsePackwerk::ROOT_PACKAGE_NAME).join(
           # ... keeping the "app" or "spec"
           T.must(path_parts[0]),
           # ... substituting "controllers," "services," etc. with "public"
