@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    packs (0.0.40)
+    packs (0.0.41)
       bigdecimal
       code_ownership (>= 1.33.0)
       packs-specification
@@ -74,11 +74,13 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     method_source (1.0.0)
-    mini_portile2 (2.8.4)
     minitest (5.19.0)
     netrc (0.11.0)
-    nokogiri (1.15.3)
-      mini_portile2 (~> 2.8.2)
+    nokogiri (1.16.3-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.16.3-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.16.3-x86_64-linux)
       racc (~> 1.4)
     packs-specification (0.0.10)
       sorbet-runtime
@@ -96,7 +98,7 @@ GEM
     pry-byebug (3.10.1)
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
-    racc (1.7.1)
+    racc (1.7.3)
     rails-dom-testing (2.2.0)
       activesupport (>= 5.0.0)
       minitest
@@ -142,22 +144,14 @@ GEM
       parser (>= 3.2.1.0)
     ruby-progressbar (1.13.0)
     smart_properties (1.17.0)
-    sorbet (0.5.10957)
-      sorbet-static (= 0.5.10957)
-    sorbet-runtime (0.5.10957)
-    sorbet-static (0.5.10957-universal-darwin-14)
-    sorbet-static (0.5.10957-universal-darwin-15)
-    sorbet-static (0.5.10957-universal-darwin-16)
-    sorbet-static (0.5.10957-universal-darwin-17)
-    sorbet-static (0.5.10957-universal-darwin-18)
-    sorbet-static (0.5.10957-universal-darwin-19)
-    sorbet-static (0.5.10957-universal-darwin-20)
-    sorbet-static (0.5.10957-universal-darwin-21)
-    sorbet-static (0.5.10957-universal-darwin-22)
-    sorbet-static (0.5.10957-x86_64-linux)
-    sorbet-static-and-runtime (0.5.10957)
-      sorbet (= 0.5.10957)
-      sorbet-runtime (= 0.5.10957)
+    sorbet (0.5.11318)
+      sorbet-static (= 0.5.11318)
+    sorbet-runtime (0.5.11318)
+    sorbet-static (0.5.11318-universal-darwin)
+    sorbet-static (0.5.11318-x86_64-linux)
+    sorbet-static-and-runtime (0.5.11318)
+      sorbet (= 0.5.11318)
+      sorbet-runtime (= 0.5.11318)
     spoom (1.2.1)
       sorbet (>= 0.5.10187)
       sorbet-runtime (>= 0.5.9204)
@@ -196,7 +190,11 @@ GEM
     zeitwerk (2.6.11)
 
 PLATFORMS
-  ruby
+  arm64-darwin-22
+  arm64-darwin-23
+  x86_64-darwin-22
+  x86_64-darwin-23
+  x86_64-linux
 
 DEPENDENCIES
   bundler (~> 2.2)
