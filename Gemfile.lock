@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    packs (0.0.40)
+    packs (0.0.41)
       bigdecimal
       code_ownership (>= 1.33.0)
       packs-specification
@@ -74,11 +74,9 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     method_source (1.0.0)
-    mini_portile2 (2.8.4)
     minitest (5.19.0)
     netrc (0.11.0)
-    nokogiri (1.15.3)
-      mini_portile2 (~> 2.8.2)
+    nokogiri (1.15.3-arm64-darwin)
       racc (~> 1.4)
     packs-specification (0.0.10)
       sorbet-runtime
@@ -145,16 +143,7 @@ GEM
     sorbet (0.5.10957)
       sorbet-static (= 0.5.10957)
     sorbet-runtime (0.5.10957)
-    sorbet-static (0.5.10957-universal-darwin-14)
-    sorbet-static (0.5.10957-universal-darwin-15)
-    sorbet-static (0.5.10957-universal-darwin-16)
-    sorbet-static (0.5.10957-universal-darwin-17)
-    sorbet-static (0.5.10957-universal-darwin-18)
-    sorbet-static (0.5.10957-universal-darwin-19)
-    sorbet-static (0.5.10957-universal-darwin-20)
-    sorbet-static (0.5.10957-universal-darwin-21)
     sorbet-static (0.5.10957-universal-darwin-22)
-    sorbet-static (0.5.10957-x86_64-linux)
     sorbet-static-and-runtime (0.5.10957)
       sorbet (= 0.5.10957)
       sorbet-runtime (= 0.5.10957)
@@ -196,6 +185,8 @@ GEM
     zeitwerk (2.6.11)
 
 PLATFORMS
+  arm64-darwin-22
+  arm64-darwin-23
   ruby
 
 DEPENDENCIES
