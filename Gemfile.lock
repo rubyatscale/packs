@@ -20,6 +20,7 @@ PATH
     packs (0.0.41)
       bigdecimal
       code_ownership (>= 1.33.0)
+      nokogiri (= 1.15.4)
       packs-specification
       packwerk
       parse_packwerk (>= 0.22.0)
@@ -76,11 +77,11 @@ GEM
     method_source (1.0.0)
     minitest (5.19.0)
     netrc (0.11.0)
-    nokogiri (1.16.3-arm64-darwin)
+    nokogiri (1.15.4-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.3-x86_64-darwin)
+    nokogiri (1.15.4-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.3-x86_64-linux)
+    nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
     packs-specification (0.0.10)
       sorbet-runtime
