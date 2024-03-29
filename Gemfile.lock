@@ -20,7 +20,6 @@ PATH
     packs (0.0.41)
       bigdecimal
       code_ownership (>= 1.33.0)
-      nokogiri (= 1.15.4)
       packs-specification
       packwerk
       parse_packwerk (>= 0.22.0)
