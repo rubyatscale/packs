@@ -1,7 +1,12 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   call-workflow-from-shared-config:
     uses: rubyatscale/shared-config/.github/workflows/ci.yml@main
+    secrets: inherit
