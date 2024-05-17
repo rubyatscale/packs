@@ -22,7 +22,7 @@ PATH
       code_ownership (>= 1.33.0)
       packs-specification
       packwerk
-      parse_packwerk (>= 0.22.0)
+      parse_packwerk (>= 0.22.0, <= 0.23.0)
       rainbow
       sorbet-runtime
       thor
