@@ -11,7 +11,7 @@
 # source://packs-specification//lib/packs/pack.rb#3
 module Packs
   class << self
-    # source://packs/0.0.42/lib/packs.rb#134
+    # source://packs/0.0.43/lib/packs.rb#134
     sig { params(pack_name: ::String, dependency_name: ::String).void }
     def add_dependency!(pack_name:, dependency_name:); end
 
@@ -19,23 +19,23 @@ module Packs
     sig { returns(T::Array[::Packs::Pack]) }
     def all; end
 
-    # source://packs/0.0.42/lib/packs.rb#249
+    # source://packs/0.0.43/lib/packs.rb#249
     sig { void }
     def bust_cache!; end
 
-    # source://packs/0.0.42/lib/packs.rb#44
+    # source://packs/0.0.43/lib/packs.rb#44
     sig { params(files: T::Array[::String]).returns(T::Boolean) }
     def check(files); end
 
-    # source://packs/0.0.42/lib/packs/configuration.rb#50
+    # source://packs/0.0.43/lib/packs/configuration.rb#50
     sig { returns(::Packs::Configuration) }
     def config; end
 
-    # source://packs/0.0.42/lib/packs/configuration.rb#57
+    # source://packs/0.0.43/lib/packs/configuration.rb#57
     sig { params(blk: T.proc.params(arg0: ::Packs::Configuration).void).void }
     def configure(&blk); end
 
-    # source://packs/0.0.42/lib/packs.rb#57
+    # source://packs/0.0.43/lib/packs.rb#57
     sig do
       params(
         pack_name: ::String,
@@ -55,19 +55,19 @@ module Packs
     sig { params(file_path: T.any(::Pathname, ::String)).returns(T.nilable(::Packs::Pack)) }
     def for_file(file_path); end
 
-    # source://packs/0.0.42/lib/packs.rb#255
+    # source://packs/0.0.43/lib/packs.rb#255
     sig { void }
     def lint_package_todo_yml_files!; end
 
-    # source://packs/0.0.42/lib/packs.rb#260
+    # source://packs/0.0.43/lib/packs.rb#260
     sig { params(packs: T::Array[::Packs::Pack]).void }
     def lint_package_yml_files!(packs); end
 
-    # source://packs/0.0.42/lib/packs.rb#221
+    # source://packs/0.0.43/lib/packs.rb#221
     sig { params(type: ::String, pack_name: T.nilable(::String), limit: ::Integer).void }
     def list_top_violations(type:, pack_name:, limit:); end
 
-    # source://packs/0.0.42/lib/packs.rb#108
+    # source://packs/0.0.43/lib/packs.rb#108
     sig do
       params(
         paths_relative_to_root: T::Array[::String],
@@ -76,7 +76,7 @@ module Packs
     end
     def make_public!(paths_relative_to_root: T.unsafe(nil), per_file_processors: T.unsafe(nil)); end
 
-    # source://packs/0.0.42/lib/packs.rb#191
+    # source://packs/0.0.43/lib/packs.rb#191
     sig do
       params(
         pack_name: ::String,
@@ -86,7 +86,7 @@ module Packs
     end
     def move_to_folder!(pack_name:, destination:, per_file_processors: T.unsafe(nil)); end
 
-    # source://packs/0.0.42/lib/packs.rb#80
+    # source://packs/0.0.43/lib/packs.rb#80
     sig do
       params(
         pack_name: ::String,
@@ -96,7 +96,7 @@ module Packs
     end
     def move_to_pack!(pack_name:, paths_relative_to_root: T.unsafe(nil), per_file_processors: T.unsafe(nil)); end
 
-    # source://packs/0.0.42/lib/packs.rb#161
+    # source://packs/0.0.43/lib/packs.rb#161
     sig do
       params(
         pack_name: ::String,
@@ -106,19 +106,19 @@ module Packs
     end
     def move_to_parent!(pack_name:, parent_name:, per_file_processors: T.unsafe(nil)); end
 
-    # source://packs/0.0.42/lib/packs.rb#240
+    # source://packs/0.0.43/lib/packs.rb#240
     sig { params(file: ::String, find: ::Pathname, replace_with: ::Pathname).void }
     def replace_in_file(file:, find:, replace_with:); end
 
-    # source://packs/0.0.42/lib/packs.rb#29
+    # source://packs/0.0.43/lib/packs.rb#29
     sig { void }
     def start_interactive_mode!; end
 
-    # source://packs/0.0.42/lib/packs.rb#34
+    # source://packs/0.0.43/lib/packs.rb#34
     sig { returns(T::Boolean) }
     def update; end
 
-    # source://packs/0.0.42/lib/packs.rb#39
+    # source://packs/0.0.43/lib/packs.rb#39
     sig { returns(T::Boolean) }
     def validate; end
   end
