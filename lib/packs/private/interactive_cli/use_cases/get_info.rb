@@ -30,7 +30,7 @@ module Packs
 
             types = prompt.multi_select(
               'What violation types do you want stats for?',
-              %w[Privacy Dependency Architecture]
+              %w[Privacy Dependency Layer]
             )
 
             include_date = !prompt.no?('Should the current date be included in the report?')
