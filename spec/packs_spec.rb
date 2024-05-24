@@ -40,11 +40,11 @@ RSpec.describe Packs do
       YML
     end
 
-    context 'architecture extension is enabled' do
+    context 'layer extension is enabled' do
       before do
         write_file('packwerk.yml', <<~YML)
           require:
-            - packwerk/architecture/checker
+            - packwerk/layer/checker
         YML
       end
 
@@ -57,14 +57,14 @@ RSpec.describe Packs do
         expect(package.name).to eq('packs/my_pack')
         expect(package.enforce_dependencies).to eq(true)
         expect(package.enforce_privacy).to eq(false)
-        expect(package.enforce_architecture).to eq(true)
+        expect(package.enforce_layers).to eq(true)
         expect(package.dependencies).to eq([])
         expect(package.config['owner']).to eq('MyTeam')
         expect(package.metadata).to eq({})
 
         expected = <<~EXPECTED
           enforce_dependencies: true
-          enforce_architecture: true
+          enforce_layers: true
           owner: MyTeam # specify your team here, or delete this key if this package is not owned by one team
         EXPECTED
 
@@ -92,7 +92,7 @@ RSpec.describe Packs do
       expect(package.name).to eq('packs/my_pack')
       expect(package.enforce_dependencies).to eq(true)
       expect(package.enforce_privacy).to eq(true)
-      expect(package.enforce_architecture).to eq(false)
+      expect(package.enforce_layers).to eq(false)
       expect(package.dependencies).to eq([])
       expect(package.config['owner']).to eq('MyTeam')
       expect(package.metadata).to eq({})
@@ -113,7 +113,7 @@ RSpec.describe Packs do
         package = ParsePackwerk.find('packs/my_pack')
         expect(package.name).to eq('packs/my_pack')
         expect(package.enforce_privacy).to eq(true)
-        expect(package.enforce_architecture).to eq(false)
+        expect(package.enforce_layers).to eq(false)
         expect(package.enforce_dependencies).to eq(true)
         expect(package.dependencies).to eq([])
         expect(package.metadata).to eq({})

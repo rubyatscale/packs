@@ -9,14 +9,14 @@ module Packs
     desc 'create packs/your_pack', 'Create pack with name packs/your_pack'
     option :enforce_dependencies, type: :boolean, default: nil, aliases: :d, banner: 'Enforce dependencies'
     option :enforce_privacy, type: :boolean, default: true, aliases: :p, banner: 'Enforce privacy'
-    option :enforce_architecture, type: :boolean, default: true, aliases: :a, banner: 'Enforce architecture'
+    option :enforce_layers, type: :boolean, default: true, aliases: :a, banner: 'Enforce layers'
     sig { params(pack_name: String).void }
     def create(pack_name)
       Packs.create_pack!(
         pack_name: pack_name,
         enforce_dependencies: options[:enforce_dependencies],
         enforce_privacy: options[:enforce_privacy],
-        enforce_architecture: options[:enforce_architecture]
+        enforce_layers: options[:enforce_layers]
       )
       exit_successfully
     end
@@ -39,7 +39,7 @@ module Packs
       exit_successfully
     end
 
-    POSIBLE_TYPES = T.let(%w[dependency privacy architecture], T::Array[String])
+    POSIBLE_TYPES = T.let(%w[dependency privacy layer], T::Array[String])
     desc 'list_top_violations type [ packs/your_pack ]', 'List the top violations of a specific type for packs/your_pack.'
     long_desc <<~LONG_DESC
       Possible types are: #{POSIBLE_TYPES.join(', ')}.
@@ -48,7 +48,7 @@ module Packs
 
       Want to create interfaces? Not sure how your pack's code is being used? You can use this command to list the top privacy violations.
 
-      Want to focus on the big picture first? You can use this command to list the top architecture violations.
+      Want to focus on the big picture first? You can use this command to list the top layer violations.
 
       If no pack name is passed in, this will list out violations across all packs.
     LONG_DESC
@@ -131,7 +131,7 @@ module Packs
     desc 'get_info [ packs/my_pack packs/my_other_pack ]', 'Get info about size and violations for packs'
     option :include_date, type: :boolean, default: false, aliases: :d, banner: "Include today's date as part of the data (useful to take snapshots over time)"
     option :format, type: :string, default: 'detail', aliases: :f, banner: 'Specify the output format (detail, csv)'
-    option :types, type: :string, default: 'privacy,dependency', aliases: :t, banner: 'List of validation types to include (privacy,dependency,architecture)'
+    option :types, type: :string, default: 'privacy,dependency', aliases: :t, banner: 'List of validation types to include (privacy,dependency,layer)'
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
       selected_types = options[:types].to_s.downcase.split(',')
