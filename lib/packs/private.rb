@@ -49,11 +49,11 @@ module Packs
         pack_name: String,
         enforce_dependencies: T.nilable(T::Boolean),
         enforce_privacy: T::Boolean,
-        enforce_architecture: T::Boolean,
+        enforce_layers: T::Boolean,
         team: T.nilable(CodeTeams::Team)
       ).void
     end
-    def self.create_pack!(pack_name:, enforce_dependencies:, enforce_privacy:, enforce_architecture:, team:)
+    def self.create_pack!(pack_name:, enforce_dependencies:, enforce_privacy:, enforce_layers:, team:)
       Logging.section('👋 Hi!') do
         intro = Packs.config.user_event_logger.before_create_pack(pack_name)
         Logging.print_bold_green(intro)
@@ -65,7 +65,7 @@ module Packs
         pack_name: pack_name,
         enforce_dependencies: enforce_dependencies,
         enforce_privacy: enforce_privacy,
-        enforce_architecture: enforce_architecture,
+        enforce_layers: enforce_layers,
         team: team
       )
       add_public_directory(package) if package.enforce_privacy
@@ -169,7 +169,7 @@ module Packs
         name: new_package_name,
         enforce_dependencies: package.enforce_dependencies,
         enforce_privacy: package.enforce_privacy,
-        enforce_architecture: package.enforce_architecture,
+        enforce_layers: package.enforce_layers,
         dependencies: package.dependencies,
         violations: package.violations,
         metadata: package.metadata,
@@ -206,7 +206,7 @@ module Packs
           name: other_package.name,
           enforce_dependencies: other_package.enforce_dependencies,
           enforce_privacy: other_package.enforce_privacy,
-          enforce_architecture: other_package.enforce_architecture,
+          enforce_layers: other_package.enforce_layers,
           dependencies: new_dependencies.uniq.sort,
           violations: other_package.violations,
           metadata: other_package.metadata,
@@ -251,7 +251,7 @@ module Packs
           pack_name: parent_name,
           enforce_dependencies: true,
           enforce_privacy: true,
-          enforce_architecture: true
+          enforce_layers: true
         )
       end
 
@@ -263,7 +263,7 @@ module Packs
         name: new_package_name,
         enforce_privacy: package.enforce_privacy,
         enforce_dependencies: package.enforce_dependencies,
-        enforce_architecture: package.enforce_architecture,
+        enforce_layers: package.enforce_layers,
         dependencies: package.dependencies,
         violations: package.violations,
         metadata: package.metadata,
@@ -306,7 +306,7 @@ module Packs
           name: other_package.name,
           enforce_dependencies: other_package.enforce_dependencies,
           enforce_privacy: other_package.enforce_privacy,
-          enforce_architecture: other_package.enforce_architecture,
+          enforce_layers: other_package.enforce_layers,
           dependencies: new_dependencies.uniq.sort,
           violations: other_package.violations,
           metadata: other_package.metadata,
@@ -398,7 +398,7 @@ module Packs
         name: pack_name,
         dependencies: (package.dependencies + [dependency_name]).uniq.sort,
         enforce_privacy: package.enforce_privacy,
-        enforce_architecture: package.enforce_architecture,
+        enforce_layers: package.enforce_layers,
         enforce_dependencies: package.enforce_dependencies,
         violations: package.violations,
         metadata: package.metadata,
@@ -466,11 +466,11 @@ module Packs
         pack_name: String,
         enforce_dependencies: T.nilable(T::Boolean),
         enforce_privacy: T::Boolean,
-        enforce_architecture: T::Boolean,
+        enforce_layers: T::Boolean,
         team: T.nilable(CodeTeams::Team)
       ).returns(ParsePackwerk::Package)
     end
-    def self.create_pack_if_not_exists!(pack_name:, enforce_dependencies:, enforce_privacy:, enforce_architecture:, team: nil)
+    def self.create_pack_if_not_exists!(pack_name:, enforce_dependencies:, enforce_privacy:, enforce_layers:, team: nil)
       allowed_locations = Packs::Specification.config.pack_paths
       if allowed_locations.none? { |location| File.fnmatch(location, pack_name) }
         raise StandardError, "Packs only supports packages in the the following directories: #{allowed_locations}. Please make sure to pass in the name of the pack including the full directory path, e.g. `packs/my_pack`."
@@ -493,7 +493,7 @@ module Packs
         package = ParsePackwerk::Package.new(
           enforce_dependencies: should_enforce_dependencies || false,
           enforce_privacy: enforce_privacy,
-          enforce_architecture: enforce_architecture,
+          enforce_layers: enforce_layers,
           dependencies: [],
           violations: [],
           metadata: {},
@@ -600,7 +600,7 @@ module Packs
         include_date: T::Boolean
       ).void
     end
-    def self.get_info(packs: Packs.all, format: :detail, types: %i[privacy dependency architecture], include_date: false)
+    def self.get_info(packs: Packs.all, format: :detail, types: %i[privacy dependency layer], include_date: false)
       require 'csv' if format == :csv
 
       today = Date.today.iso8601

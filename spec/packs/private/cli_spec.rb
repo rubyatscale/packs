@@ -16,7 +16,7 @@ RSpec.describe Packs::CLI do
   describe '#create' do
     it 'creates a pack' do
       expect_success
-      expect(Packs).to receive(:create_pack!).with(pack_name: 'packs/your_pack', enforce_dependencies: nil, enforce_privacy: true, enforce_architecture: true)
+      expect(Packs).to receive(:create_pack!).with(pack_name: 'packs/your_pack', enforce_dependencies: nil, enforce_privacy: true, enforce_layers: true)
       Packs::CLI.start(['create', 'packs/your_pack'])
     end
   end
@@ -54,14 +54,14 @@ RSpec.describe Packs::CLI do
     end
   end
 
-  describe '#list_top_violations for architecture' do
-    it 'lists the top architecture violations' do
+  describe '#list_top_violations for layer' do
+    it 'lists the top layer violations' do
       expect(Packs).to receive(:list_top_violations).with(
-        type: 'architecture',
+        type: 'layer',
         pack_name: 'packs/your_pack',
         limit: 10
       )
-      described_class.start(['list_top_violations', 'architecture', 'packs/your_pack'])
+      described_class.start(['list_top_violations', 'layer', 'packs/your_pack'])
     end
   end
 

@@ -17,12 +17,12 @@ GIT
 PATH
   remote: .
   specs:
-    packs (0.0.42)
+    packs (0.0.43)
       bigdecimal
       code_ownership (>= 1.33.0)
       packs-specification
       packwerk
-      parse_packwerk (>= 0.22.0, <= 0.23.0)
+      parse_packwerk (>= 0.25.0)
       rainbow
       sorbet-runtime
       thor
@@ -85,7 +85,8 @@ GEM
     packs-specification (0.0.10)
       sorbet-runtime
     parallel (1.23.0)
-    parse_packwerk (0.22.0)
+    parse_packwerk (0.25.0)
+      bigdecimal
       sorbet-runtime
     parser (3.2.2.3)
       ast (~> 2.4.1)

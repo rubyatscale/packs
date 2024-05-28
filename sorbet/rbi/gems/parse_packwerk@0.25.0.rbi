@@ -62,7 +62,7 @@ class ParsePackwerk::Configuration < ::T::Struct
     sig { returns(::ParsePackwerk::Configuration) }
     def fetch; end
 
-    # source://sorbet-runtime/0.5.11151/lib/types/struct.rb#13
+    # source://sorbet-runtime/0.5.11318/lib/types/struct.rb#13
     def inherited(s); end
 
     # source://parse_packwerk//lib/parse_packwerk/configuration.rb#44
@@ -86,11 +86,11 @@ ParsePackwerk::DEPENDENCIES = T.let(T.unsafe(nil), String)
 # source://parse_packwerk//lib/parse_packwerk/constants.rb#11
 ParsePackwerk::DEPENDENCY_VIOLATION_TYPE = T.let(T.unsafe(nil), String)
 
-# source://parse_packwerk//lib/parse_packwerk/constants.rb#10
-ParsePackwerk::ENFORCE_ARCHITECTURE = T.let(T.unsafe(nil), String)
-
 # source://parse_packwerk//lib/parse_packwerk/constants.rb#8
 ParsePackwerk::ENFORCE_DEPENDENCIES = T.let(T.unsafe(nil), String)
+
+# source://parse_packwerk//lib/parse_packwerk/constants.rb#10
+ParsePackwerk::ENFORCE_LAYERS = T.let(T.unsafe(nil), String)
 
 # source://parse_packwerk//lib/parse_packwerk/constants.rb#9
 ParsePackwerk::ENFORCE_PRIVACY = T.let(T.unsafe(nil), String)
@@ -104,7 +104,7 @@ module ParsePackwerk::Extensions
 
     # source://parse_packwerk//lib/parse_packwerk/extensions.rb#18
     sig { returns(T::Boolean) }
-    def architecture_extension_installed?; end
+    def layer_extension_installed?; end
 
     # source://parse_packwerk//lib/parse_packwerk/extensions.rb#13
     sig { returns(T::Boolean) }
@@ -148,39 +148,39 @@ class ParsePackwerk::Package < ::T::Struct
   const :name, ::String
   const :enforce_dependencies, T.nilable(T.any(::String, T::Boolean))
   const :enforce_privacy, T.any(::String, T::Boolean), default: T.unsafe(nil)
-  const :enforce_architecture, T.any(::String, T::Boolean), default: T.unsafe(nil)
+  const :enforce_layers, T.any(::String, T::Boolean), default: T.unsafe(nil)
   const :public_path, ::String, default: T.unsafe(nil)
   const :metadata, T::Hash[T.untyped, T.untyped]
   const :dependencies, T::Array[::String]
   const :config, T::Hash[T.untyped, T.untyped]
   const :violations, T::Array[::ParsePackwerk::Violation]
 
-  # source://parse_packwerk//lib/parse_packwerk/package.rb#50
+  # source://parse_packwerk//lib/parse_packwerk/package.rb#46
   sig { returns(::Pathname) }
   def directory; end
 
-  # source://parse_packwerk//lib/parse_packwerk/package.rb#70
-  sig { returns(T.any(::String, T::Boolean)) }
-  def enforces_architecture?; end
-
-  # source://parse_packwerk//lib/parse_packwerk/package.rb#60
+  # source://parse_packwerk//lib/parse_packwerk/package.rb#56
   sig { returns(T.nilable(T.any(::String, T::Boolean))) }
   def enforces_dependencies?; end
 
-  # source://parse_packwerk//lib/parse_packwerk/package.rb#65
+  # source://parse_packwerk//lib/parse_packwerk/package.rb#66
+  sig { returns(T.any(::String, T::Boolean)) }
+  def enforces_layers?; end
+
+  # source://parse_packwerk//lib/parse_packwerk/package.rb#61
   sig { returns(T.any(::String, T::Boolean)) }
   def enforces_privacy?; end
 
-  # source://parse_packwerk//lib/parse_packwerk/package.rb#55
+  # source://parse_packwerk//lib/parse_packwerk/package.rb#51
   sig { returns(::Pathname) }
   def public_directory; end
 
-  # source://parse_packwerk//lib/parse_packwerk/package.rb#45
+  # source://parse_packwerk//lib/parse_packwerk/package.rb#41
   sig { returns(::Pathname) }
   def yml; end
 
   class << self
-    # source://parse_packwerk//lib/parse_packwerk/package.rb#40
+    # source://parse_packwerk//lib/parse_packwerk/package.rb#36
     sig { params(package_name: ::String).returns(::Pathname) }
     def directory(package_name); end
 
@@ -188,7 +188,7 @@ class ParsePackwerk::Package < ::T::Struct
     sig { params(pathname: ::Pathname).returns(::ParsePackwerk::Package) }
     def from(pathname); end
 
-    # source://sorbet-runtime/0.5.11151/lib/types/struct.rb#13
+    # source://sorbet-runtime/0.5.11318/lib/types/struct.rb#13
     def inherited(s); end
   end
 end
@@ -230,7 +230,7 @@ class ParsePackwerk::PackageTodo < ::T::Struct
     sig { params(pathname: ::Pathname).returns(::ParsePackwerk::PackageTodo) }
     def from(pathname); end
 
-    # source://sorbet-runtime/0.5.11151/lib/types/struct.rb#13
+    # source://sorbet-runtime/0.5.11318/lib/types/struct.rb#13
     def inherited(s); end
 
     # source://parse_packwerk//lib/parse_packwerk/package_todo.rb#46
@@ -258,7 +258,7 @@ class ParsePackwerk::Violation < ::T::Struct
   def privacy?; end
 
   class << self
-    # source://sorbet-runtime/0.5.11151/lib/types/struct.rb#13
+    # source://sorbet-runtime/0.5.11318/lib/types/struct.rb#13
     def inherited(s); end
   end
 end
