@@ -42,12 +42,22 @@ module Packs
 
   sig { returns(T::Boolean) }
   def self.validate
-    Private.system_with('bin/packwerk validate')
+    if Packs.config.use_pks
+      Private.system_with('bin/pks validate')
+    else
+      Private.system_with('bin/packwerk validate')
+    end
   end
 
   sig { params(files: T::Array[String]).returns(T::Boolean) }
   def self.check(files)
-    Private.system_with("bin/packwerk check #{files.join(' ')}")
+    if Packs.config.use_pks
+      Private.system_with("bin/pks check #{files.join(' ')}")
+
+    else
+      Private.system_with("bin/packwerk check #{files.join(' ')}")
+
+    end
   end
 
   sig do
