@@ -32,7 +32,12 @@ module Packs
 
   sig { returns(T::Boolean) }
   def self.update
-    Private.system_with('bin/packwerk update-todo')
+    if Packs.config.use_pks
+      Private.system_with('bin/pks update')
+    else
+      Private.system_with('bin/packwerk update-todo')
+      true
+    end
   end
 
   sig { returns(T::Boolean) }

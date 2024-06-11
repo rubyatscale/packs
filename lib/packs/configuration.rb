@@ -13,6 +13,9 @@ module Packs
     sig { returns(UserEventLogger) }
     attr_accessor :user_event_logger
 
+    sig { returns(T::Boolean) }
+    attr_accessor :use_pks
+
     OnPackageTodoLintFailure = T.type_alias do
       T.proc.params(output: String).void
     end
@@ -25,6 +28,7 @@ module Packs
       @enforce_dependencies = T.let(default_enforce_dependencies, T::Boolean)
       @user_event_logger = T.let(DefaultUserEventLogger.new, UserEventLogger)
       @on_package_todo_lint_failure = T.let(->(output) {}, OnPackageTodoLintFailure)
+      @use_pks = T.let(false, T::Boolean)
     end
 
     sig { returns(T::Boolean) }
