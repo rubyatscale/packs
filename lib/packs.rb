@@ -53,10 +53,8 @@ module Packs
   def self.check(files)
     if Packs.config.use_pks
       Private.system_with("bin/pks check #{files.join(' ')}")
-
     else
       Private.system_with("bin/packwerk check #{files.join(' ')}")
-
     end
   end
 
