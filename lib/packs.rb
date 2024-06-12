@@ -36,7 +36,6 @@ module Packs
       Private.system_with('bin/pks update')
     else
       Private.system_with('bin/packwerk update-todo')
-      true
     end
   end
 
