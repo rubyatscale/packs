@@ -55,7 +55,7 @@ module Packs
       def spec_file_move_operation
         path_parts = filepath_without_pack_name.split('/')
         folder = T.must(path_parts[0])
-        file_extension = filepath_without_pack_name.split('.').last
+        file_extension = T.must(filepath_without_pack_name.split('.').last)
 
         # This could probably be implemented by some "strategy pattern" where different extension types are handled by different helpers
         # Such a thing could also include, for example, when moving a controller, moving its ERB view too.
