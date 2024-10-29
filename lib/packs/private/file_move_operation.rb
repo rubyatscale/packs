@@ -53,15 +53,20 @@ module Packs
 
       sig { returns(FileMoveOperation) }
       def spec_file_move_operation
+        path_parts = filepath_without_pack_name.split('/')
+        folder = T.must(path_parts[0])
+        file_extension = filepath_without_pack_name.split('.').last
+
         # This could probably be implemented by some "strategy pattern" where different extension types are handled by different helpers
         # Such a thing could also include, for example, when moving a controller, moving its ERB view too.
-        if origin_pathname.extname == '.rake'
-          new_origin_pathname = origin_pathname.sub('/lib/', '/spec/lib/').sub(%r{^lib/}, 'spec/lib/').sub('.rake', '_spec.rb')
-          new_destination_pathname = destination_pathname.sub('/lib/', '/spec/lib/').sub(%r{^lib/}, 'spec/lib/').sub('.rake', '_spec.rb')
+        if folder == 'app'
+          new_origin_pathname = spec_pathname_for_app(origin_pathname, file_extension)
+          new_destination_pathname = spec_pathname_for_app(destination_pathname, file_extension)
         else
-          new_origin_pathname = origin_pathname.sub('/app/', '/spec/').sub(%r{^app/}, 'spec/').sub('.rb', '_spec.rb')
-          new_destination_pathname = destination_pathname.sub('/app/', '/spec/').sub(%r{^app/}, 'spec/').sub('.rb', '_spec.rb')
+          new_origin_pathname = spec_pathname_for_non_app(origin_pathname, file_extension, folder)
+          new_destination_pathname = spec_pathname_for_non_app(destination_pathname, file_extension, folder)
         end
+
         FileMoveOperation.new(
           origin_pathname: new_origin_pathname,
           destination_pathname: new_destination_pathname,
@@ -69,7 +74,37 @@ module Packs
         )
       end
 
+      sig { params(filepath: Pathname, pack: T.nilable(Packs::Pack)).returns(String) }
+      def self.get_filepath_without_pack_name(filepath, pack)
+        if pack
+          filepath.to_s.gsub("#{pack.name}/", '')
+        else
+          filepath.to_s
+        end
+      end
+
       private
+
+      sig { returns(String) }
+      def filepath_without_pack_name
+        self.class.get_filepath_without_pack_name(origin_pathname, origin_pack)
+      end
+
+      sig { params(pathname: Pathname, file_extension: String).returns(Pathname) }
+      def spec_pathname_for_app(pathname, file_extension)
+        pathname
+          .sub('/app/', '/spec/')
+          .sub(%r{^app/}, 'spec/')
+          .sub(".#{file_extension}", '_spec.rb')
+      end
+
+      sig { params(pathname: Pathname, file_extension: String, folder: String).returns(Pathname) }
+      def spec_pathname_for_non_app(pathname, file_extension, folder)
+        pathname
+          .sub("/#{folder}/", "/spec/#{folder}/")
+          .sub(%r{^#{folder}/}, "spec/#{folder}/")
+          .sub(".#{file_extension}", '_spec.rb')
+      end
 
       sig { params(path: Pathname).returns(FileMoveOperation) }
       def relative_to(path)

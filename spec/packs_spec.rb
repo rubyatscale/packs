@@ -567,6 +567,32 @@ RSpec.describe Packs do
         end
       end
 
+      context 'files moved are ruby files in lib' do
+        it 'can move files from lib from one pack to another pack' do
+          write_package_yml('packs/my_pack')
+          write_package_yml('packs/organisms')
+          write_file('packs/organisms/lib/my_ruby_file.rb')
+          write_file('packs/organisms/spec/lib/my_ruby_file_spec.rb')
+
+          Packs.move_to_pack!(
+            pack_name: 'packs/my_pack',
+            paths_relative_to_root: [
+              'packs/organisms/lib/my_ruby_file.rb'
+            ]
+          )
+
+          expect_files_to_not_exist([
+                                      'packs/organisms/lib/my_ruby_file.rb',
+                                      'packs/organisms/spec/lib/my_ruby_file_spec.rb'
+                                    ])
+
+          expect_files_to_exist([
+                                  'packs/my_pack/lib/my_ruby_file.rb',
+                                  'packs/my_pack/spec/lib/my_ruby_file_spec.rb'
+                                ])
+        end
+      end
+
       describe 'RubocopPostProcessor' do
         context 'moving file listed in top-level .rubocop_todo.yml' do
           it 'modifies an application-specific file, .rubocop_todo.yml, correctly' do
