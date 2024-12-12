@@ -148,6 +148,11 @@ module Packs
 
     sig { params(pack_name: String).returns(String) }
     def on_create_readme_todo(pack_name)
+      readme_template_pathname = Packs.config.readme_template_pathname
+      readme_template = readme_template_pathname.read if readme_template_pathname.exist?
+
+      return readme_template unless readme_template.nil?
+
       <<~MSG
         Welcome to `#{pack_name}`!
 

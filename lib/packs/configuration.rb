@@ -7,6 +7,9 @@ module Packs
   class Configuration
     extend T::Sig
 
+    CONFIGURATION_PATHNAME = T.let(Pathname.new('packs.yml'), Pathname)
+    DEFAULT_README_TEMPLATE_PATHNAME = T.let(Pathname.new('README_TEMPLATE.md'), Pathname)
+
     sig { params(enforce_dependencies: T::Boolean).void }
     attr_writer :enforce_dependencies
 
@@ -44,6 +47,18 @@ module Packs
     sig { returns(T::Boolean) }
     def default_enforce_dependencies
       true
+    end
+
+    sig { returns(Pathname) }
+    def readme_template_pathname
+      config_hash = CONFIGURATION_PATHNAME.exist? ? YAML.load_file(CONFIGURATION_PATHNAME) : {}
+
+      specified_readme_template_path = config_hash['readme_template_path']
+      if specified_readme_template_path.nil?
+        DEFAULT_README_TEMPLATE_PATHNAME
+      else
+        Pathname.new(specified_readme_template_path)
+      end
     end
   end
 
