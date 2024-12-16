@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'packs'
-  spec.version       = '0.0.45'
+  spec.version       = '0.1.0'
   spec.authors       = ['Gusto Engineers']
   spec.email         = ['dev@gusto.com']
 
