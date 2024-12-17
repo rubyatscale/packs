@@ -286,7 +286,7 @@ RSpec.describe Packs do
     end
 
     describe 'setting the README' do
-      let(:expected_readme_todo) do
+      let(:expected_readme) do
         <<~EXPECTED
           Welcome to `packs/organisms`!
 
@@ -306,31 +306,34 @@ RSpec.describe Packs do
         EXPECTED
       end
 
-      it 'adds a README_TODO.md file as a placeholder' do
+      it 'adds a README.md file as a placeholder' do
         Packs.create_pack!(pack_name: 'packs/organisms')
         ParsePackwerk.bust_cache!
-        actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
-        expect(actual_readme_todo.read).to eq expected_readme_todo
+        actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
+        expect(actual_readme.read).to eq expected_readme
       end
 
       context 'app has one pack with an outdated README_TODO.md' do
         it 'overwrites the README_TODO.md' do
           write_file('packs/organisms/README_TODO.md', 'This is outdated')
           write_package_yml('packs/organisms')
-          actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
-          expect(actual_readme_todo.read).to eq 'This is outdated'
+          readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
+          expect(readme_todo.read).to eq 'This is outdated'
+
           Packs.create_pack!(pack_name: 'packs/organisms')
-          expect(actual_readme_todo.read).to eq expected_readme_todo
+          actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
+          expect(actual_readme.read).to eq expected_readme
+          expect(readme_todo.exist?).to eq false
         end
       end
 
       context 'app has one pack with a README.md' do
-        it 'does not add a README_TODO.md file' do
+        it 'does not change the README.md file' do
           write_package_yml('packs/organisms')
-          write_file('packs/organisms/README.md')
-          actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
+          write_file('packs/organisms/README.md', 'This is the original README.md')
+          actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
           Packs.create_pack!(pack_name: 'packs/organisms')
-          expect(actual_readme_todo.exist?).to eq false
+          expect(actual_readme.read).to eq 'This is the original README.md'
         end
       end
 
@@ -856,7 +859,7 @@ RSpec.describe Packs do
     end
 
     describe 'setting the README' do
-      let(:expected_readme_todo) do
+      let(:expected_readme) do
         <<~EXPECTED
           Welcome to `packs/organisms`!
 
@@ -876,7 +879,7 @@ RSpec.describe Packs do
         EXPECTED
       end
 
-      it 'adds a README_TODO.md file as a placeholder' do
+      it 'adds a README.md file as a placeholder' do
         write_file('app/services/foo.rb')
         write_package_yml('packs/organisms')
         Packs.move_to_pack!(
@@ -884,8 +887,8 @@ RSpec.describe Packs do
           paths_relative_to_root: ['app/services/foo.rb']
         )
 
-        actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
-        expect(actual_readme_todo.read).to eq expected_readme_todo
+        actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
+        expect(actual_readme.read).to eq expected_readme
       end
 
       context 'app has one pack with an outdated README_TODO.md' do
@@ -893,27 +896,29 @@ RSpec.describe Packs do
           write_file('app/services/foo.rb')
           write_package_yml('packs/organisms')
           write_file('packs/organisms/README_TODO.md', 'This is outdated')
-          actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
-          expect(actual_readme_todo.read).to eq 'This is outdated'
+          readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
+          expect(readme_todo.read).to eq 'This is outdated'
           Packs.move_to_pack!(
             pack_name: 'packs/organisms',
             paths_relative_to_root: ['app/services/foo.rb']
           )
-          expect(actual_readme_todo.read).to eq expected_readme_todo
+          actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
+          expect(actual_readme.read).to eq expected_readme
+          expect(readme_todo.exist?).to eq false
         end
       end
 
       context 'app has one pack with a README.md' do
-        it 'does not add a README_TODO.md file' do
+        it 'does not change the README.md file' do
           write_file('app/services/foo.rb')
           write_package_yml('packs/organisms')
-          write_file('packs/organisms/README.md')
-          actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
+          write_file('packs/organisms/README.md', 'This is the original README.md')
+          actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
           Packs.move_to_pack!(
             pack_name: 'packs/organisms',
             paths_relative_to_root: ['app/services/foo.rb']
           )
-          expect(actual_readme_todo.exist?).to eq false
+          expect(actual_readme.read).to eq 'This is the original README.md'
         end
       end
     end
