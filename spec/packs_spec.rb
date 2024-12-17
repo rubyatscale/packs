@@ -256,21 +256,22 @@ RSpec.describe Packs do
       end
 
       context 'app has no public dir' do
-        it 'adds a TODO.md file letting someone know what to do with it' do
+        it 'adds a public directory' do
           Packs.create_pack!(pack_name: 'packs/organisms')
-          actual_todo = Pathname.new('packs/organisms/app/public/TODO.md').read
-          expect(actual_todo).to eq expected_todo
+          public_directory = Pathname.new('packs/organisms/app/public')
+          expect(public_directory.exist?).to eq true
+          expect(public_directory.join('organisms').exist?).to eq true
         end
 
         context 'pack not enforcing privacy' do
-          it 'does not add a TODO.md file' do
+          it 'does not add a public directory' do
             Packs.create_pack!(pack_name: 'packs/organisms', enforce_privacy: false)
 
             ParsePackwerk.bust_cache!
             package = ParsePackwerk.find('packs/organisms')
             expect(package.enforce_privacy).to eq(false)
-            todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
-            expect(todo_file.exist?).to eq false
+            public_directory = Pathname.new('packs/organisms/app/public')
+            expect(public_directory.exist?).to eq false
           end
         end
       end
@@ -815,7 +816,7 @@ RSpec.describe Packs do
       end
 
       context 'app has no public dir' do
-        it 'adds a TODO.md file letting someone know what to do with it' do
+        it 'adds a public directory' do
           write_file('app/services/foo.rb')
           write_package_yml('packs/organisms')
           Packs.move_to_pack!(
@@ -823,8 +824,7 @@ RSpec.describe Packs do
             paths_relative_to_root: ['app/services/foo.rb']
           )
 
-          actual_todo = Pathname.new('packs/organisms/app/public/TODO.md').read
-          expect(actual_todo).to eq expected_todo
+          expect(Pathname.new('packs/organisms/app/public/organisms').exist?).to eq true
         end
 
         context 'pack not enforcing privacy' do
