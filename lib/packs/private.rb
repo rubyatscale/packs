@@ -446,8 +446,8 @@ module Packs
 
       if public_directory.glob('**/**.rb').none?
         FileUtils.mkdir_p(public_directory)
-        todo_md = Packs.config.user_event_logger.on_create_public_directory_todo(package.name)
-        public_directory.join('TODO.md').write(todo_md)
+        package_name = package.directory.basename.to_s
+        FileUtils.mkdir_p(public_directory.join(package_name))
       end
     end
 
