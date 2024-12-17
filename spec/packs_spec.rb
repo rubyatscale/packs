@@ -351,11 +351,11 @@ RSpec.describe Packs do
           end
 
           it 'uses the template to create the README_TODO.md' do
-            write_file('my_folder/README_STUFF.md', 'This is the template')
+            write_file('my_folder/README_STUFF.md', 'This is the custom template')
             Packs.create_pack!(pack_name: 'packs/organisms')
             ParsePackwerk.bust_cache!
             actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
-            expect(actual_readme_todo.read).to eq 'This is the template'
+            expect(actual_readme_todo.read).to eq 'This is the custom template'
           end
         end
       end
