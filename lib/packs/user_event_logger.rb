@@ -147,7 +147,7 @@ module Packs
     end
 
     sig { params(pack_name: String).returns(String) }
-    def on_create_readme_todo(pack_name)
+    def on_create_readme(pack_name)
       <<~MSG
         Welcome to `#{pack_name}`!
 
