@@ -333,6 +333,32 @@ RSpec.describe Packs do
           expect(actual_readme_todo.exist?).to eq false
         end
       end
+
+      context 'when the app has a README template' do
+        it 'uses the template to create the README_TODO.md' do
+          write_file('README_TEMPLATE.md', 'This is the template')
+          Packs.create_pack!(pack_name: 'packs/organisms')
+          ParsePackwerk.bust_cache!
+          actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
+          expect(actual_readme_todo.read).to eq 'This is the template'
+        end
+
+        context 'and a custom path is specified for the README template' do
+          before do
+            write_file('packs.yml', <<~YML)
+              readme_template_path: my_folder/README_STUFF.md
+            YML
+          end
+
+          it 'uses the template to create the README_TODO.md' do
+            write_file('my_folder/README_STUFF.md', 'This is the custom template')
+            Packs.create_pack!(pack_name: 'packs/organisms')
+            ParsePackwerk.bust_cache!
+            actual_readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
+            expect(actual_readme_todo.read).to eq 'This is the custom template'
+          end
+        end
+      end
     end
   end
 

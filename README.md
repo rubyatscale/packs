@@ -15,6 +15,11 @@ pack_paths:
   - gems/* # gems can be packs too!
 ```
 
+To customize the README template, include a `README_TEMPLATE.md` file in the root of your project. If you want to use a custom path for your README template, you can specify it in the `packs.yml` file in the root of your project:
+```yml
+readme_template_path: my_folder/README_STUFF.md
+```
+
 # Ecosystem
 The rest of the [rubyatscale](https://github.com/rubyatscale) ecosystem is intended to help make using packs and improving the boundaries between them more clear.
 
