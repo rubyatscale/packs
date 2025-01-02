@@ -315,7 +315,7 @@ RSpec.describe Packs do
       end
 
       context 'app has one pack with an outdated README_TODO.md' do
-        it 'overwrites the README_TODO.md' do
+        it 'deletes the README_TODO.md and adds a README' do
           write_file('packs/organisms/README_TODO.md', 'This is outdated')
           write_package_yml('packs/organisms')
           readme_todo = ParsePackwerk.find('packs/organisms').directory.join('README_TODO.md')
@@ -892,7 +892,7 @@ RSpec.describe Packs do
       end
 
       context 'app has one pack with an outdated README_TODO.md' do
-        it 'overwrites the README_TODO.md' do
+        it 'deletes the README_TODO.md and adds a README' do
           write_file('app/services/foo.rb')
           write_package_yml('packs/organisms')
           write_file('packs/organisms/README_TODO.md', 'This is outdated')
