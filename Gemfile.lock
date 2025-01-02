@@ -17,7 +17,7 @@ GIT
 PATH
   remote: .
   specs:
-    packs (0.1.0)
+    packs (0.2.0)
       bigdecimal
       code_ownership (>= 1.33.0)
       packs-specification
