@@ -69,7 +69,7 @@ module Packs
         team: team
       )
       add_public_directory(package) if package.enforce_privacy
-      add_readme_todo(package)
+      add_readme(package)
 
       Logging.section('Next steps') do
         next_steps = Packs.config.user_event_logger.after_create_pack(pack_name)
@@ -140,7 +140,7 @@ module Packs
         end
       end
 
-      add_readme_todo(package)
+      add_readme(package)
 
       per_file_processors.each do |processor|
         processor.after_move_files!(file_move_operations)
@@ -446,18 +446,22 @@ module Packs
 
       if public_directory.glob('**/**.rb').none?
         FileUtils.mkdir_p(public_directory)
-        todo_md = Packs.config.user_event_logger.on_create_public_directory_todo(package.name)
-        public_directory.join('TODO.md').write(todo_md)
+        package_name = package.directory.basename.to_s
+        FileUtils.mkdir_p(public_directory.join(package_name))
       end
     end
 
     sig { params(package: ParsePackwerk::Package).void }
-    def self.add_readme_todo(package)
+    def self.add_readme(package)
       pack_directory = package.directory
 
       if !pack_directory.join('README.md').exist?
-        readme_todo_md = Packs.config.user_event_logger.on_create_readme_todo(package.name)
-        pack_directory.join('README_TODO.md').write(readme_todo_md)
+        readme_md = Packs.config.user_event_logger.on_create_readme(package.name)
+        pack_directory.join('README.md').write(readme_md)
+
+        if pack_directory.join('README_TODO.md').exist?
+          pack_directory.join('README_TODO.md').delete
+        end
       end
     end
 

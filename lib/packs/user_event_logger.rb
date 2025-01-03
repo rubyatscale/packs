@@ -124,30 +124,7 @@ module Packs
     end
 
     sig { params(pack_name: String).returns(String) }
-    def on_create_public_directory_todo(pack_name)
-      <<~MSG
-        This directory holds your public API!
-
-        Any classes, constants, or modules that you want other packs to use and you intend to support should go in here.
-        Anything that is considered private should go in other folders.
-
-        If another pack uses classes, constants, or modules that are not in your public folder, it will be considered a "privacy violation" by packwerk.
-        You can prevent other packs from using private API by using packwerk.
-
-        Want to find how your private API is being used today?
-        Try running: `bin/packs list_top_violations privacy #{pack_name}`
-
-        Want to move something into this folder?
-        Try running: `bin/packs make_public #{pack_name}/path/to/file.rb`
-
-        One more thing -- feel free to delete this file and replace it with a README.md describing your package in the main package directory.
-
-        See #{documentation_link} for more info!
-      MSG
-    end
-
-    sig { params(pack_name: String).returns(String) }
-    def on_create_readme_todo(pack_name)
+    def on_create_readme(pack_name)
       readme_template_pathname = Packs.config.readme_template_pathname
       readme_template = readme_template_pathname.read if readme_template_pathname.exist?
 
