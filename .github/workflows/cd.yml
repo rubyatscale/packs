@@ -7,6 +7,38 @@ on:
     branches: [main]
 
 jobs:
-  call-workflow-from-shared-config:
-    uses: rubyatscale/shared-config/.github/workflows/cd.yml@main
-    secrets: inherit
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Git Status
+        run: git status
+      - name: Tag and Push Gem
+        id: tag-and-push-gem
+        uses: discourse/publish-rubygems-action@v3
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GIT_EMAIL: ${{secrets.GUSTO_GIT_EMAIL}}
+          GIT_NAME: ${{secrets.GUSTO_GIT_NAME}}
+          RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
+          RELEASE_COMMAND: git diff && rake release --backtrace
+      - name: Create GitHub Release
+        run: gh release create v${{steps.tag-and-push-gem.outputs.gem_version}} --generate-notes
+        if: ${{ steps.tag-and-push-gem.outputs.new_version == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  notify_on_failure:
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: ${{ failure() && github.ref == 'refs/heads/main' }}
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+    steps:
+      - uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "${{ github.repository }}/${{ github.ref }}: FAILED\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
