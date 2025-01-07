@@ -22,7 +22,7 @@ jobs:
           GIT_EMAIL: ${{secrets.GUSTO_GIT_EMAIL}}
           GIT_NAME: ${{secrets.GUSTO_GIT_NAME}}
           RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
-          RELEASE_COMMAND: rake release --backtrace
+          RELEASE_COMMAND: git diff && rake release --backtrace
       - name: Create GitHub Release
         run: gh release create v${{steps.tag-and-push-gem.outputs.gem_version}} --generate-notes
         if: ${{ steps.tag-and-push-gem.outputs.new_version == 'true' }}
