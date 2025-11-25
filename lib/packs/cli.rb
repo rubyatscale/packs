@@ -82,15 +82,19 @@ module Packs
       exit_successfully
     end
 
-    desc 'move packs/destination_pack path/to/file.rb path/to/directory', 'Move files or directories from one pack to another'
+    desc 'move path/to/file.rb path/to/directory packs/destination_pack', 'Move files or directories from one pack to another'
     long_desc <<~LONG_DESC
       This is used for moving files into a pack (the pack must already exist).
       Note this works for moving files to packs from the monolith or from other packs
 
+      The last argument is the destination pack. All previous arguments are the paths to move.
       Make sure there are no spaces between the comma-separated list of paths of directories.
     LONG_DESC
-    sig { params(pack_name: String, paths: String).void }
-    def move(pack_name, *paths)
+    sig { params(args: String).void }
+    def move(*args)
+      raise StandardError, 'At least two arguments required: source path(s) and destination pack' if args.length < 2
+
+      *paths, pack_name = args
       Packs.move_to_pack!(
         pack_name: pack_name,
         paths_relative_to_root: paths

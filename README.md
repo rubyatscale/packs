@@ -87,11 +87,12 @@ This moves a file or directory to public API (either the `app/public` folder or 
 Make sure there are no spaces between the comma-separated list of paths of directories.
 
 ## Move files or directories from one pack to another
-`bin/packs move packs/destination_pack path/to/file.rb path/to/directory`
+`bin/packs move path/to/file.rb path/to/directory packs/destination_pack`
 
 This is used for moving files into a pack (the pack must already exist).
 Note this works for moving files to packs from the monolith or from other packs
 
+The last argument is the destination pack. All previous arguments are the paths to move.
 Make sure there are no spaces between the comma-separated list of paths of directories.
 
 ## Lint `package_todo.yml` files to check for formatting issues
