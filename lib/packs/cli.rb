@@ -96,8 +96,8 @@ module Packs
 
       *paths, pack_name = args
       Packs.move_to_pack!(
-        pack_name: pack_name,
-        paths_relative_to_root: paths
+        pack_name: T.must(pack_name),
+        paths_relative_to_root: T.must(paths)
       )
       exit_successfully
     end
