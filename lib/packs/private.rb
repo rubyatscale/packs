@@ -131,7 +131,7 @@ module Packs
             )
             [
               file_move_operation,
-              file_move_operation.spec_file_move_operation
+              *file_move_operation.spec_file_move_operations
             ]
           end
           file_move_operations.each do |file_move_operation|
@@ -358,7 +358,7 @@ module Packs
 
             [
               file_move_operation,
-              file_move_operation.spec_file_move_operation
+              *file_move_operation.spec_file_move_operations
             ]
           end
 
