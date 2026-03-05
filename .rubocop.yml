@@ -64,9 +64,6 @@ Style/GuardClause:
 Metrics/ModuleLength:
   Enabled: false
 
-Layout/LineLength:
-  Enabled: false
-
 Metrics/BlockLength:
   Enabled: false
 
@@ -107,10 +104,6 @@ Style/EmptyElse:
 Style/RedundantCondition:
   Enabled: false
 
-# This leads to code that is not very readable at times (very long lines)
-Layout/MultilineMethodCallIndentation:
-  Enabled: false
-
 # Blocks across lines are okay sometimes
 Style/BlockDelimiters:
   Enabled: false
@@ -119,19 +112,8 @@ Style/BlockDelimiters:
 Naming/AccessorMethodName:
   Enabled: false
 
-# This leads to code that is not very readable at times (very long lines)
-Layout/FirstArgumentIndentation:
-  Enabled: false
-
-# This leads to code that is not very readable at times (very long lines)
-Layout/ArgumentAlignment:
-  Enabled: false
-
 Style/AccessorGrouping:
   Enabled: false
 
 Style/NumericPredicate:
-  Enabled: false
-
-Layout/BlockEndNewline:
   Enabled: false

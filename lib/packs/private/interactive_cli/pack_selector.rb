@@ -11,14 +11,14 @@ module Packs
           packs = Packs.all.to_h { |t| [t.name, t] }
 
           pack_selection = T.let(
-prompt.select(
-            question_text,
-            packs,
-            filter: true,
-            per_page: 10,
-            show_help: :always
-          ), T.nilable(Packs::Pack)
-)
+            prompt.select(
+              question_text,
+              packs,
+              filter: true,
+              per_page: 10,
+              show_help: :always
+            ), T.nilable(Packs::Pack)
+          )
 
           while pack_selection.nil?
             prompt.error(
@@ -34,14 +34,14 @@ prompt.select(
         sig { params(prompt: TTY::Prompt, question_text: String).returns(T::Array[Packs::Pack]) }
         def self.single_or_all_pack_multi_select(prompt, question_text: 'Please use space to select one or more packs')
           pack_selection = T.let(
-prompt.multi_select(
-            question_text,
-            Packs.all.to_h { |t| [t.name, t] },
-            filter: true,
-            per_page: 10,
-            show_help: :always
-          ), T::Array[Packs::Pack]
-)
+            prompt.multi_select(
+              question_text,
+              Packs.all.to_h { |t| [t.name, t] },
+              filter: true,
+              per_page: 10,
+              show_help: :always
+            ), T::Array[Packs::Pack]
+          )
 
           while pack_selection.empty?
             prompt.error(

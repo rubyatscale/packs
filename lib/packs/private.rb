@@ -38,11 +38,11 @@ module Packs
 
       count = 0
       file.write(
-file.read.gsub(find.to_s) do
-  count += 1
-  replace_with.to_s
-end
-)
+        file.read.gsub(find.to_s) do
+          count += 1
+          replace_with.to_s
+        end
+      )
       Logging.print "Replaced #{count} occurrence(s) of #{find} in #{file}" if count > 0
     end
 

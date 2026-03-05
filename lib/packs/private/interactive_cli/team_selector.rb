@@ -12,14 +12,14 @@ module Packs
           return nil if teams.none?
 
           team_selection = T.let(
-prompt.select(
-            question_text,
-            teams,
-            filter: true,
-            per_page: 10,
-            show_help: :always
-          ), T.nilable(CodeTeams::Team)
-)
+            prompt.select(
+              question_text,
+              teams,
+              filter: true,
+              per_page: 10,
+              show_help: :always
+            ), T.nilable(CodeTeams::Team)
+          )
 
           while team_selection.nil?
             prompt.error(
@@ -37,14 +37,14 @@ prompt.select(
           teams = CodeTeams.all.to_h { |t| [t.name, t] }
 
           team_selection = T.let(
-prompt.multi_select(
-            question_text,
-            teams,
-            filter: true,
-            per_page: 10,
-            show_help: :always
-          ), T::Array[CodeTeams::Team]
-)
+            prompt.multi_select(
+              question_text,
+              teams,
+              filter: true,
+              per_page: 10,
+              show_help: :always
+            ), T::Array[CodeTeams::Team]
+          )
 
           while team_selection.empty?
             prompt.error(
