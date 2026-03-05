@@ -1,19 +1,19 @@
 # typed: false
 
 RSpec.describe Packs do
-  define_method(:expect_files_to_exist) do |files|
+  def expect_files_to_exist(files)
     files.each do |file|
       expect(File.file?(file)).to (be true), "Test failed: expected #{file} to now exist, but it does not"
     end
   end
 
-  define_method(:expect_files_to_not_exist) do |files|
+  def expect_files_to_not_exist(files)
     files.each do |file|
       expect(File.file?(file)).to (be false), "Test failed: expected #{file} to no longer exist, since it should have been moved"
     end
   end
 
-  define_method(:write_codeownership_config) do
+  def write_codeownership_config
     write_file('config/code_ownership.yml', <<~CONTENTS)
       owned_globs:
         - '{app,components,config,frontend,lib,packs,spec}/**/*.{rb,rake,js,jsx,ts,tsx}'
