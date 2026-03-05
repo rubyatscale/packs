@@ -85,7 +85,7 @@ module Packs
     desc 'move packs/destination_pack path/to/file.rb path/to/directory', 'Move files or directories from one pack to another'
     long_desc <<~LONG_DESC
       This is used for moving files into a pack (the pack must already exist).
-      Note this works for moving files to packs from the monolith or from other packs
+      Note this works for moving files to packs from the monolith or from other packs.
 
       Make sure there are no spaces between the comma-separated list of paths of directories.
     LONG_DESC

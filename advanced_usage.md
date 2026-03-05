@@ -13,7 +13,7 @@ Packs.create_pack!(
 ### Per-file Processors
 Your application may have specific needs when moving files. `Packs` gives a way to inject application-specific behavior into the file move process.
 
-You can pass in an array of application specific behavior into the `per_file_processors` parameter of the main method.
+You can pass in an array of application-specific behavior into the `per_file_processors` parameter of the main method.
 
 See `rubocop_post_processor.rb` as an example of renaming files in `.rubocop_todo.yml` automatically, which is something you may want to do (as you do not want to fix all style errors when you're just moving a file).
 
