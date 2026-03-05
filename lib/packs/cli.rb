@@ -179,12 +179,12 @@ module Packs
     # This is used by thor to know that these private methods are not intended to be CLI commands
     no_commands do
       sig { params(pack_names: T::Array[String]).returns(T::Array[Packs::Pack]) }
-      define_method(:parse_pack_names) do |pack_names|
+      def parse_pack_names(pack_names)
         pack_names.empty? ? Packs.all : pack_names.filter_map { |p| Packs.find(p.delete_suffix('/')) }
       end
 
       sig { void }
-      define_method(:exit_successfully) do
+      def exit_successfully
         Private.exit_with(true)
       end
     end
