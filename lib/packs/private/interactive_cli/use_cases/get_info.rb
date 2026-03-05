@@ -26,11 +26,11 @@ module Packs
               selected_packs = PackSelector.single_or_all_pack_multi_select(prompt, question_text: 'What pack(s) would you like info on?')
             end
 
-            format = prompt.select('What output format do you want?', %w[Detail CSV])
+            format = prompt.select('What output format do you want?', %w(Detail CSV))
 
             types = prompt.multi_select(
               'What violation types do you want stats for?',
-              %w[Privacy Dependency Layer]
+              %w(Privacy Dependency Layer)
             )
 
             include_date = !prompt.no?('Should the current date be included in the report?')

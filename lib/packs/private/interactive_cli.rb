@@ -28,22 +28,26 @@ module Packs
 
       sig { params(prompt: T.nilable(TTY::Prompt)).void }
       def self.start!(prompt: nil)
-        prompt ||= TTY::Prompt.new(interrupt: lambda {
+        prompt ||= TTY::Prompt.new(
+interrupt: -> {
                                               puts "\n\nGoodbye! I hope you have a good day."
-                                              exit 1 })
+                                              exit 1 }
+)
         help_text = '(Press ↑/↓ arrow to move, Enter to select and letters to filter)'
-        choice = prompt.select('Hello! What would you like to do?',
+        choice = prompt.select(
+'Hello! What would you like to do?',
           cycle: true,
           filter: true,
           help: help_text,
           show_help: :always,
-          per_page: 15) do |menu|
-          menu.enum '.'
+          per_page: 15
+) do |menu|
+  menu.enum '.'
 
-          UseCases::Interface.all.each do |use_case|
-            menu.choice use_case.user_facing_name, use_case
-          end
-        end
+  UseCases::Interface.all.each do |use_case|
+    menu.choice use_case.user_facing_name, use_case
+  end
+end
 
         choice.perform!(prompt)
       end

@@ -30,7 +30,7 @@ module Packs
     def initialize
       @enforce_dependencies = T.let(default_enforce_dependencies, T::Boolean)
       @user_event_logger = T.let(DefaultUserEventLogger.new, UserEventLogger)
-      @on_package_todo_lint_failure = T.let(->(output) {}, OnPackageTodoLintFailure)
+      @on_package_todo_lint_failure = T.let(-> (output) {}, OnPackageTodoLintFailure)
       @use_pks = T.let(false, T::Boolean)
     end
 
@@ -68,8 +68,7 @@ module Packs
     sig { returns(Configuration) }
     def config
       Private.load_client_configuration
-      @config = T.let(@config, T.nilable(Configuration))
-      @config ||= Configuration.new
+      @config ||= T.let(Configuration.new, T.nilable(Configuration))
     end
 
     sig { params(blk: T.proc.params(arg0: Configuration).void).void }

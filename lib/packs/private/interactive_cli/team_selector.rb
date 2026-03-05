@@ -11,13 +11,15 @@ module Packs
           teams = CodeTeams.all.sort_by(&:name).to_h { |t| [t.name, t] }
           return nil if teams.none?
 
-          team_selection = T.let(prompt.select(
+          team_selection = T.let(
+prompt.select(
             question_text,
             teams,
             filter: true,
             per_page: 10,
             show_help: :always
-          ), T.nilable(CodeTeams::Team))
+          ), T.nilable(CodeTeams::Team)
+)
 
           while team_selection.nil?
             prompt.error(
@@ -34,13 +36,15 @@ module Packs
         def self.multi_select(prompt, question_text: 'Please use space to select team owners')
           teams = CodeTeams.all.to_h { |t| [t.name, t] }
 
-          team_selection = T.let(prompt.multi_select(
+          team_selection = T.let(
+prompt.multi_select(
             question_text,
             teams,
             filter: true,
             per_page: 10,
             show_help: :always
-          ), T::Array[CodeTeams::Team])
+          ), T::Array[CodeTeams::Team]
+)
 
           while team_selection.empty?
             prompt.error(

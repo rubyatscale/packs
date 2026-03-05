@@ -94,7 +94,7 @@ module Packs
       def spec_pathname_for_app(pathname, file_extension)
         pathname
           .sub('/app/', '/spec/')
-          .sub(%r{^app/}, 'spec/')
+          .sub(%r(\Aapp/), 'spec/')
           .sub(".#{file_extension}", '_spec.rb')
       end
 
@@ -102,7 +102,7 @@ module Packs
       def spec_pathname_for_non_app(pathname, file_extension, folder)
         pathname
           .sub("/#{folder}/", "/spec/#{folder}/")
-          .sub(%r{^#{folder}/}, "spec/#{folder}/")
+          .sub(%r(\A#{folder}/), "spec/#{folder}/")
           .sub(".#{file_extension}", '_spec.rb')
       end
 

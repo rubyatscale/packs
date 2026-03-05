@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   # https://guides.rubygems.org/make-your-own-gem/#adding-an-executable
   # and
   # https://bundler.io/blog/2015/03/20/moving-bins-to-exe.html
-  spec.executables = %w[packs]
+  spec.executables = %w(packs)
 
   spec.add_dependency 'bigdecimal'
   spec.add_dependency 'code_ownership', '>= 1.33.0'
@@ -45,6 +45,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop-gusto'
   spec.add_development_dependency 'sorbet'
   spec.add_development_dependency 'sorbet-static'
   spec.add_development_dependency 'spoom'

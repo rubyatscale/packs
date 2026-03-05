@@ -1,19 +1,19 @@
 # typed: false
 
 RSpec.describe Packs do
-  def expect_files_to_exist(files)
+  define_method(:expect_files_to_exist) do |files|
     files.each do |file|
-      expect(File.file?(file)).to (eq true), "Test failed: expected #{file} to now exist, but it does not"
+      expect(File.file?(file)).to (be true), "Test failed: expected #{file} to now exist, but it does not"
     end
   end
 
-  def expect_files_to_not_exist(files)
+  define_method(:expect_files_to_not_exist) do |files|
     files.each do |file|
-      expect(File.file?(file)).to (eq false), "Test failed: expected #{file} to no longer exist, since it should have been moved"
+      expect(File.file?(file)).to (be false), "Test failed: expected #{file} to no longer exist, since it should have been moved"
     end
   end
 
-  def write_codeownership_config
+  define_method(:write_codeownership_config) do
     write_file('config/code_ownership.yml', <<~CONTENTS)
       owned_globs:
         - '{app,components,config,frontend,lib,packs,spec}/**/*.{rb,rake,js,jsx,ts,tsx}'
@@ -55,9 +55,9 @@ RSpec.describe Packs do
         ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/my_pack')
         expect(package.name).to eq('packs/my_pack')
-        expect(package.enforce_dependencies).to eq(true)
-        expect(package.enforce_privacy).to eq(false)
-        expect(package.enforce_layers).to eq(true)
+        expect(package.enforce_dependencies).to be(true)
+        expect(package.enforce_privacy).to be(false)
+        expect(package.enforce_layers).to be(true)
         expect(package.dependencies).to eq([])
         expect(package.config['owner']).to eq('MyTeam')
         expect(package.metadata).to eq({})
@@ -90,9 +90,9 @@ RSpec.describe Packs do
       ParsePackwerk.bust_cache!
       package = ParsePackwerk.find('packs/my_pack')
       expect(package.name).to eq('packs/my_pack')
-      expect(package.enforce_dependencies).to eq(true)
-      expect(package.enforce_privacy).to eq(true)
-      expect(package.enforce_layers).to eq(false)
+      expect(package.enforce_dependencies).to be(true)
+      expect(package.enforce_privacy).to be(true)
+      expect(package.enforce_layers).to be(false)
       expect(package.dependencies).to eq([])
       expect(package.config['owner']).to eq('MyTeam')
       expect(package.metadata).to eq({})
@@ -112,9 +112,9 @@ RSpec.describe Packs do
         ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/my_pack')
         expect(package.name).to eq('packs/my_pack')
-        expect(package.enforce_privacy).to eq(true)
-        expect(package.enforce_layers).to eq(false)
-        expect(package.enforce_dependencies).to eq(true)
+        expect(package.enforce_privacy).to be(true)
+        expect(package.enforce_layers).to be(false)
+        expect(package.enforce_dependencies).to be(true)
         expect(package.dependencies).to eq([])
         expect(package.metadata).to eq({})
 
@@ -163,8 +163,8 @@ RSpec.describe Packs do
         package = ParsePackwerk.find('packs/food')
 
         expect(package.name).to eq('packs/food')
-        expect(package.enforce_privacy).to eq(false)
-        expect(package.enforce_dependencies).to eq(true)
+        expect(package.enforce_privacy).to be(false)
+        expect(package.enforce_dependencies).to be(true)
         expect(package.dependencies).to eq(['packs/some_other_pack'])
       end
     end
@@ -216,8 +216,8 @@ RSpec.describe Packs do
         ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/fruits/apples')
         expect(package.name).to eq('packs/fruits/apples')
-        expect(package.enforce_privacy).to eq(true)
-        expect(package.enforce_dependencies).to eq(true)
+        expect(package.enforce_privacy).to be(true)
+        expect(package.enforce_dependencies).to be(true)
         expect(package.dependencies).to eq([])
         expect(package.config['owner']).to eq('MyTeam')
         expect(package.metadata).to eq({})
@@ -259,8 +259,8 @@ RSpec.describe Packs do
         it 'adds a public directory' do
           Packs.create_pack!(pack_name: 'packs/organisms')
           public_directory = Pathname.new('packs/organisms/app/public')
-          expect(public_directory.exist?).to eq true
-          expect(public_directory.join('organisms').exist?).to eq true
+          expect(public_directory.exist?).to be true
+          expect(public_directory.join('organisms').exist?).to be true
         end
 
         context 'pack not enforcing privacy' do
@@ -269,9 +269,9 @@ RSpec.describe Packs do
 
             ParsePackwerk.bust_cache!
             package = ParsePackwerk.find('packs/organisms')
-            expect(package.enforce_privacy).to eq(false)
+            expect(package.enforce_privacy).to be(false)
             public_directory = Pathname.new('packs/organisms/app/public')
-            expect(public_directory.exist?).to eq false
+            expect(public_directory.exist?).to be false
           end
         end
       end
@@ -281,7 +281,7 @@ RSpec.describe Packs do
           write_file('packs/organisms/app/public/my_public_api.rb')
           Packs.create_pack!(pack_name: 'packs/organisms')
           todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
-          expect(todo_file.exist?).to eq false
+          expect(todo_file.exist?).to be false
         end
       end
     end
@@ -324,7 +324,7 @@ RSpec.describe Packs do
           Packs.create_pack!(pack_name: 'packs/organisms')
           actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
           expect(actual_readme.read).to eq expected_readme
-          expect(readme_todo.exist?).to eq false
+          expect(readme_todo.exist?).to be false
         end
       end
 
@@ -394,15 +394,19 @@ RSpec.describe Packs do
           paths_relative_to_root: ['app/services/horse_like/donkey.rb']
         )
 
-        expect_files_to_not_exist([
-                                    'app/services/horse_like/donkey.rb',
-                                    'spec/services/horse_like/donkey_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'app/services/horse_like/donkey.rb',
+  'spec/services/horse_like/donkey_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/animals/app/services/horse_like/donkey.rb',
-                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/animals/app/services/horse_like/donkey.rb',
+  'packs/animals/spec/services/horse_like/donkey_spec.rb',
+]
+)
       end
 
       it 'can move files from non-pack packages into a pack' do
@@ -431,15 +435,19 @@ RSpec.describe Packs do
           paths_relative_to_root: ['app/services/horse_like']
         )
 
-        expect_files_to_not_exist([
-                                    'app/services/horse_like/donkey.rb',
-                                    'spec/services/horse_like/donkey_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'app/services/horse_like/donkey.rb',
+  'spec/services/horse_like/donkey_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/animals/app/services/horse_like/donkey.rb',
-                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/animals/app/services/horse_like/donkey.rb',
+  'packs/animals/spec/services/horse_like/donkey_spec.rb',
+]
+)
       end
 
       it 'can move files from a parent pack to another parent pack' do
@@ -454,15 +462,19 @@ RSpec.describe Packs do
           paths_relative_to_root: ['packs/organisms/app/services/horse_like/donkey.rb']
         )
 
-        expect_files_to_not_exist([
-                                    'packs/organisms/app/services/horse_like/donkey.rb',
-                                    'packs/organisms/spec/services/horse_like/donkey_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'packs/organisms/app/services/horse_like/donkey.rb',
+  'packs/organisms/spec/services/horse_like/donkey_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/animals/app/services/horse_like/donkey.rb',
-                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/animals/app/services/horse_like/donkey.rb',
+  'packs/animals/spec/services/horse_like/donkey_spec.rb',
+]
+)
       end
 
       it 'can move files from a child pack to a parent pack' do
@@ -477,15 +489,19 @@ RSpec.describe Packs do
           paths_relative_to_root: ['packs/animals/horse_like/app/services/horse_like/donkey.rb']
         )
 
-        expect_files_to_not_exist([
-                                    'packs/animals/horse_like/app/services/horse_like/donkey.rb',
-                                    'packs/animals/horse_like/spec/services/horse_like/donkey_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'packs/animals/horse_like/app/services/horse_like/donkey.rb',
+  'packs/animals/horse_like/spec/services/horse_like/donkey_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/animals/app/services/horse_like/donkey.rb',
-                                'packs/animals/spec/services/horse_like/donkey_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/animals/app/services/horse_like/donkey.rb',
+  'packs/animals/spec/services/horse_like/donkey_spec.rb',
+]
+)
       end
 
       context 'directory moves have trailing slashes' do
@@ -501,15 +517,19 @@ RSpec.describe Packs do
             paths_relative_to_root: ['packs/organisms/app/services/horse_like/']
           )
 
-          expect_files_to_not_exist([
-                                      'packs/organisms/app/services/horse_like/donkey.rb',
-                                      'packs/organisms/spec/services/horse_like/donkey_spec.rb'
-                                    ])
+          expect_files_to_not_exist(
+[
+  'packs/organisms/app/services/horse_like/donkey.rb',
+  'packs/organisms/spec/services/horse_like/donkey_spec.rb',
+]
+)
 
-          expect_files_to_exist([
-                                  'packs/animals/app/services/horse_like/donkey.rb',
-                                  'packs/animals/spec/services/horse_like/donkey_spec.rb'
-                                ])
+          expect_files_to_exist(
+[
+  'packs/animals/app/services/horse_like/donkey.rb',
+  'packs/animals/spec/services/horse_like/donkey_spec.rb',
+]
+)
         end
       end
 
@@ -525,21 +545,25 @@ RSpec.describe Packs do
           Packs.move_to_pack!(
             pack_name: 'packs/food',
             paths_relative_to_root: [
-              'packs/organisms/app/services'
+              'packs/organisms/app/services',
             ]
           )
 
-          expect_files_to_not_exist([
-                                      'packs/organisms/app/services/sunflower.rb',
-                                      'packs/organisms/app/services/apple.rb'
-                                    ])
+          expect_files_to_not_exist(
+[
+  'packs/organisms/app/services/sunflower.rb',
+  'packs/organisms/app/services/apple.rb',
+]
+)
 
-          expect_files_to_exist([
-                                  'packs/food/app/services/salad.rb',
-                                  'packs/food/app/services/tomato.rb',
-                                  'packs/food/app/services/sunflower.rb',
-                                  'packs/food/app/services/apple.rb'
-                                ])
+          expect_files_to_exist(
+[
+  'packs/food/app/services/salad.rb',
+  'packs/food/app/services/tomato.rb',
+  'packs/food/app/services/sunflower.rb',
+  'packs/food/app/services/apple.rb',
+]
+)
         end
       end
 
@@ -553,14 +577,16 @@ RSpec.describe Packs do
           Packs.move_to_pack!(
             pack_name: 'packs/food',
             paths_relative_to_root: [
-              'packs/organisms/app/services'
+              'packs/organisms/app/services',
             ]
           )
 
-          expect_files_to_exist([
-                                  'packs/food/app/services/salad.rb',
-                                  'packs/organisms/app/services/salad.rb'
-                                ])
+          expect_files_to_exist(
+[
+  'packs/food/app/services/salad.rb',
+  'packs/organisms/app/services/salad.rb',
+]
+)
         end
       end
 
@@ -577,23 +603,27 @@ RSpec.describe Packs do
             pack_name: 'packs/my_pack',
             paths_relative_to_root: [
               'lib/tasks/my_task.rake',
-              'packs/organisms/lib/tasks/my_other_task.rake'
+              'packs/organisms/lib/tasks/my_other_task.rake',
             ]
           )
 
-          expect_files_to_not_exist([
-                                      'lib/tasks/my_task.rake',
-                                      'spec/lib/tasks/my_task_spec.rb',
-                                      'packs/organisms/lib/tasks/my_other_task.rake',
-                                      'packs/organisms/spec/lib/tasks/my_other_task_spec.rb'
-                                    ])
+          expect_files_to_not_exist(
+[
+  'lib/tasks/my_task.rake',
+  'spec/lib/tasks/my_task_spec.rb',
+  'packs/organisms/lib/tasks/my_other_task.rake',
+  'packs/organisms/spec/lib/tasks/my_other_task_spec.rb',
+]
+)
 
-          expect_files_to_exist([
-                                  'packs/my_pack/lib/tasks/my_task.rake',
-                                  'packs/my_pack/spec/lib/tasks/my_task_spec.rb',
-                                  'packs/my_pack/lib/tasks/my_other_task.rake',
-                                  'packs/my_pack/spec/lib/tasks/my_other_task_spec.rb'
-                                ])
+          expect_files_to_exist(
+[
+  'packs/my_pack/lib/tasks/my_task.rake',
+  'packs/my_pack/spec/lib/tasks/my_task_spec.rb',
+  'packs/my_pack/lib/tasks/my_other_task.rake',
+  'packs/my_pack/spec/lib/tasks/my_other_task_spec.rb',
+]
+)
         end
       end
 
@@ -607,19 +637,23 @@ RSpec.describe Packs do
           Packs.move_to_pack!(
             pack_name: 'packs/my_pack',
             paths_relative_to_root: [
-              'packs/organisms/lib/my_ruby_file.rb'
+              'packs/organisms/lib/my_ruby_file.rb',
             ]
           )
 
-          expect_files_to_not_exist([
-                                      'packs/organisms/lib/my_ruby_file.rb',
-                                      'packs/organisms/spec/lib/my_ruby_file_spec.rb'
-                                    ])
+          expect_files_to_not_exist(
+[
+  'packs/organisms/lib/my_ruby_file.rb',
+  'packs/organisms/spec/lib/my_ruby_file_spec.rb',
+]
+)
 
-          expect_files_to_exist([
-                                  'packs/my_pack/lib/my_ruby_file.rb',
-                                  'packs/my_pack/spec/lib/my_ruby_file_spec.rb'
-                                ])
+          expect_files_to_exist(
+[
+  'packs/my_pack/lib/my_ruby_file.rb',
+  'packs/my_pack/spec/lib/my_ruby_file_spec.rb',
+]
+)
         end
       end
 
@@ -759,15 +793,19 @@ RSpec.describe Packs do
           paths_relative_to_root: ['app/services/mcintosh.rb'],
           pack_name: 'packs/fruits/apples'
         )
-        expect_files_to_not_exist([
-                                    'app/services/mcintosh.rb',
-                                    'spec/services/mcintosh_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'app/services/mcintosh.rb',
+  'spec/services/mcintosh_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/fruits/apples/app/services/mcintosh.rb',
-                                'packs/fruits/apples/spec/services/mcintosh_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/fruits/apples/app/services/mcintosh.rb',
+  'packs/fruits/apples/spec/services/mcintosh_spec.rb',
+]
+)
       end
 
       it 'can move files from a parent pack to a child pack' do
@@ -780,15 +818,19 @@ RSpec.describe Packs do
           paths_relative_to_root: ['packs/fruits/app/services/mcintosh.rb'],
           pack_name: 'packs/fruits/apples'
         )
-        expect_files_to_not_exist([
-                                    'packs/fruits/app/services/mcintosh.rb',
-                                    'packs/fruits/spec/services/mcintosh_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'packs/fruits/app/services/mcintosh.rb',
+  'packs/fruits/spec/services/mcintosh_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/fruits/apples/app/services/mcintosh.rb',
-                                'packs/fruits/apples/spec/services/mcintosh_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/fruits/apples/app/services/mcintosh.rb',
+  'packs/fruits/apples/spec/services/mcintosh_spec.rb',
+]
+)
       end
     end
 
@@ -824,7 +866,7 @@ RSpec.describe Packs do
             paths_relative_to_root: ['app/services/foo.rb']
           )
 
-          expect(Pathname.new('packs/organisms/app/public/organisms').exist?).to eq true
+          expect(Pathname.new('packs/organisms/app/public/organisms').exist?).to be true
         end
 
         context 'pack not enforcing privacy' do
@@ -837,7 +879,7 @@ RSpec.describe Packs do
             )
 
             todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
-            expect(todo_file.exist?).to eq false
+            expect(todo_file.exist?).to be false
           end
         end
       end
@@ -853,7 +895,7 @@ RSpec.describe Packs do
           )
 
           todo_file = Pathname.new('packs/organisms/app/public/TODO.md')
-          expect(todo_file.exist?).to eq false
+          expect(todo_file.exist?).to be false
         end
       end
     end
@@ -904,7 +946,7 @@ RSpec.describe Packs do
           )
           actual_readme = ParsePackwerk.find('packs/organisms').directory.join('README.md')
           expect(actual_readme.read).to eq expected_readme
-          expect(readme_todo.exist?).to eq false
+          expect(readme_todo.exist?).to be false
         end
       end
 
@@ -933,15 +975,19 @@ RSpec.describe Packs do
         paths_relative_to_root: ['app/services/horse_like/donkey.rb']
       )
 
-      expect_files_to_not_exist([
-                                  'app/services/horse_like/donkey.rb',
-                                  'spec/services/horse_like/donkey_spec.rb'
-                                ])
+      expect_files_to_not_exist(
+[
+  'app/services/horse_like/donkey.rb',
+  'spec/services/horse_like/donkey_spec.rb',
+]
+)
 
-      expect_files_to_exist([
-                              'app/public/horse_like/donkey.rb',
-                              'spec/public/horse_like/donkey_spec.rb'
-                            ])
+      expect_files_to_exist(
+[
+  'app/public/horse_like/donkey.rb',
+  'spec/public/horse_like/donkey_spec.rb',
+]
+)
     end
 
     it 'can make directories in the monolith and their specs public' do
@@ -954,19 +1000,23 @@ RSpec.describe Packs do
         paths_relative_to_root: ['app/services/fish_like']
       )
 
-      expect_files_to_not_exist([
-                                  'app/services/fish_like/small_ones/goldfish.rb',
-                                  'app/services/fish_like/small_ones/seahorse.rb',
-                                  'app/services/fish_like/big_ones/whale.rb',
-                                  'spec/services/fish_like/big_ones/whale_spec.rb'
-                                ])
+      expect_files_to_not_exist(
+[
+  'app/services/fish_like/small_ones/goldfish.rb',
+  'app/services/fish_like/small_ones/seahorse.rb',
+  'app/services/fish_like/big_ones/whale.rb',
+  'spec/services/fish_like/big_ones/whale_spec.rb',
+]
+)
 
-      expect_files_to_exist([
-                              'app/public/fish_like/small_ones/goldfish.rb',
-                              'app/public/fish_like/small_ones/seahorse.rb',
-                              'app/public/fish_like/big_ones/whale.rb',
-                              'spec/public/fish_like/big_ones/whale_spec.rb'
-                            ])
+      expect_files_to_exist(
+[
+  'app/public/fish_like/small_ones/goldfish.rb',
+  'app/public/fish_like/small_ones/seahorse.rb',
+  'app/public/fish_like/big_ones/whale.rb',
+  'spec/public/fish_like/big_ones/whale_spec.rb',
+]
+)
     end
 
     it 'can make files in a nested pack public' do
@@ -979,15 +1029,19 @@ RSpec.describe Packs do
         paths_relative_to_root: ['packs/fruits/apples/app/services/apple.rb']
       )
 
-      expect_files_to_not_exist([
-                                  'packs/fruits/apples/app/services/apple.rb',
-                                  'packs/fruits/apples/spec/services/apple_spec.rb'
-                                ])
+      expect_files_to_not_exist(
+[
+  'packs/fruits/apples/app/services/apple.rb',
+  'packs/fruits/apples/spec/services/apple_spec.rb',
+]
+)
 
-      expect_files_to_exist([
-                              'packs/fruits/apples/app/public/apple.rb',
-                              'packs/fruits/apples/spec/public/apple_spec.rb'
-                            ])
+      expect_files_to_exist(
+[
+  'packs/fruits/apples/app/public/apple.rb',
+  'packs/fruits/apples/spec/public/apple_spec.rb',
+]
+)
     end
 
     context 'pack has empty public directory' do
@@ -1000,15 +1054,19 @@ RSpec.describe Packs do
           paths_relative_to_root: ['packs/organisms/app/services/other_bird.rb']
         )
 
-        expect_files_to_not_exist([
-                                    'packs/organisms/app/services/other_bird.rb',
-                                    'packs/organisms/spec/services/other_bird_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'packs/organisms/app/services/other_bird.rb',
+  'packs/organisms/spec/services/other_bird_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/organisms/app/public/other_bird.rb',
-                                'packs/organisms/spec/public/other_bird_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/organisms/app/public/other_bird.rb',
+  'packs/organisms/spec/public/other_bird_spec.rb',
+]
+)
       end
 
       it 'replaces the file in the top-level .rubocop_todo.yml' do
@@ -1051,16 +1109,20 @@ RSpec.describe Packs do
           paths_relative_to_root: ['packs/organisms/app/services/other_bird.rb']
         )
 
-        expect_files_to_not_exist([
-                                    'packs/organisms/app/services/other_bird.rb',
-                                    'packs/organisms/spec/services/other_bird_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'packs/organisms/app/services/other_bird.rb',
+  'packs/organisms/spec/services/other_bird_spec.rb',
+]
+)
 
-        expect_files_to_exist([
-                                'packs/organisms/app/public/swan.rb',
-                                'packs/organisms/app/public/other_bird.rb',
-                                'packs/organisms/spec/public/other_bird_spec.rb'
-                              ])
+        expect_files_to_exist(
+[
+  'packs/organisms/app/public/swan.rb',
+  'packs/organisms/app/public/other_bird.rb',
+  'packs/organisms/spec/public/other_bird_spec.rb',
+]
+)
       end
     end
 
@@ -1092,20 +1154,22 @@ RSpec.describe Packs do
         Packs.make_public!(
           paths_relative_to_root: [
             'packs/food/app/services/salad.rb',
-            'packs/food/app/services/salad_dressing.rb'
+            'packs/food/app/services/salad_dressing.rb',
           ]
         )
 
-        expect_files_to_not_exist([
-                                    'packs/food/app/services/salad_dressing.rb',
-                                    'packs/food/spec/services/salad_dressing_spec.rb'
-                                  ])
+        expect_files_to_not_exist(
+[
+  'packs/food/app/services/salad_dressing.rb',
+  'packs/food/spec/services/salad_dressing_spec.rb',
+]
+)
 
         expected_files_after = [
           'packs/food/app/public/salad.rb',
           'packs/food/spec/public/salad_spec.rb',
           'packs/food/app/services/salad.rb',
-          'packs/food/spec/services/salad_spec.rb'
+          'packs/food/spec/services/salad_spec.rb',
         ]
 
         expect_files_to_exist expected_files_after
@@ -1216,21 +1280,25 @@ RSpec.describe Packs do
       expect(actual_package.metadata['custom_field']).to eq 'custom value'
       expect(actual_package.dependencies).to eq(['packs/other_pack'])
 
-      expect_files_to_exist([
-                              'packs/fruits/apples/app/services/apples/some_yml.yml',
-                              'packs/fruits/apples/app/services/apples.rb',
-                              'packs/fruits/apples/app/services/apples/foo.rb',
-                              'packs/fruits/apples/README.md'
-                            ])
+      expect_files_to_exist(
+[
+  'packs/fruits/apples/app/services/apples/some_yml.yml',
+  'packs/fruits/apples/app/services/apples.rb',
+  'packs/fruits/apples/app/services/apples/foo.rb',
+  'packs/fruits/apples/README.md',
+]
+)
 
-      expect_files_to_not_exist([
-                                  'packs/apples/app/services/apples/some_yml.yml',
-                                  'packs/apples/app/services/apples.rb',
-                                  'packs/apples/app/services/apples/foo.rb',
-                                  'packs/apples/package.yml',
-                                  'packs/apples/package_todo.yml',
-                                  'packs/apples/README.md'
-                                ])
+      expect_files_to_not_exist(
+[
+  'packs/apples/app/services/apples/some_yml.yml',
+  'packs/apples/app/services/apples.rb',
+  'packs/apples/app/services/apples/foo.rb',
+  'packs/apples/package.yml',
+  'packs/apples/package_todo.yml',
+  'packs/apples/README.md',
+]
+)
 
       expect(Pathname.new('packs/apples')).to exist
 
@@ -1538,21 +1606,25 @@ RSpec.describe Packs do
       expect(actual_package.metadata['custom_field']).to eq 'custom value'
       expect(actual_package.dependencies).to eq(['packs/other_pack'])
 
-      expect_files_to_exist([
-                              'packs/fruits/apples/app/services/apples/some_yml.yml',
-                              'packs/fruits/apples/app/services/apples.rb',
-                              'packs/fruits/apples/app/services/apples/foo.rb',
-                              'packs/fruits/apples/README.md'
-                            ])
+      expect_files_to_exist(
+[
+  'packs/fruits/apples/app/services/apples/some_yml.yml',
+  'packs/fruits/apples/app/services/apples.rb',
+  'packs/fruits/apples/app/services/apples/foo.rb',
+  'packs/fruits/apples/README.md',
+]
+)
 
-      expect_files_to_not_exist([
-                                  'packs/apples/app/services/apples/some_yml.yml',
-                                  'packs/apples/app/services/apples.rb',
-                                  'packs/apples/app/services/apples/foo.rb',
-                                  'packs/apples/package.yml',
-                                  'packs/apples/package_todo.yml',
-                                  'packs/apples/README.md'
-                                ])
+      expect_files_to_not_exist(
+[
+  'packs/apples/app/services/apples/some_yml.yml',
+  'packs/apples/app/services/apples.rb',
+  'packs/apples/app/services/apples/foo.rb',
+  'packs/apples/package.yml',
+  'packs/apples/package_todo.yml',
+  'packs/apples/README.md',
+]
+)
 
       expect(Pathname.new('packs/apples')).to exist
       expect(Pathname.new('packs/fruits/apples')).to exist
@@ -1717,7 +1789,7 @@ RSpec.describe Packs do
       it 'exits in a failure' do
         callback_invocation = false
         Packs.configure do |config|
-          config.on_package_todo_lint_failure = ->(output) { callback_invocation = output }
+          config.on_package_todo_lint_failure = -> (output) { callback_invocation = output }
         end
         write_file('packs/my_pack/package.yml', <<~CONTENTS)
           enforce_privacy: true

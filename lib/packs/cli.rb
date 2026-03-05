@@ -39,7 +39,7 @@ module Packs
       exit_successfully
     end
 
-    POSIBLE_TYPES = T.let(%w[dependency privacy layer], T::Array[String])
+    POSIBLE_TYPES = T.let(%w(dependency privacy layer).freeze, T::Array[String])
     desc 'list_top_violations type [ packs/your_pack ]', 'List the top violations of a specific type for packs/your_pack.'
     long_desc <<~LONG_DESC
       Possible types are: #{POSIBLE_TYPES.join(', ')}.
@@ -179,12 +179,12 @@ module Packs
     # This is used by thor to know that these private methods are not intended to be CLI commands
     no_commands do
       sig { params(pack_names: T::Array[String]).returns(T::Array[Packs::Pack]) }
-      def parse_pack_names(pack_names)
-        pack_names.empty? ? Packs.all : pack_names.map { |p| Packs.find(p.gsub(%r{/$}, '')) }.compact
+      define_method(:parse_pack_names) do |pack_names|
+        pack_names.empty? ? Packs.all : pack_names.filter_map { |p| Packs.find(p.delete_suffix('/')) }
       end
 
       sig { void }
-      def exit_successfully
+      define_method(:exit_successfully) do
         Private.exit_with(true)
       end
     end

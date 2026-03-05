@@ -1,11 +1,11 @@
 # typed: false
 
 RSpec.describe Packs::CLI do
-  def expect_success
+  define_method(:expect_success) do
     expect(Packs.const_get(:Private)).to receive(:exit_with).with(true)
   end
 
-  def expect_failure
+  define_method(:expect_failure) do
     expect(Packs.const_get(:Private)).to receive(:exit_with).with(false)
   end
 

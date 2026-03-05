@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'tty/prompt/test'
@@ -17,6 +18,7 @@ module Packs
 
   RSpec.describe Private::InteractiveCli do
     let(:prompt) { TTY::Prompt::Test.new }
+
     subject do
       Private::InteractiveCli.start!(prompt: prompt)
     end
@@ -127,7 +129,7 @@ module Packs
 
     it 'allows moving a pack to a folder' do
       write_package_yml('packs/my_pack')
-      `mkdir packs/utilities/`
+      %x(mkdir packs/utilities/)
       prompt.input << INPUTS::DOWN
       prompt.input << INPUTS::DOWN
       prompt.input << INPUTS::RETURN
