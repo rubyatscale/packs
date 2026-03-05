@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
           'public gem pushes.'
   end
 
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.6.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.2')
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir['README.md', 'lib/**/*', 'bin/**/*']
 
@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'tty-prompt'
 
   # rubocop:disable Gemspec/DevelopmentDependencies
-  spec.add_development_dependency 'bundler', '~> 2.2'
+  spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rake'
@@ -47,7 +47,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'sorbet'
   spec.add_development_dependency 'sorbet-static'
-  spec.add_development_dependency 'spoom', '1.2.1' # later versions do not support ruby 2.7
+  spec.add_development_dependency 'spoom'
   spec.add_development_dependency 'tapioca'
   # rubocop:enable Gemspec/DevelopmentDependencies
 end

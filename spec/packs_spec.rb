@@ -182,7 +182,7 @@ RSpec.describe Packs do
     context 'team owner is provided' do
       it 'automatically adds the owner top-level key' do
         write_codeownership_config
-        write_file('config/teams/artists.yml', 'name: Artists')
+        write_file('config/teams/artists.yml', "name: Artists\ngithub:\n  team: '@artists'\n")
         Packs.create_pack!(pack_name: 'packs/my_pack', team: CodeTeams.find('Artists'))
         ParsePackwerk.bust_cache!
         package = ParsePackwerk.find('packs/my_pack')
@@ -682,7 +682,7 @@ RSpec.describe Packs do
         it 'prints out the right ownership' do
           write_package_yml('packs/owned_by_artists', owner: 'Artists')
           write_file('packs/owned_by_artists/app/services/foo.rb')
-          write_file('config/teams/artists.yml', 'name: Artists')
+          write_file('config/teams/artists.yml', "name: Artists\ngithub:\n  team: '@artists'\n")
 
           logged_output = ''
 
@@ -709,9 +709,9 @@ RSpec.describe Packs do
           write_codeownership_config
 
           write_package_yml('packs/owned_by_artists', owner: 'Artists')
-          write_file('app/services/foo.rb', '# @team Chefs')
-          write_file('config/teams/artists.yml', 'name: Artists')
-          write_file('config/teams/chefs.yml', 'name: Chefs')
+          write_file('app/services/foo.rb', "# @team Chefs\n")
+          write_file('config/teams/artists.yml', "name: Artists\ngithub:\n  team: '@artists'\n")
+          write_file('config/teams/chefs.yml', "name: Chefs\ngithub:\n  team: '@chefs'\n")
 
           logged_output = ''
 
@@ -1801,9 +1801,9 @@ RSpec.describe Packs do
           enforce_privacy: true
           owner: Bar
           dependencies:
-            - packs/apack
-            - packs/bpack
-            - packs/cpack
+          - packs/apack
+          - packs/bpack
+          - packs/cpack
         YML
       end
     end
@@ -1845,20 +1845,20 @@ RSpec.describe Packs do
           owner: Benefits Plan Recommendations
           layer: product
           dependencies:
-            - gems/carrier_metadata
-            - packs/authorizations
-            - packs/carrier_registry
-            - packs/demographics
-            - packs/feature_flags
-            - packs/metrics
-            - packs/rails_shims
-            - packs/underwriting_rules
-            - packs/versions
+          - gems/carrier_metadata
+          - packs/authorizations
+          - packs/carrier_registry
+          - packs/demographics
+          - packs/feature_flags
+          - packs/metrics
+          - packs/rails_shims
+          - packs/underwriting_rules
+          - packs/versions
           ignored_dependencies:
-            - packs/carrier_implementation_setup
-            - packs/integrations
+          - packs/carrier_implementation_setup
+          - packs/integrations
           visible_to:
-            - packs/benefits_applications
+          - packs/benefits_applications
           metadata:
             product_group: plan_recommendation_engine
         YML

@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 # The behavior of RuboCop can be controlled via the .rubocop.yml
 # configuration file. It makes it possible to enable/disable
 # certain cops (checks) and to alter their behavior if they accept
@@ -13,7 +15,7 @@ AllCops:
   SuggestExtensions: false
   Exclude:
     - vendor/bundle/**/**
-  TargetRubyVersion: 2.6.0
+  TargetRubyVersion: 3.2
 
 Metrics/ParameterLists:
   Enabled: false

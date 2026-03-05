@@ -53,6 +53,9 @@ bin/packwerk init
 ## Describe available commands or one specific command
 `bin/packs help [COMMAND]`
 
+## Print a tree of all available commands
+`bin/packs tree`
+
 ## Create pack with name packs/your_pack
 `bin/packs create packs/your_pack`
 
