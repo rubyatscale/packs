@@ -1,10 +1,23 @@
 gem:
   # Add your `gem` command parameters here:
   #
-  # exclude:
-  # - gem_name
   # doc: true
   # workers: 5
+  exclude:
+    # These gems have shims provided by sorbet itself in
+    # https://github.com/sorbet/sorbet/tree/master/rbi
+    - base64
+    - benchmark
+    - bigdecimal
+    - drb
+    - json
+    - logger
+    - racc
+    - reline
+    - rexml
+    - securerandom
+    - tsort
+    - uri
 dsl:
   # Add your `dsl` command parameters here:
   #
