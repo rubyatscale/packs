@@ -14,12 +14,13 @@ Gusto/NoMetaprogramming:
     - 'spec/packs/private/cli_spec.rb'
     - 'spec/packs_spec.rb'
 
-# Offense count: 2
+# Offense count: 4
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowedPatterns.
 Sorbet/BlockMethodDefinition:
   Exclude:
     - 'lib/packs/cli.rb'
+    - 'spec/packs/private/cli_spec.rb'
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
