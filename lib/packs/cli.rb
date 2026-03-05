@@ -39,10 +39,10 @@ module Packs
       exit_successfully
     end
 
-    POSIBLE_TYPES = T.let(%w[dependency privacy layer], T::Array[String])
+    POSSIBLE_TYPES = T.let(%w[dependency privacy layer], T::Array[String])
     desc 'list_top_violations type [ packs/your_pack ]', 'List the top violations of a specific type for packs/your_pack.'
     long_desc <<~LONG_DESC
-      Possible types are: #{POSIBLE_TYPES.join(', ')}.
+      Possible types are: #{POSSIBLE_TYPES.join(', ')}.
 
       Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way? You can use this command to list the top dependency violations.
 
@@ -60,7 +60,7 @@ module Packs
       ).void
     end
     def list_top_violations(type, pack_name = nil)
-      raise StandardError, "Invalid type #{type}. Possible types are: #{POSIBLE_TYPES.join(', ')}" unless POSIBLE_TYPES.include?(type)
+      raise StandardError, "Invalid type #{type}. Possible types are: #{POSSIBLE_TYPES.join(', ')}" unless POSSIBLE_TYPES.include?(type)
 
       Packs.list_top_violations(
         type: type,
@@ -135,8 +135,8 @@ module Packs
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
       selected_types = options[:types].to_s.downcase.split(',')
-      invalid_types = selected_types - POSIBLE_TYPES
-      raise StandardError, "Invalid type(s): #{invalid_types.join(', ')}. Possible types are: #{POSIBLE_TYPES.join(', ')}" unless invalid_types.empty?
+      invalid_types = selected_types - POSSIBLE_TYPES
+      raise StandardError, "Invalid type(s): #{invalid_types.join(', ')}. Possible types are: #{POSSIBLE_TYPES.join(', ')}" unless invalid_types.empty?
 
       Private.get_info(
         packs: parse_pack_names(pack_names),

@@ -530,7 +530,7 @@ module Packs
     def self.bust_cache!
       Packs.config.bust_cache!
       # This comes explicitly after `Packs.config.bust_cache!` because
-      # otherwise `Packs.config` will attempt to reload the client configuratoin.
+      # otherwise `Packs.config` will attempt to reload the client configuration.
       @loaded_client_configuration = false
     end
 
