@@ -1,10 +1,8 @@
-# AGENTS.md
-
 This file provides guidance to AI coding agents when working with code in this repository.
 
 ## What this project is
 
-`packs` is a Ruby gem that provides the specification and development CLI for the packs packaging system — a way to modularize Ruby applications. It provides `bin/packs` commands to create packs, add dependencies, and manage pack configuration.
+`packs` is a Ruby gem that provides the development CLI for the packs packaging system — a way to modularize Ruby applications. It provides `bin/packs` commands to create packs, move files between packs, add dependencies, and manage pack configuration.
 
 ## Commands
 
@@ -28,6 +26,7 @@ bundle exec srb tc
 ## Architecture
 
 - `lib/packs.rb` — public API entry point
-- `lib/packs/` — core classes: `Pack` (represents a single package), `Configuration`, `Formatter`, and CLI command implementations
-- `bin/packs` — CLI executable; uses the library to expose commands like `create`, `add_dependency`, `move`
-- `spec/` — RSpec tests; `spec/fixtures/` contains sample Ruby application structures used in integration tests
+- `lib/packs/` — core library: `Configuration`, `CLI` (Thor-based command definitions), post-processors (`RubocopPostProcessor`, `CodeOwnershipPostProcessor`, `UpdateReferencesPostProcessor`), and the `UserEventLogger` interface
+- `lib/packs/private/` — internal implementation; `interactive_cli/` contains the interactive TUI mode
+- `bin/packs` — CLI executable; runs the interactive mode when called with no arguments, otherwise dispatches to `Packs::CLI` commands like `create`, `add_dependency`, `move`, `validate`, `check`
+- `spec/` — RSpec tests; tests use temporary directories created via `packs/rspec/support` rather than static fixtures
