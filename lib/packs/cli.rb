@@ -39,7 +39,6 @@ module Packs
       exit_successfully
     end
 
-
     POSSIBLE_TYPES = T.let(%w(dependency privacy layer).freeze, T::Array[String])
     desc 'list_top_violations type [ packs/your_pack ]', 'List the top violations of a specific type for packs/your_pack.'
     long_desc <<~LONG_DESC
