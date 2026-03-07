@@ -25,7 +25,7 @@ module Packs
         replace_with: relative_path_to_destination
       )
 
-      team = CodeOwnership.for_file(relative_path_to_origin.to_s)
+      team = CodeOwnership.for_file(relative_path_to_origin.to_s, from_codeowners: false)
 
       if team
         @teams << team.name

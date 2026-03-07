@@ -19,7 +19,7 @@ module Packs
       destination_pack = T.must(file_move_operations.first).destination_pack.name
 
       if self.class.ripgrep_enabled?
-        matching_files = `rg -l --hidden '#{origin_pack}' .`
+        matching_files = %x(rg -l --hidden '#{origin_pack}' .)
         matching_files.split("\n").each do |file_name|
           substitute_references!(file_name, origin_pack, destination_pack)
         end

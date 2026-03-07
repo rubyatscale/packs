@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'tty/prompt/test'
@@ -14,7 +15,7 @@ module Packs
       expected = [
         'packs/admin',
         'packs/utilities',
-        'packs/utilities/subdir'
+        'packs/utilities/subdir',
       ]
 
       expect(prompt).to receive(:select) do |_, directories, _, _, _|

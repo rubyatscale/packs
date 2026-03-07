@@ -16,7 +16,7 @@ module Packs
               {
                 'Move a child pack to be nested under a parent pack' => :move_to_parent,
                 'Move a pack to a folder that is not a pack' =>
-                 :move_to_folder
+                 :move_to_folder,
               }
             )
 

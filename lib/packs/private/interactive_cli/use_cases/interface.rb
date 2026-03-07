@@ -23,10 +23,12 @@ module Packs
           end
 
           sig { abstract.params(prompt: TTY::Prompt).void }
-          def perform!(prompt); end
+          def perform!(prompt)
+          end
 
           sig { abstract.returns(String) }
-          def user_facing_name; end
+          def user_facing_name
+          end
         end
       end
     end
