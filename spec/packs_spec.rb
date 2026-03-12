@@ -418,14 +418,18 @@ RSpec.describe Packs do
           paths_relative_to_root: ['app/controllers/my_controller.rb']
         )
 
-        expect_files_to_not_exist([
-                                    'app/controllers/my_controller.rb',
-                                    'spec/requests/my_spec.rb'
-                                  ])
-        expect_files_to_exist([
-                                'packs/my_pack/app/controllers/my_controller.rb',
-                                'packs/my_pack/spec/requests/my_spec.rb'
-                              ])
+        expect_files_to_not_exist(
+          [
+            'app/controllers/my_controller.rb',
+            'spec/requests/my_spec.rb',
+          ]
+        )
+        expect_files_to_exist(
+          [
+            'packs/my_pack/app/controllers/my_controller.rb',
+            'packs/my_pack/spec/requests/my_spec.rb',
+          ]
+        )
       end
 
       it 'moves namespaced request spec when moving a namespaced controller' do
@@ -437,14 +441,18 @@ RSpec.describe Packs do
           paths_relative_to_root: ['app/controllers/api/v1/users_controller.rb']
         )
 
-        expect_files_to_not_exist([
-                                    'app/controllers/api/v1/users_controller.rb',
-                                    'spec/requests/api/v1/users_spec.rb'
-                                  ])
-        expect_files_to_exist([
-                                'packs/my_pack/app/controllers/api/v1/users_controller.rb',
-                                'packs/my_pack/spec/requests/api/v1/users_spec.rb'
-                              ])
+        expect_files_to_not_exist(
+          [
+            'app/controllers/api/v1/users_controller.rb',
+            'spec/requests/api/v1/users_spec.rb',
+          ]
+        )
+        expect_files_to_exist(
+          [
+            'packs/my_pack/app/controllers/api/v1/users_controller.rb',
+            'packs/my_pack/spec/requests/api/v1/users_spec.rb',
+          ]
+        )
       end
 
       it 'does not move a request spec when no file exists at spec/requests/<name>_spec.rb' do

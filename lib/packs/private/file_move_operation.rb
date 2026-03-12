@@ -72,7 +72,7 @@ module Packs
             origin_pathname: new_origin_pathname,
             destination_pathname: new_destination_pathname,
             destination_pack: destination_pack
-          )
+          ),
         ]
 
         # For controllers, also include the request spec (spec/requests/<name>_spec.rb) if it exists.
