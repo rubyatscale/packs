@@ -1041,6 +1041,29 @@ RSpec.describe Packs do
       )
     end
 
+    it 'makes a controller and its matching request spec public when spec/requests/<name>_spec.rb exists (name = controller minus "controller")' do
+      write_file('app/controllers/my_controller.rb')
+      write_file('spec/requests/my_spec.rb')
+
+      Packs.make_public!(
+        paths_relative_to_root: ['app/controllers/my_controller.rb']
+      )
+
+      expect_files_to_not_exist(
+        [
+          'app/controllers/my_controller.rb',
+          'spec/requests/my_spec.rb',
+        ]
+      )
+
+      expect_files_to_exist(
+        [
+          'app/public/my_controller.rb',
+          'spec/public/my_spec.rb',
+        ]
+      )
+    end
+
     it 'can make directories in the monolith and their specs public' do
       write_file('app/services/fish_like/small_ones/goldfish.rb')
       write_file('app/services/fish_like/small_ones/seahorse.rb')

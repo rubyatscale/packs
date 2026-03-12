@@ -123,6 +123,8 @@ module Packs
 
         pathname
           .sub('app/controllers/', 'spec/requests/')
+          .sub('/app/', '/spec/') # if destionation doesn't have controller subdirectory
+          .sub(%r(\Aapp/), 'spec/')
           .sub(/_controller\.rb\z/, '_spec.rb')
           .cleanpath
       end
