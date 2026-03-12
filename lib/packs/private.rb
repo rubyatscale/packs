@@ -22,7 +22,7 @@ module Packs
       # This results in the pack not being found, but when we write the package YML it writes to the same place,
       # causing a behaviorally confusing diff.
       # We ignore trailing slashes as an ergonomic feature to the user.
-      pack_name.gsub(%r{/$}, '')
+      pack_name.delete_suffix('/')
     end
 
     sig do
@@ -37,10 +37,12 @@ module Packs
       return if !file.exist?
 
       count = 0
-      file.write(file.read.gsub(find.to_s) do
-        count += 1
-        replace_with.to_s
-      end)
+      file.write(
+        file.read.gsub(find.to_s) do
+          count += 1
+          replace_with.to_s
+        end
+      )
       Logging.print "Replaced #{count} occurrence(s) of #{find} in #{file}" if count > 0
     end
 
@@ -131,7 +133,7 @@ module Packs
             )
             [
               file_move_operation,
-              *file_move_operation.spec_file_move_operations
+              *file_move_operation.spec_file_move_operations,
             ]
           end
           file_move_operations.each do |file_move_operation|
@@ -297,8 +299,8 @@ module Packs
         end
 
         if other_package.name == parent_name &&
-           !new_dependencies.include?(new_package_name) &&
-           !new_config['ignored_dependencies']&.include?(new_package_name)
+            !new_dependencies.include?(new_package_name) &&
+            !new_config['ignored_dependencies']&.include?(new_package_name)
           new_dependencies += [new_package_name]
         end
 
@@ -358,7 +360,7 @@ module Packs
 
             [
               file_move_operation,
-              *file_move_operation.spec_file_move_operations
+              *file_move_operation.spec_file_move_operations,
             ]
           end
 
@@ -488,7 +490,7 @@ module Packs
         # but we'll need to add an API to CodeOwnership to do this
         if Pathname.new('config/code_ownership.yml').exist?
           config = {
-            'owner' => team.nil? ? 'MyTeam' : team.name
+            'owner' => team.nil? ? 'MyTeam' : team.name,
           }
         else
           config = {}
@@ -530,7 +532,7 @@ module Packs
     def self.bust_cache!
       Packs.config.bust_cache!
       # This comes explicitly after `Packs.config.bust_cache!` because
-      # otherwise `Packs.config` will attempt to reload the client configuratoin.
+      # otherwise `Packs.config` will attempt to reload the client configuration.
       @loaded_client_configuration = false
     end
 
@@ -559,7 +561,7 @@ module Packs
         write_package_todo_to_tmp_folder(before, dir_containing_contents_before)
         write_package_todo_to_tmp_folder(after, dir_containing_contents_after)
 
-        diff = `diff -r #{dir_containing_contents_before}/ #{dir_containing_contents_after}/`
+        diff = %x(diff -r #{dir_containing_contents_before}/ #{dir_containing_contents_after}/)
         # For ease of reading, sub out the tmp directory from the diff
         diff.gsub(dir_containing_contents_before, '').gsub(dir_containing_contents_after, '')
       ensure
@@ -604,13 +606,13 @@ module Packs
         include_date: T::Boolean
       ).void
     end
-    def self.get_info(packs: Packs.all, format: :detail, types: %i[privacy dependency layer], include_date: false)
+    def self.get_info(packs: Packs.all, format: :detail, types: %i(privacy dependency layer), include_date: false)
       require 'csv' if format == :csv
 
       today = Date.today.iso8601
       violations = {
         inbound: {},
-        outbound: {}
+        outbound: {},
       }
 
       package_by_name = {}
@@ -627,7 +629,7 @@ module Packs
 
       all = {
         inbound: T.let([], T::Array[ParsePackwerk::Violation]),
-        outbound: T.let([], T::Array[ParsePackwerk::Violation])
+        outbound: T.let([], T::Array[ParsePackwerk::Violation]),
       }
       packs.each do |pack|
         all[:inbound] += violations[:inbound][pack.name] || []
@@ -661,7 +663,7 @@ module Packs
           pack_name: pack.name,
           owner: owner.nil? ? 'No one' : owner.name,
           size: pack.relative_path.glob('**/*.rb').count,
-          public_api: pack.relative_path.join(package_by_name[pack.name].public_path)
+          public_api: pack.relative_path.join(package_by_name[pack.name].public_path),
         }
 
         row.delete(:date) unless include_date

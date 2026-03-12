@@ -53,6 +53,9 @@ bin/packwerk init
 ## Describe available commands or one specific command
 `bin/packs help [COMMAND]`
 
+## Print a tree of all available commands
+`bin/packs tree`
+
 ## Create pack with name packs/your_pack
 `bin/packs create packs/your_pack`
 
@@ -90,7 +93,7 @@ Make sure there are no spaces between the comma-separated list of paths of direc
 `bin/packs move packs/destination_pack path/to/file.rb path/to/directory`
 
 This is used for moving files into a pack (the pack must already exist).
-Note this works for moving files to packs from the monolith or from other packs
+Note this works for moving files to packs from the monolith or from other packs.
 
 Make sure there are no spaces between the comma-separated list of paths of directories.
 

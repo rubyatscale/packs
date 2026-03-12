@@ -39,10 +39,10 @@ module Packs
       exit_successfully
     end
 
-    POSIBLE_TYPES = T.let(%w[dependency privacy layer], T::Array[String])
+    POSSIBLE_TYPES = T.let(%w(dependency privacy layer).freeze, T::Array[String])
     desc 'list_top_violations type [ packs/your_pack ]', 'List the top violations of a specific type for packs/your_pack.'
     long_desc <<~LONG_DESC
-      Possible types are: #{POSIBLE_TYPES.join(', ')}.
+      Possible types are: #{POSSIBLE_TYPES.join(', ')}.
 
       Want to see who is depending on you? Not sure how your pack's code is being used in an unstated way? You can use this command to list the top dependency violations.
 
@@ -60,7 +60,7 @@ module Packs
       ).void
     end
     def list_top_violations(type, pack_name = nil)
-      raise StandardError, "Invalid type #{type}. Possible types are: #{POSIBLE_TYPES.join(', ')}" unless POSIBLE_TYPES.include?(type)
+      raise StandardError, "Invalid type #{type}. Possible types are: #{POSSIBLE_TYPES.join(', ')}" unless POSSIBLE_TYPES.include?(type)
 
       Packs.list_top_violations(
         type: type,
@@ -85,7 +85,7 @@ module Packs
     desc 'move packs/destination_pack path/to/file.rb path/to/directory', 'Move files or directories from one pack to another'
     long_desc <<~LONG_DESC
       This is used for moving files into a pack (the pack must already exist).
-      Note this works for moving files to packs from the monolith or from other packs
+      Note this works for moving files to packs from the monolith or from other packs.
 
       Make sure there are no spaces between the comma-separated list of paths of directories.
     LONG_DESC
@@ -135,8 +135,8 @@ module Packs
     sig { params(pack_names: String).void }
     def get_info(*pack_names)
       selected_types = options[:types].to_s.downcase.split(',')
-      invalid_types = selected_types - POSIBLE_TYPES
-      raise StandardError, "Invalid type(s): #{invalid_types.join(', ')}. Possible types are: #{POSIBLE_TYPES.join(', ')}" unless invalid_types.empty?
+      invalid_types = selected_types - POSSIBLE_TYPES
+      raise StandardError, "Invalid type(s): #{invalid_types.join(', ')}. Possible types are: #{POSSIBLE_TYPES.join(', ')}" unless invalid_types.empty?
 
       Private.get_info(
         packs: parse_pack_names(pack_names),
@@ -176,17 +176,14 @@ module Packs
 
     private
 
-    # This is used by thor to know that these private methods are not intended to be CLI commands
-    no_commands do
-      sig { params(pack_names: T::Array[String]).returns(T::Array[Packs::Pack]) }
-      def parse_pack_names(pack_names)
-        pack_names.empty? ? Packs.all : pack_names.map { |p| Packs.find(p.gsub(%r{/$}, '')) }.compact
-      end
+    sig { params(pack_names: T::Array[String]).returns(T::Array[Packs::Pack]) }
+    def parse_pack_names(pack_names)
+      pack_names.empty? ? Packs.all : pack_names.filter_map { |p| Packs.find(p.delete_suffix('/')) }
+    end
 
-      sig { void }
-      def exit_successfully
-        Private.exit_with(true)
-      end
+    sig { void }
+    def exit_successfully
+      Private.exit_with(true)
     end
   end
 end

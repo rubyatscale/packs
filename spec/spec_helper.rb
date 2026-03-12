@@ -28,7 +28,7 @@ RSpec.configure do |config|
   end
 end
 
-extend T::Sig # rubocop:disable Style/MixinUsage:
+extend T::Sig # rubocop:disable Style/MixinUsage
 
 sig do
   params(
@@ -57,7 +57,7 @@ def write_package_yml(
   config: {}
 )
   if owner
-    metadata.merge!({ 'owner' => owner })
+    config = config.merge('owner' => owner)
   end
 
   package = ParsePackwerk::Package.new(
