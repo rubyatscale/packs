@@ -51,8 +51,8 @@ module Packs
         ).cleanpath
       end
 
-      sig { returns(FileMoveOperation) }
-      def spec_file_move_operation
+      sig { returns(T::Array[FileMoveOperation]) }
+      def spec_file_move_operations
         path_parts = filepath_without_pack_name.split('/')
         folder = T.must(path_parts[0])
         file_extension = T.must(filepath_without_pack_name.split('.').last)
@@ -67,11 +67,20 @@ module Packs
           new_destination_pathname = spec_pathname_for_non_app(destination_pathname, file_extension, folder)
         end
 
-        FileMoveOperation.new(
-          origin_pathname: new_origin_pathname,
-          destination_pathname: new_destination_pathname,
-          destination_pack: destination_pack
-        )
+        ops = [
+          FileMoveOperation.new(
+            origin_pathname: new_origin_pathname,
+            destination_pathname: new_destination_pathname,
+            destination_pack: destination_pack
+          ),
+        ]
+
+        # For controllers, also include the request spec (spec/requests/<name>_spec.rb) if it exists.
+        # Request specs are named without "controller" suffix (e.g. my_controller -> my_spec)
+        request_spec_op = request_spec_file_move_operation
+        ops << request_spec_op if request_spec_op
+
+        ops
       end
 
       sig { params(filepath: Pathname, pack: T.nilable(Packs::Pack)).returns(String) }
@@ -104,6 +113,35 @@ module Packs
           .sub("/#{folder}/", "/spec/#{folder}/")
           .sub(%r(\A#{folder}/), "spec/#{folder}/")
           .sub(".#{file_extension}", '_spec.rb')
+      end
+
+      # Maps app/controllers/<namespaces/>*_controller.rb to spec/requests/<namespaces/>*_spec.rb.
+      # Returns nil if the path is not a controller path.
+      sig { params(pathname: Pathname).returns(T.nilable(Pathname)) }
+      def pathname_to_request_spec(pathname)
+        return nil unless pathname.to_s.end_with?('_controller.rb')
+
+        pathname
+          .sub('app/controllers/', 'spec/requests/')
+          .sub('/app/', '/spec/') # if destionation doesn't have controller subdirectory
+          .sub(%r(\Aapp/), 'spec/')
+          .sub(/_controller\.rb\z/, '_spec.rb')
+          .cleanpath
+      end
+
+      sig { returns(T.nilable(FileMoveOperation)) }
+      def request_spec_file_move_operation
+        request_spec_origin = pathname_to_request_spec(origin_pathname)
+        return if request_spec_origin.nil? || !request_spec_origin.exist?
+
+        request_spec_destination = pathname_to_request_spec(destination_pathname)
+        return if request_spec_destination.nil?
+
+        FileMoveOperation.new(
+          origin_pathname: request_spec_origin,
+          destination_pathname: request_spec_destination,
+          destination_pack: destination_pack
+        )
       end
 
       sig { params(path: Pathname).returns(FileMoveOperation) }
