@@ -74,11 +74,11 @@ module Packs
     team: nil
   )
     Private.create_pack!(
-      pack_name: pack_name,
-      enforce_privacy: enforce_privacy,
-      enforce_dependencies: enforce_dependencies,
-      enforce_layers: enforce_layers,
-      team: team
+      pack_name:,
+      enforce_privacy:,
+      enforce_dependencies:,
+      enforce_layers:,
+      team:
     )
   end
 
@@ -100,9 +100,9 @@ module Packs
     end
 
     Private.move_to_pack!(
-      pack_name: pack_name,
-      paths_relative_to_root: paths_relative_to_root,
-      per_file_processors: per_file_processors
+      pack_name:,
+      paths_relative_to_root:,
+      per_file_processors:
     )
 
     Logging.section('Next steps') do
@@ -127,8 +127,8 @@ module Packs
     end
 
     Private.make_public!(
-      paths_relative_to_root: paths_relative_to_root,
-      per_file_processors: per_file_processors
+      paths_relative_to_root:,
+      per_file_processors:
     )
 
     Logging.section('Next steps') do
@@ -153,8 +153,8 @@ module Packs
     end
 
     Private.add_dependency!(
-      pack_name: pack_name,
-      dependency_name: dependency_name
+      pack_name:,
+      dependency_name:
     )
 
     Logging.section('Next steps') do
@@ -181,9 +181,9 @@ module Packs
     end
 
     Private.move_to_parent!(
-      pack_name: pack_name,
-      parent_name: parent_name,
-      per_file_processors: per_file_processors
+      pack_name:,
+      parent_name:,
+      per_file_processors:
     )
 
     Logging.section('Next steps') do
@@ -211,9 +211,9 @@ module Packs
     end
 
     Private.move_to_folder!(
-      pack_name: pack_name,
-      destination: destination,
-      per_file_processors: per_file_processors
+      pack_name:,
+      destination:,
+      per_file_processors:
     )
 
     Logging.section('Next steps') do
@@ -251,9 +251,9 @@ module Packs
   end
   def self.replace_in_file(file:, find:, replace_with:)
     Private.replace_in_file(
-      file: file,
-      find: find,
-      replace_with: replace_with
+      file:,
+      find:,
+      replace_with:
     )
   end
 

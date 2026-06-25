@@ -20,7 +20,7 @@ module Packs
     let(:prompt) { TTY::Prompt::Test.new }
 
     subject do
-      Private::InteractiveCli.start!(prompt: prompt)
+      Private::InteractiveCli.start!(prompt:)
     end
 
     before { CodeTeams.bust_caches! }

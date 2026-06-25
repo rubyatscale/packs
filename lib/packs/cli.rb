@@ -13,7 +13,7 @@ module Packs
     sig { params(pack_name: String).void }
     def create(pack_name)
       Packs.create_pack!(
-        pack_name: pack_name,
+        pack_name:,
         enforce_dependencies: options[:enforce_dependencies],
         enforce_privacy: options[:enforce_privacy],
         enforce_layers: options[:enforce_layers]
@@ -63,8 +63,8 @@ module Packs
       raise StandardError, "Invalid type #{type}. Possible types are: #{POSSIBLE_TYPES.join(', ')}" unless POSSIBLE_TYPES.include?(type)
 
       Packs.list_top_violations(
-        type: type,
-        pack_name: pack_name,
+        type:,
+        pack_name:,
         limit: options[:limit]
       )
       exit_successfully
@@ -92,7 +92,7 @@ module Packs
     sig { params(pack_name: String, paths: String).void }
     def move(pack_name, *paths)
       Packs.move_to_pack!(
-        pack_name: pack_name,
+        pack_name:,
         paths_relative_to_root: paths
       )
       exit_successfully
@@ -168,8 +168,8 @@ module Packs
     sig { params(pack_name: String, destination: String).void }
     def move_to_folder(pack_name, destination)
       Packs.move_to_folder!(
-        pack_name: pack_name,
-        destination: destination
+        pack_name:,
+        destination:
       )
       exit_successfully
     end

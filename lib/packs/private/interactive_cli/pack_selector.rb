@@ -25,7 +25,7 @@ module Packs
               'No packs were selected, please select a pack using the space key before pressing enter.'
             )
 
-            pack_selection = single_pack_select(prompt, question_text: question_text)
+            pack_selection = single_pack_select(prompt, question_text:)
           end
 
           pack_selection
@@ -48,7 +48,7 @@ module Packs
               'No packs were selected, please select one or more packs using the space key before pressing enter.'
             )
 
-            pack_selection = single_or_all_pack_multi_select(prompt, question_text: question_text)
+            pack_selection = single_or_all_pack_multi_select(prompt, question_text:)
           end
 
           pack_selection

@@ -35,7 +35,7 @@ module Packs
             Packs.list_top_violations(
               type: selection.downcase,
               pack_name: selected_pack,
-              limit: limit
+              limit:
             )
           end
         end

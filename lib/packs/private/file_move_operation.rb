@@ -71,7 +71,7 @@ module Packs
           FileMoveOperation.new(
             origin_pathname: new_origin_pathname,
             destination_pathname: new_destination_pathname,
-            destination_pack: destination_pack
+            destination_pack:
           ),
         ]
 
@@ -140,7 +140,7 @@ module Packs
         FileMoveOperation.new(
           origin_pathname: request_spec_origin,
           destination_pathname: request_spec_destination,
-          destination_pack: destination_pack
+          destination_pack:
         )
       end
 
@@ -149,7 +149,7 @@ module Packs
         FileMoveOperation.new(
           origin_pathname: origin_pathname.relative_path_from(path),
           destination_pathname: destination_pathname.relative_path_from(path),
-          destination_pack: destination_pack
+          destination_pack:
         )
       end
     end
