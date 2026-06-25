@@ -41,7 +41,7 @@ module Packs
               packs: selected_packs,
               format: format.downcase.to_sym,
               types: types.map(&:downcase).map(&:to_sym),
-              include_date: include_date
+              include_date:
             )
           end
         end

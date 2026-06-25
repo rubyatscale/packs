@@ -16,7 +16,7 @@ module Packs
 
             Packs.move_to_pack!(
               pack_name: pack.name,
-              paths_relative_to_root: paths_relative_to_root,
+              paths_relative_to_root:,
               per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
             )
           end

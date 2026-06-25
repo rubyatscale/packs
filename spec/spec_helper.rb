@@ -62,13 +62,13 @@ def write_package_yml(
 
   package = ParsePackwerk::Package.new(
     name: pack_name,
-    dependencies: dependencies,
-    violations: violations,
-    enforce_dependencies: enforce_dependencies,
-    enforce_privacy: enforce_privacy,
-    enforce_layers: enforce_layers,
-    metadata: metadata,
-    config: config
+    dependencies:,
+    violations:,
+    enforce_dependencies:,
+    enforce_privacy:,
+    enforce_layers:,
+    metadata:,
+    config:
   )
 
   ParsePackwerk.write_package_yml!(package)

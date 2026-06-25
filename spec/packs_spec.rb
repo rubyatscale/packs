@@ -2190,8 +2190,8 @@ RSpec.describe Packs do
       let(:list_top_privacy_violations) do
         Packs.list_top_violations(
           type: 'privacy',
-          pack_name: pack_name,
-          limit: limit
+          pack_name:,
+          limit:
         )
       end
 
@@ -2338,7 +2338,7 @@ RSpec.describe Packs do
           Packs.list_top_violations(
             type: 'privacy',
             pack_name: nil,
-            limit: limit
+            limit:
           )
 
           expected_logged_output = <<~OUTPUT
@@ -2375,8 +2375,8 @@ RSpec.describe Packs do
       let(:list_top_dependency_violations) do
         Packs.list_top_violations(
           type: 'dependency',
-          pack_name: pack_name,
-          limit: limit
+          pack_name:,
+          limit:
         )
       end
 
@@ -2529,7 +2529,7 @@ RSpec.describe Packs do
           Packs.list_top_violations(
             type: 'dependency',
             pack_name: nil,
-            limit: limit
+            limit:
           )
 
           expected_logged_output = <<~OUTPUT

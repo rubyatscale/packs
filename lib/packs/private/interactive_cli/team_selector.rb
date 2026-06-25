@@ -26,7 +26,7 @@ module Packs
               'No owners were selected, please select an owner using the space key before pressing enter.'
             )
 
-            team_selection = single_select(prompt, question_text: question_text)
+            team_selection = single_select(prompt, question_text:)
           end
 
           team_selection
@@ -51,7 +51,7 @@ module Packs
               'No owners were selected, please select one or more owners using the space key before pressing enter.'
             )
 
-            team_selection = multi_select(prompt, question_text: question_text)
+            team_selection = multi_select(prompt, question_text:)
           end
 
           team_selection

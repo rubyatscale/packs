@@ -64,11 +64,11 @@ module Packs
       pack_name = Private.clean_pack_name(pack_name)
 
       package = create_pack_if_not_exists!(
-        pack_name: pack_name,
-        enforce_dependencies: enforce_dependencies,
-        enforce_privacy: enforce_privacy,
-        enforce_layers: enforce_layers,
-        team: team
+        pack_name:,
+        enforce_dependencies:,
+        enforce_privacy:,
+        enforce_layers:,
+        team:
       )
       add_public_directory(package) if package.enforce_privacy
       add_readme(package)
@@ -127,7 +127,7 @@ module Packs
           end
           file_move_operations = file_paths.flat_map do |origin_pathname|
             file_move_operation = FileMoveOperation.new(
-              origin_pathname: origin_pathname,
+              origin_pathname:,
               destination_pathname: FileMoveOperation.destination_pathname_for_package_move(origin_pathname, package_location),
               destination_pack: package
             )
@@ -184,7 +184,7 @@ module Packs
       move_to_pack!(
         pack_name: new_package_name,
         paths_relative_to_root: [package.directory.to_s],
-        per_file_processors: per_file_processors
+        per_file_processors:
       )
 
       # Then delete the old package.yml and package_todo.yml files
@@ -278,7 +278,7 @@ module Packs
       move_to_pack!(
         pack_name: new_package_name,
         paths_relative_to_root: [package.directory.to_s],
-        per_file_processors: per_file_processors
+        per_file_processors:
       )
 
       # Then delete the old package.yml and package_todo.yml files
@@ -353,7 +353,7 @@ module Packs
             origin_pathname = Pathname.new(path).cleanpath
 
             file_move_operation = FileMoveOperation.new(
-              origin_pathname: origin_pathname,
+              origin_pathname:,
               destination_pathname: FileMoveOperation.destination_pathname_for_new_public_api(origin_pathname),
               destination_pack: package
             )
@@ -498,13 +498,13 @@ module Packs
 
         package = ParsePackwerk::Package.new(
           enforce_dependencies: should_enforce_dependencies || false,
-          enforce_privacy: enforce_privacy,
-          enforce_layers: enforce_layers,
+          enforce_privacy:,
+          enforce_layers:,
           dependencies: [],
           violations: [],
           metadata: {},
           name: pack_name,
-          config: config
+          config:
         )
 
         ParsePackwerk.write_package_yml!(package)

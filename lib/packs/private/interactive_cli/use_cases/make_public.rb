@@ -19,7 +19,7 @@ module Packs
             paths_relative_to_root = FileSelector.select(prompt)
 
             Packs.make_public!(
-              paths_relative_to_root: paths_relative_to_root,
+              paths_relative_to_root:,
               per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
             )
           end

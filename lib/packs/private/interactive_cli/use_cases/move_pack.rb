@@ -53,7 +53,7 @@ module Packs
 
               Packs.move_to_folder!(
                 pack_name: pack.name,
-                destination: destination,
+                destination:,
                 per_file_processors: [Packs::RubocopPostProcessor.new, Packs::CodeOwnershipPostProcessor.new]
               )
             end

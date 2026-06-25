@@ -13,7 +13,7 @@ module Packs
           def perform!(prompt)
             pack_name = prompt.ask('What should the name of your pack be?', value: 'packs/')
             team = TeamSelector.single_select(prompt)
-            Packs.create_pack!(pack_name: pack_name, team: team)
+            Packs.create_pack!(pack_name:, team:)
           end
 
           sig { override.returns(String) }
