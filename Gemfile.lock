@@ -188,13 +188,15 @@ GEM
     rubocop-ast (1.49.1)
       parser (>= 3.3.7.2)
       prism (~> 1.7)
-    rubocop-gusto (11.1.1)
+    rubocop-gusto (11.3.0)
+      code_teams
       lint_roller
       rubocop (>= 1.76)
       rubocop-performance
       rubocop-rake
       rubocop-rspec
       rubocop-sorbet
+      smart_todo
       thor
     rubocop-performance (1.26.1)
       lint_roller (~> 1.1)
@@ -217,15 +219,17 @@ GEM
     rubydex (0.2.6-x86_64-linux)
     securerandom (0.4.1)
     smart_properties (1.17.0)
-    sorbet (0.6.13312)
-      sorbet-static (= 0.6.13312)
-    sorbet-runtime (0.6.13312)
-    sorbet-static (0.6.13312-aarch64-linux)
-    sorbet-static (0.6.13312-universal-darwin)
-    sorbet-static (0.6.13312-x86_64-linux)
-    sorbet-static-and-runtime (0.6.13312)
-      sorbet (= 0.6.13312)
-      sorbet-runtime (= 0.6.13312)
+    smart_todo (1.11.0)
+      prism (~> 1.0)
+    sorbet (0.6.13321)
+      sorbet-static (= 0.6.13321)
+    sorbet-runtime (0.6.13321)
+    sorbet-static (0.6.13321-aarch64-linux)
+    sorbet-static (0.6.13321-universal-darwin)
+    sorbet-static (0.6.13321-x86_64-linux)
+    sorbet-static-and-runtime (0.6.13321)
+      sorbet (= 0.6.13321)
+      sorbet-runtime (= 0.6.13321)
     spoom (1.8.2)
       erubi (>= 1.10.0)
       prism (>= 0.28.0)
