@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   call-workflow-from-shared-config:
     uses: rubyatscale/shared-config/.github/workflows/ci.yml@main
