@@ -92,7 +92,7 @@ RSpec.describe Packs::CLI do
       it 'exits successfully' do
         expect_success
         expect(Packs.const_get(:Private)).to receive(:system_with).with(
-          'bin/packwerk validate'
+          ['bin/packwerk', 'validate']
         ).and_return(true)
         described_class.start(['validate'])
       end
@@ -102,7 +102,7 @@ RSpec.describe Packs::CLI do
       it 'exits unsuccessfully' do
         expect_failure
         expect(Packs.const_get(:Private)).to receive(:system_with).with(
-          'bin/packwerk validate'
+          ['bin/packwerk', 'validate']
         ).and_return(false)
         described_class.start(['validate'])
       end
