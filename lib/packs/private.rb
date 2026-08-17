@@ -783,10 +783,12 @@ module Packs
       exit code
     end
 
-    # This function exists to give us something to stub in test
-    sig { params(command: String).returns(T::Boolean) }
-    def self.system_with(command)
-      T.cast(system(command), T::Boolean)
+    # This function exists to give us something to stub in test.
+    # Each argv entry is passed to `system` as a separate argument, so the
+    # command is executed directly and never interpreted by a shell.
+    sig { params(argv: T::Array[String]).returns(T::Boolean) }
+    def self.system_with(argv)
+      T.cast(T.unsafe(Kernel).system(*argv), T::Boolean)
     end
   end
 

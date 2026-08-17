@@ -33,27 +33,27 @@ module Packs
   sig { returns(T::Boolean) }
   def self.update
     if Packs.config.use_pks
-      Private.system_with('bin/pks update')
+      Private.system_with(['bin/pks', 'update'])
     else
-      Private.system_with('bin/packwerk update-todo')
+      Private.system_with(['bin/packwerk', 'update-todo'])
     end
   end
 
   sig { returns(T::Boolean) }
   def self.validate
     if Packs.config.use_pks
-      Private.system_with('bin/pks validate')
+      Private.system_with(['bin/pks', 'validate'])
     else
-      Private.system_with('bin/packwerk validate')
+      Private.system_with(['bin/packwerk', 'validate'])
     end
   end
 
   sig { params(files: T::Array[String]).returns(T::Boolean) }
   def self.check(files)
     if Packs.config.use_pks
-      Private.system_with("bin/pks check #{files.join(' ')}")
+      Private.system_with(['bin/pks', 'check', *files])
     else
-      Private.system_with("bin/packwerk check #{files.join(' ')}")
+      Private.system_with(['bin/packwerk', 'check', *files])
     end
   end
 
