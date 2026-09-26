@@ -1,4 +1,5 @@
 # typed: false
+# frozen_string_literal: true
 
 RSpec.describe Packs::CLI do
   def expect_success

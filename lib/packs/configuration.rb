@@ -1,4 +1,5 @@
 # typed: strict
+# frozen_string_literal: true
 
 require_relative 'user_event_logger'
 require_relative 'default_user_event_logger'
