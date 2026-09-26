@@ -1,4 +1,5 @@
 # typed: false
+# frozen_string_literal: true
 
 RSpec.describe Packs do
   def expect_files_to_exist(files)

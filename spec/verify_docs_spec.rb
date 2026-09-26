@@ -1,4 +1,5 @@
 # typed: false
+# frozen_string_literal: true
 
 RSpec.describe Packs, :skip_chdir_to_tmpdir do
   let(:readme) do
