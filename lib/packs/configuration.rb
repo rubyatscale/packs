@@ -8,8 +8,8 @@ module Packs
   class Configuration
     extend T::Sig
 
-    CONFIGURATION_PATHNAME = T.let(Pathname.new('packs.yml'), Pathname)
-    DEFAULT_README_TEMPLATE_PATHNAME = T.let(Pathname.new('README_TEMPLATE.md'), Pathname)
+    CONFIGURATION_PATHNAME = Pathname.new('packs.yml')
+    DEFAULT_README_TEMPLATE_PATHNAME = Pathname.new('README_TEMPLATE.md')
 
     sig { params(enforce_dependencies: T::Boolean).void }
     attr_writer :enforce_dependencies
