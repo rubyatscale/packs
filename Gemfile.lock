@@ -188,7 +188,7 @@ GEM
     rubocop-ast (1.50.0)
       parser (>= 3.3.7.2)
       prism (~> 1.7)
-    rubocop-gusto (11.8.1)
+    rubocop-gusto (11.9.0)
       code_teams
       lint_roller
       rubocop (>= 1.76)
@@ -232,7 +232,7 @@ GEM
     sorbet-static-and-runtime (0.6.13506)
       sorbet (= 0.6.13506)
       sorbet-runtime (= 0.6.13506)
-    spoom (1.8.7)
+    spoom (1.8.8)
       erubi (>= 1.10.0)
       prism (>= 0.28.0)
       rbi (>= 0.4.2)
